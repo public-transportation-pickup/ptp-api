@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Scrutor" Version="4.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PTP.Application\PTP.Application.csproj" />
     <ProjectReference Include="..\PTP.Domain\PTP.Domain.csproj" />
   </ItemGroup>
