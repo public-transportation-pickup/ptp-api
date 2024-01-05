@@ -1,4 +1,4 @@
-namespace PTP.WebAPI;
+namespace PTP.Application;
 public class AppSettings
 {
 	public ConnectionStrings ConnectionStrings { get; set; } = default!;

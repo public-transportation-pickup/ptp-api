@@ -7,8 +7,8 @@ public class OrderDetail : BaseEntity
     public decimal ActualPrice { get; set; } = 0;
     public int Quantity { get; set; } = 1;
     #region RelationshipConfiguration
-    public Guid ProductId { get; set; }
-    public Product Product { get; set; } = default!;
+    public Guid ProductInMenuId { get; set; }
+    public ProductInMenu ProductInMenu { get; set; } = default!;
     public Guid OrderId { get; set; } = default!;
     public Order Order { get; set; } = default!;
     #endregion

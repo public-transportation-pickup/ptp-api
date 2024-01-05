@@ -5,10 +5,12 @@ namespace PTP.Domain.Entities;
 public class Order : BaseEntity
 {
     public string Name { get; set; } = default!;
-    
+
     [Precision(18, 2)]
     public decimal Total { get; set; } = 0;
     public string Status { get; set; } = default!;
+    [Precision(18, 2)]
+    public decimal CommissionRate { get; set; } = default!;
 
 
     #region Relationship Configuration

@@ -30,7 +30,8 @@ namespace PTP.Infrastructure
 		public DbSet<StoreStation> StoreStation { get; set; }
 		public DbSet<TimeFrame> TimeFrame { get; set; }
 		public DbSet<Trip> Trip { get; set; }
-		public DbSet<Vehicle> Vehicle { get; set; }
+		public DbSet<Schedule> Schedules { get; set; } = default!;
+
 		#endregion
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

@@ -17,8 +17,7 @@ public class Trip : BaseEntity
     #region Relationship Configuration
     public Guid RouteId { get; set; } = default!;
     public Route Route { get; set; } = default!;
-    public Guid VehicleId { get; set; }
-    public Vehicle Vehicle { get; set; } = default!;
+    public ICollection<Schedule> Schedules { get; set; } = default!;
     #endregion
 
 

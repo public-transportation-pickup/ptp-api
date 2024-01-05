@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 namespace PTP.Domain.Entities;
@@ -17,5 +18,6 @@ public class Station : BaseEntity
     #region Relationship
     public ICollection<StoreStation> StoreStations { get; set; } = default!;
     public ICollection<RouteStation> RouteStations { get; set; } = default!;
+    public ICollection<Schedule> Schedules { get; set; } = default!;
     #endregion
 }

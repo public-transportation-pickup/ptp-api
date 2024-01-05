@@ -17,7 +17,7 @@ public class Product : BaseEntity
 	public Store Store { get; set; } = default!;
 	public ICollection<ProductImage> ProductImages { get; set; } = default!;
 	public ICollection<ProductInMenu> ProductInMenus { get; set; } = default!;
-	public ICollection<OrderDetail> OrderDetails { get; set; } = default!;
+
 	#endregion
 
 }
