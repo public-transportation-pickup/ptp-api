@@ -10,5 +10,6 @@ public class StationConfiguration : IEntityTypeConfiguration<Station>
         builder.HasKey(x => x.Id);
         builder.HasMany(x => x.RouteStations).WithOne(x => x.Station).HasForeignKey(x => x.StationId);
         builder.HasMany(x => x.StoreStations).WithOne(x => x.Station).HasForeignKey(x => x.StationId);
+        builder.HasMany(x => x.Schedules).WithOne(x => x.Station).HasForeignKey(x => x.StationId);
     }
 }

@@ -9,6 +9,6 @@ public class OrderDetailConfiguration : IEntityTypeConfiguration<OrderDetail>
     {
         builder.HasKey(x => x.Id);
         builder.HasOne(x => x.Order).WithMany(x => x.OrderDetails).HasForeignKey(x => x.OrderId);
-        builder.HasOne(x => x.Product).WithMany(x => x.OrderDetails).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.ProductInMenu).WithMany(x => x.OrderDetails).HasForeignKey(x => x.ProductInMenuId).OnDelete(DeleteBehavior.Cascade);
     }
 }
