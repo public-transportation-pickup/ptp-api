@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using PTP.Application;
+using PTP.Application.Data.Configuration;
 
 
 namespace PTP.Infrastructure.Data.Configuration;

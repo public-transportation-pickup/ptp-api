@@ -1,0 +1,22 @@
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using PTP.Application.IntergrationServices.Interfaces;
+
+namespace PTP.WebAPI.Controllers;
+public class RoutesController : BaseController 
+{
+    // private readonly IBusRouteService _intergrationBus;
+    // public RoutesController(IBusRouteService busRouteService)
+    // {
+    //     _intergrationBus = busRouteService;
+    // }
+    // [ProducesResponseType((int)HttpStatusCode.Created)]
+    // [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    // [HttpPost]
+    // public async Task<IActionResult> Post()
+    // {
+    //     await _intergrationBus.CheckNewCreatedRoute();
+    //    return Ok();
+    // } 
+
+}

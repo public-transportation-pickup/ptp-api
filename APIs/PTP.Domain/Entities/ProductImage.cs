@@ -1,7 +1,6 @@
 namespace PTP.Domain.Entities;
-public class ProductImage
+public class ProductImage : BaseEntity
 {
-    public int Id { get; set; } = default!;
     public string ImageName { get; set; } = default!;
     public string ImageURL { get; set; } = default!;
 

@@ -11,6 +11,6 @@ public class StoreConfiguration : IEntityTypeConfiguration<Store>
         builder.HasMany(x => x.StoreStations).WithOne(x => x.Store).HasForeignKey(x => x.StoreId);
         builder.HasMany(x => x.Products).WithOne(x => x.Store).HasForeignKey(x => x.StoreId);
         builder.HasMany(x => x.Menus).WithOne(x => x.Store).HasForeignKey(x => x.StoreId);
-        builder.HasMany(x => x.Sessions).WithOne(x => x.Store).HasForeignKey(x => x.StoreId);
+
     }
 }

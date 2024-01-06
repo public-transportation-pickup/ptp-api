@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using PTP.Application.Commons;
 using PTP.Application.Repositories.Interfaces;
@@ -124,4 +125,20 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
        .Where(x => x.IsDeleted == false)
         .OrderByDescending(x => x.CreationDate)
         .ToListAsync();
+
+    public async Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> expression, params Expression<Func<TEntity, object>>[] includes)
+      => await includes
+     .Aggregate(_dbSet!.AsQueryable(),
+         (entity, property) => entity.Include(property)).AsNoTracking()
+     .Where(expression!)
+     .Where(x => x.IsDeleted == false)
+      .OrderByDescending(x => x.CreationDate)
+      .ToListAsync();
+
+    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> expression, params Expression<Func<TEntity, object>>[] includes)
+     => await includes
+    .Aggregate(_dbSet!.AsQueryable(),
+        (entity, property) => entity!.Include(property)).AsNoTracking()
+    .Where(expression!)
+     .FirstOrDefaultAsync(x => x.IsDeleted == false);
 }

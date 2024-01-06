@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace PTP.Infrastructure.Data.Configuration;
+namespace PTP.Application.Data.Configuration;
 public interface IConnectionConfiguration
 {
     IDbConnection GetDbConnection();

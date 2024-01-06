@@ -25,7 +25,7 @@ public class Store : BaseEntity
 
     #region  Relationship Configuration
     public ICollection<StoreStation> StoreStations { get; set; } = default!;
-    public ICollection<Session> Sessions { get; set; } = default!;
+
     public ICollection<Product> Products { get; set; } = default!;
     public ICollection<Menu> Menus { get; set; } = default!;
     #endregion
