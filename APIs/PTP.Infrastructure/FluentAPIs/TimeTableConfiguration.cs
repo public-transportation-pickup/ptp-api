@@ -9,7 +9,7 @@ public class TimeTableConfiguration : IEntityTypeConfiguration<TimeTable>
     {
         builder.HasKey(x => x.Id);
         builder.HasMany(x => x.Trips).WithOne(x => x.TimeTable).HasForeignKey(x => x.TimeTableId);
-        builder.HasOne(x => x.RouteVar).WithOne(x => x.TimeTable).HasForeignKey<TimeTable>(x => x.RouteVarId);
+        builder.HasOne(x => x.RouteVar).WithMany(x => x.Timetables).HasForeignKey(x => x.RouteVarId);
 
     }
 }

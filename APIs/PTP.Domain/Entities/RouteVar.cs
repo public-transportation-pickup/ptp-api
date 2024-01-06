@@ -17,8 +17,7 @@ string EndStop, double Distance, bool OutBound, int RunningTime
     #region  RelationshipConfiguration
     public Guid RouteId { get; set; } = default!;
     public Route Route { get; set; } = default!;
-    public Guid TimeTableId { get; set; } = default!;
-    public TimeTable TimeTable { get; set; } = default!;
+    public ICollection<TimeTable> Timetables { get; set; } = default!;
     #endregion
 
 }

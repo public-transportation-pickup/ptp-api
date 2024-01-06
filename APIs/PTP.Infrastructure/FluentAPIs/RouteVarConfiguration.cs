@@ -9,6 +9,6 @@ public class RouteVarConfiguration : IEntityTypeConfiguration<RouteVar>
     {
         builder.HasKey(x => x.Id);
         builder.HasOne(x => x.Route).WithMany(x => x.RouteVars).HasForeignKey(x => x.RouteId);
-        builder.HasOne(x => x.TimeTable).WithOne(x => x.RouteVar).HasForeignKey<TimeTable>(x => x.RouteVarId);
+        builder.HasMany(x => x.Timetables).WithOne(x => x.RouteVar).HasForeignKey(x => x.RouteVarId);
     }
 }
