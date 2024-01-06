@@ -10,6 +10,7 @@ public class Wallet : BaseEntity
     public Guid UserId { get; set; }
     public User User { get; set; } = default!;
     public ICollection<Transaction> Transactions { get; set; } = default!;
+    public ICollection<WalletLog> WalletLogs { get; set; } = default!;
     #endregion
 
 }

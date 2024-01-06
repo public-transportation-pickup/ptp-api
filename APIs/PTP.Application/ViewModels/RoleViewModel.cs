@@ -1,2 +1,2 @@
 namespace PTP.Application.ViewModels;
-public record RoleViewModel(string Name);
+public record RoleViewModel(Guid Id, string Name);

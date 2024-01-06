@@ -1,11 +1,14 @@
 using System.Data;
 using AutoMapper;
+using Dapper;
 using FluentValidation;
 using MediatR;
+using PTP.Application.Data.Configuration;
 using PTP.Application.ViewModels;
 using PTP.Domain.Entities;
 
-namespace PTP.Application.Features.Roles.Queries.Commands;
+
+namespace PTP.Application.Features.Roles.Queries;
 public class RoleQuery : IRequest<IEnumerable<RoleViewModel>> 
 {
    public class QueryValidation : AbstractValidator<RoleQuery>
@@ -18,16 +21,19 @@ public class RoleQuery : IRequest<IEnumerable<RoleViewModel>>
 
     public class QueryHandler : IRequestHandler<RoleQuery, IEnumerable<RoleViewModel>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IConnectionConfiguration _connection;
         private readonly IMapper _mapper;
-        public QueryHandler(IUnitOfWork unitOfWork, IMapper mapper) 
+        public QueryHandler(IConnectionConfiguration connection, IMapper mapper) 
         {
-            _unitOfWork = unitOfWork;
+            _connection = connection;
             _mapper = mapper;
         }
         public async Task<IEnumerable<RoleViewModel>> Handle(RoleQuery request, CancellationToken cancellationToken)
         {
-            return _mapper.Map<IEnumerable<RoleViewModel>>(await _unitOfWork.RoleRepository.GetAllAsync());
+            using var dbConnection = _connection.GetDbConnection();
+            var result = await dbConnection.QueryAsync<Role>(@"SELECT * FROM Role");
+            result = result ?? throw new Exception("No_Data_Found");
+            return _mapper.Map<IEnumerable<RoleViewModel>>(result);
         }
     }
 }

@@ -4,10 +4,18 @@ using Microsoft.EntityFrameworkCore;
 namespace PTP.Domain.Entities;
 public class Station : BaseEntity
 {
+    public int StopId { get; set; } = default!;
+    public string Code { get; set; } = default!;
+    public string StopType { get; set; } = default!;
     public string Name { get; set; } = default!;
-    public string Description { get; set; } = default!;
-    public int RouteNumber { get; set; } = 0;
+
     public string Status { get; set; } = default!;
+    public string Zone { get; set; } = default!;
+    public string Ward { get; set; } = default!;
+    public string AddressNo { get; set; } = default!;
+    public string Street { get; set; } = default!;
+    public string SupportDisability { get; set; } = default!;
+    
     #region Location 
     public string Address { get; set; } = default!;
     [Precision(18, 2)]

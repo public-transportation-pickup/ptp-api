@@ -9,6 +9,6 @@ public class TripConfiguration : IEntityTypeConfiguration<Trip>
     {
         builder.HasKey(x => x.Id);
         builder.HasMany(x => x.Schedules).WithOne(x => x.Trip).HasForeignKey(x => x.TripId);
-        builder.HasOne(x => x.Route).WithMany(x => x.Trips).HasForeignKey(x => x.RouteId);
-    }
+        builder.HasOne(x => x.TimeTable).WithMany(x => x.Trips).HasForeignKey(x => x.TimeTableId);
+    } 
 }

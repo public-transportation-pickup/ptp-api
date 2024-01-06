@@ -1,0 +1,2 @@
+namespace PTP.Application.IntergrationServices.Models;
+public record RouteModel(int RouteId, string RouteNo, string RouteName, string Type, double Distance, string Orgs, string TimeOfTrip, string Headway, string OperationTime, string NumOfSeats, string OutBoundName, string InBoundName, string OutBoundDescription, string InBoundDescription, string TotalTrip, string Tickets);

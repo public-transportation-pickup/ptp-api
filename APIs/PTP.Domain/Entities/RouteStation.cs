@@ -4,7 +4,6 @@ using System.Dynamic;
 namespace PTP.Domain.Entities;
 public class RouteStation : BaseEntity
 {
-    public string Name { get; set; } = default!;
     public byte Index { get; set; } = 0;
     public string Description { get; set; } = string.Empty;
     public double DistanceFromStart { get; set; } = default!;

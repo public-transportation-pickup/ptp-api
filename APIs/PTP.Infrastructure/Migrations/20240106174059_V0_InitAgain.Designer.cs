@@ -12,8 +12,8 @@ using PTP.Infrastructure;
 namespace PTP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240105162622_V2_05012024_ChangeDBSchema")]
-    partial class V2_05012024_ChangeDBSchema
+    [Migration("20240106174059_V0_InitAgain")]
+    partial class V0_InitAgain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -71,9 +71,16 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("DateFilter")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EndTime")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -85,6 +92,13 @@ namespace PTP.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StartTime")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -96,46 +110,6 @@ namespace PTP.Infrastructure.Migrations
                     b.HasIndex("StoreId");
 
                     b.ToTable("Menu");
-                });
-
-            modelBuilder.Entity("PTP.Domain.Entities.MenuCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("MenuId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ModificatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModificationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("MenuId");
-
-                    b.ToTable("MenuCategory");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Order", b =>
@@ -326,11 +300,15 @@ namespace PTP.Infrastructure.Migrations
 
             modelBuilder.Entity("PTP.Domain.Entities.ProductImage", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ImageName")
                         .IsRequired()
@@ -339,6 +317,15 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<string>("ImageURL")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -426,33 +413,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("8aa336a7-21e3-4a2a-8eec-26993f613977"),
+                            Id = new Guid("ddf1d991-5ead-4dfa-848a-6580ba77d859"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 5, 23, 26, 22, 506, DateTimeKind.Local).AddTicks(6692),
+                            CreationDate = new DateTime(2024, 1, 7, 0, 40, 59, 198, DateTimeKind.Local).AddTicks(9955),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("400c2818-5838-4caf-b15d-55a30cfdf079"),
+                            Id = new Guid("d2573e3a-3488-4d7e-90cf-b644b06e60bb"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 5, 23, 26, 22, 506, DateTimeKind.Local).AddTicks(6706),
+                            CreationDate = new DateTime(2024, 1, 7, 0, 40, 59, 198, DateTimeKind.Local).AddTicks(9972),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("0b94fbaa-a011-4b7e-b389-0d90e58e44bf"),
+                            Id = new Guid("7103171b-18bc-46c6-8f96-f4919c089160"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 5, 23, 26, 22, 506, DateTimeKind.Local).AddTicks(6716),
+                            CreationDate = new DateTime(2024, 1, 7, 0, 40, 59, 198, DateTimeKind.Local).AddTicks(9975),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("f45f59f7-7a12-410e-8149-d97fb2cbc92b"),
+                            Id = new Guid("752741b7-2677-400e-9f86-80a1a29c1349"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 5, 23, 26, 22, 506, DateTimeKind.Local).AddTicks(6718),
+                            CreationDate = new DateTime(2024, 1, 7, 0, 40, 59, 198, DateTimeKind.Local).AddTicks(9977),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });
@@ -470,15 +457,12 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<double>("Distance")
                         .HasColumnType("float");
 
-                    b.Property<int>("HeadWay")
-                        .HasColumnType("int");
+                    b.Property<string>("HeadWay")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InBoundDescription")
                         .IsRequired()
@@ -501,7 +485,15 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("NumOfSeats")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("OperationTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Orgs")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -513,21 +505,32 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RouteNumber")
+                    b.Property<int>("RouteId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RouteType")
-                        .HasColumnType("int");
+                    b.Property<string>("RouteNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RouteType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TimeOfTrip")
-                        .HasColumnType("int");
+                    b.Property<string>("Tickets")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TotalTrip")
-                        .HasColumnType("int");
+                    b.Property<string>("TimeOfTrip")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TotalTrip")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -574,10 +577,6 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("RouteId")
                         .HasColumnType("uniqueidentifier");
 
@@ -591,6 +590,65 @@ namespace PTP.Infrastructure.Migrations
                     b.HasIndex("StationId");
 
                     b.ToTable("RouteStation");
+                });
+
+            modelBuilder.Entity("PTP.Domain.Entities.RouteVar", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EndStop")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("OutBound")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("RouteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("RouteVarId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RouteVarName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RouteVarShortName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RunningTime")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StartStop")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("TimeTableId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RouteId");
+
+                    b.ToTable("RouteVars");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Schedule", b =>
@@ -636,56 +694,6 @@ namespace PTP.Infrastructure.Migrations
                     b.ToTable("Schedules");
                 });
 
-            modelBuilder.Entity("PTP.Domain.Entities.Session", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("EndedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ModificatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModificationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StartedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("StoreId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TimeFrameId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
-
-                    b.HasIndex("TimeFrameId");
-
-                    b.ToTable("Session");
-                });
-
             modelBuilder.Entity("PTP.Domain.Entities.Station", b =>
                 {
                     b.Property<Guid>("Id")
@@ -696,15 +704,19 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AddressNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -727,10 +739,30 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RouteNumber")
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StopId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("StopType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupportDisability")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Ward")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Zone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -857,11 +889,15 @@ namespace PTP.Infrastructure.Migrations
                     b.ToTable("StoreStation");
                 });
 
-            modelBuilder.Entity("PTP.Domain.Entities.TimeFrame", b =>
+            modelBuilder.Entity("PTP.Domain.Entities.TimeTable", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplyDates")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -869,8 +905,8 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte>("EndTime")
-                        .HasColumnType("tinyint");
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -881,12 +917,18 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte>("StartTime")
-                        .HasColumnType("tinyint");
+                    b.Property<Guid>("RouteVarId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TimeTableId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimeFrame");
+                    b.HasIndex("RouteVarId")
+                        .IsUnique();
+
+                    b.ToTable("TimeTables");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Transaction", b =>
@@ -953,8 +995,9 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte>("EndTime")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -969,29 +1012,20 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NumberOfTrip")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("RouteId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte>("StartTime")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte>("TimeGap")
-                        .HasColumnType("tinyint");
+                    b.Property<Guid>("TimeTableId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RouteId");
+                    b.HasIndex("TimeTableId");
 
                     b.ToTable("Trip");
                 });
@@ -1091,6 +1125,49 @@ namespace PTP.Infrastructure.Migrations
                     b.ToTable("Wallet");
                 });
 
+            modelBuilder.Entity("PTP.Domain.Entities.WalletLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("WalletId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WalletId");
+
+                    b.ToTable("WalletLog");
+                });
+
             modelBuilder.Entity("PTP.Domain.Entities.Menu", b =>
                 {
                     b.HasOne("PTP.Domain.Entities.Store", "Store")
@@ -1100,25 +1177,6 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Store");
-                });
-
-            modelBuilder.Entity("PTP.Domain.Entities.MenuCategory", b =>
-                {
-                    b.HasOne("PTP.Domain.Entities.Category", "Category")
-                        .WithMany("MenuCategories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PTP.Domain.Entities.Menu", "Menu")
-                        .WithMany("MenuCategories")
-                        .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Menu");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Order", b =>
@@ -1238,6 +1296,17 @@ namespace PTP.Infrastructure.Migrations
                     b.Navigation("Station");
                 });
 
+            modelBuilder.Entity("PTP.Domain.Entities.RouteVar", b =>
+                {
+                    b.HasOne("PTP.Domain.Entities.Route", "Route")
+                        .WithMany("RouteVars")
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Route");
+                });
+
             modelBuilder.Entity("PTP.Domain.Entities.Schedule", b =>
                 {
                     b.HasOne("PTP.Domain.Entities.Station", "Station")
@@ -1255,25 +1324,6 @@ namespace PTP.Infrastructure.Migrations
                     b.Navigation("Station");
 
                     b.Navigation("Trip");
-                });
-
-            modelBuilder.Entity("PTP.Domain.Entities.Session", b =>
-                {
-                    b.HasOne("PTP.Domain.Entities.Store", "Store")
-                        .WithMany("Sessions")
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PTP.Domain.Entities.TimeFrame", "TimeFrame")
-                        .WithMany("Sessions")
-                        .HasForeignKey("TimeFrameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Store");
-
-                    b.Navigation("TimeFrame");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.StoreStation", b =>
@@ -1295,6 +1345,17 @@ namespace PTP.Infrastructure.Migrations
                     b.Navigation("Store");
                 });
 
+            modelBuilder.Entity("PTP.Domain.Entities.TimeTable", b =>
+                {
+                    b.HasOne("PTP.Domain.Entities.RouteVar", "RouteVar")
+                        .WithOne("TimeTable")
+                        .HasForeignKey("PTP.Domain.Entities.TimeTable", "RouteVarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RouteVar");
+                });
+
             modelBuilder.Entity("PTP.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("PTP.Domain.Entities.Payment", "Payment")
@@ -1314,13 +1375,13 @@ namespace PTP.Infrastructure.Migrations
 
             modelBuilder.Entity("PTP.Domain.Entities.Trip", b =>
                 {
-                    b.HasOne("PTP.Domain.Entities.Route", "Route")
+                    b.HasOne("PTP.Domain.Entities.TimeTable", "TimeTable")
                         .WithMany("Trips")
-                        .HasForeignKey("RouteId")
+                        .HasForeignKey("TimeTableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Route");
+                    b.Navigation("TimeTable");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.User", b =>
@@ -1345,17 +1406,24 @@ namespace PTP.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PTP.Domain.Entities.WalletLog", b =>
+                {
+                    b.HasOne("PTP.Domain.Entities.Wallet", "Wallet")
+                        .WithMany("WalletLogs")
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Wallet");
+                });
+
             modelBuilder.Entity("PTP.Domain.Entities.Category", b =>
                 {
-                    b.Navigation("MenuCategories");
-
                     b.Navigation("Products");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Menu", b =>
                 {
-                    b.Navigation("MenuCategories");
-
                     b.Navigation("ProductInMenus");
                 });
 
@@ -1393,7 +1461,13 @@ namespace PTP.Infrastructure.Migrations
                 {
                     b.Navigation("RouteStations");
 
-                    b.Navigation("Trips");
+                    b.Navigation("RouteVars");
+                });
+
+            modelBuilder.Entity("PTP.Domain.Entities.RouteVar", b =>
+                {
+                    b.Navigation("TimeTable")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Station", b =>
@@ -1411,14 +1485,12 @@ namespace PTP.Infrastructure.Migrations
 
                     b.Navigation("Products");
 
-                    b.Navigation("Sessions");
-
                     b.Navigation("StoreStations");
                 });
 
-            modelBuilder.Entity("PTP.Domain.Entities.TimeFrame", b =>
+            modelBuilder.Entity("PTP.Domain.Entities.TimeTable", b =>
                 {
-                    b.Navigation("Sessions");
+                    b.Navigation("Trips");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Trip", b =>
@@ -1437,6 +1509,8 @@ namespace PTP.Infrastructure.Migrations
             modelBuilder.Entity("PTP.Domain.Entities.Wallet", b =>
                 {
                     b.Navigation("Transactions");
+
+                    b.Navigation("WalletLogs");
                 });
 #pragma warning restore 612, 618
         }
