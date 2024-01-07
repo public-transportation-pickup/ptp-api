@@ -41,26 +41,61 @@ namespace PTP.Infrastructure.Migrations
                 name: "TimeTableId",
                 table: "RouteVars");
 
+            migrationBuilder.AddColumn<Guid>(
+                name: "RouteId",
+                table: "TimeTables",
+                type: "uniqueidentifier",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.AlterColumn<int>(
+                name: "Index",
+                table: "RouteStation",
+                type: "int",
+                nullable: false,
+                oldClrType: typeof(byte),
+                oldType: "tinyint");
+
             migrationBuilder.InsertData(
                 table: "Role",
                 columns: new[] { "Id", "CreatedBy", "CreationDate", "IsDeleted", "ModificatedBy", "ModificationDate", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("17adec58-de65-4511-b0d5-b2aa33b25bfb"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 0, 50, 3, 295, DateTimeKind.Local).AddTicks(3509), false, null, null, "Customer" },
-                    { new Guid("2962c665-5d8e-43e6-bb87-471aee9de49e"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 0, 50, 3, 295, DateTimeKind.Local).AddTicks(3493), false, null, null, "StoreManager" },
-                    { new Guid("f099ff49-4b0b-4884-b2ef-2cfa515b0089"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 0, 50, 3, 295, DateTimeKind.Local).AddTicks(3514), false, null, null, "TransportationEmployee" },
-                    { new Guid("f477764c-1f64-4ff6-bed3-e4259becda76"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 0, 50, 3, 295, DateTimeKind.Local).AddTicks(3512), false, null, null, "Admin" }
+                    { new Guid("49c72f35-4d4d-4c81-be7d-32e55d69b597"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 15, 36, 42, 323, DateTimeKind.Local).AddTicks(9184), false, null, null, "Customer" },
+                    { new Guid("745053f7-7af5-477a-987a-0083e82109e6"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 15, 36, 42, 323, DateTimeKind.Local).AddTicks(9187), false, null, null, "Admin" },
+                    { new Guid("9a827a7f-3dc8-46ef-9c28-7c1d2046cb41"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 15, 36, 42, 323, DateTimeKind.Local).AddTicks(9165), false, null, null, "StoreManager" },
+                    { new Guid("a9de9321-9dad-43c1-aa08-758e67f06a4c"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 15, 36, 42, 323, DateTimeKind.Local).AddTicks(9191), false, null, null, "TransportationEmployee" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeTables_RouteId",
+                table: "TimeTables",
+                column: "RouteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TimeTables_RouteVarId",
                 table: "TimeTables",
                 column: "RouteVarId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_TimeTables_Route_RouteId",
+                table: "TimeTables",
+                column: "RouteId",
+                principalTable: "Route",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_TimeTables_Route_RouteId",
+                table: "TimeTables");
+
+            migrationBuilder.DropIndex(
+                name: "IX_TimeTables_RouteId",
+                table: "TimeTables");
+
             migrationBuilder.DropIndex(
                 name: "IX_TimeTables_RouteVarId",
                 table: "TimeTables");
@@ -68,22 +103,26 @@ namespace PTP.Infrastructure.Migrations
             migrationBuilder.DeleteData(
                 table: "Role",
                 keyColumn: "Id",
-                keyValue: new Guid("17adec58-de65-4511-b0d5-b2aa33b25bfb"));
+                keyValue: new Guid("49c72f35-4d4d-4c81-be7d-32e55d69b597"));
 
             migrationBuilder.DeleteData(
                 table: "Role",
                 keyColumn: "Id",
-                keyValue: new Guid("2962c665-5d8e-43e6-bb87-471aee9de49e"));
+                keyValue: new Guid("745053f7-7af5-477a-987a-0083e82109e6"));
 
             migrationBuilder.DeleteData(
                 table: "Role",
                 keyColumn: "Id",
-                keyValue: new Guid("f099ff49-4b0b-4884-b2ef-2cfa515b0089"));
+                keyValue: new Guid("9a827a7f-3dc8-46ef-9c28-7c1d2046cb41"));
 
             migrationBuilder.DeleteData(
                 table: "Role",
                 keyColumn: "Id",
-                keyValue: new Guid("f477764c-1f64-4ff6-bed3-e4259becda76"));
+                keyValue: new Guid("a9de9321-9dad-43c1-aa08-758e67f06a4c"));
+
+            migrationBuilder.DropColumn(
+                name: "RouteId",
+                table: "TimeTables");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "TimeTableId",
@@ -91,6 +130,14 @@ namespace PTP.Infrastructure.Migrations
                 type: "uniqueidentifier",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.AlterColumn<byte>(
+                name: "Index",
+                table: "RouteStation",
+                type: "tinyint",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "int");
 
             migrationBuilder.InsertData(
                 table: "Role",

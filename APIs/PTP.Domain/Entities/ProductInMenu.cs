@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace PTP.Domain.Entities;
 public class ProductInMenu : BaseEntity
 {
-    public string Status { get; set; } = default!;
+    public string Status { get; set; } = nameof(ProductInMenu);
     [Precision(18, 2)]
     public decimal ActualPrice { get; set; } = 0;
 

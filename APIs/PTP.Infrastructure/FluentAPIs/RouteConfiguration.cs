@@ -10,6 +10,7 @@ public class RouteConfiguration : IEntityTypeConfiguration<Route>
         builder.HasKey(x => x.Id);
         builder.HasMany(x => x.RouteStations).WithOne(x => x.Route).HasForeignKey(x => x.RouteId);
         builder.HasMany(x => x.RouteVars).WithOne(x => x.Route).HasForeignKey(x => x.RouteId);
+        builder.HasMany(x => x.TimeTables).WithOne(x => x.Route).HasForeignKey(x => x.RouteId).OnDelete(DeleteBehavior.NoAction);
         builder.Property(x => x.RouteId).ValueGeneratedNever();
         
     }
