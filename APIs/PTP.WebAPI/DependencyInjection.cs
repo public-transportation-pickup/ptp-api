@@ -23,6 +23,12 @@ public static class DependencyInjection
 
 		builder.Services.AddInfrastructureServices(configuration.ConnectionStrings.DefaultConnection);
 
+		//Register to connect Redis
+
+		builder.Services.AddStackExchangeRedisCache(redisOptions =>
+		{
+			redisOptions.Configuration = configuration.ConnectionStrings.RedisConnection;
+		});
 
 		// Register To Handle Query/Command of MediatR
 		builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));

@@ -13,4 +13,5 @@ public class FirebaseSettings
 public class ConnectionStrings
 {
 	public string DefaultConnection { get; set; } = default!;
+	public string RedisConnection { get; set; } = default!;
 }

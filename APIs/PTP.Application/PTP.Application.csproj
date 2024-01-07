@@ -5,29 +5,29 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Repositories\"/>
-    <Folder Include="Services\Interfaces\"/>
+    <Folder Include="Repositories\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.24"/>
+    <PackageReference Include="Dapper" Version="2.1.24" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-    <PackageReference Include="MediatR" Version="12.2.0"/>
-    <PackageReference Include="FluentValidation" Version="11.9.0"/>
-    <PackageReference Include="AutoMapper" Version="12.0.1"/>
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1"/>
-    <PackageReference Include="Hangfire" Version="1.8.7"/>
-    <PackageReference Include="Hangfire.InMemory" Version="0.6.0"/>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.14" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Hangfire" Version="1.8.7" />
+    <PackageReference Include="Hangfire.InMemory" Version="0.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PTP.Domain\PTP.Domain.csproj"/>
+    <ProjectReference Include="..\PTP.Domain\PTP.Domain.csproj" />
   </ItemGroup>
 </Project>
