@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace PTP.Domain.Entities;
 public class TimeTable : BaseEntity
 {
@@ -16,6 +18,8 @@ string OperationTime, string ApplyDates
     #region RelationshipConfiguration
     public Guid RouteVarId { get; set; } = default!;
     public RouteVar RouteVar { get; set; } = default!;
+    public Guid RouteId { get; set; } = default!;
+public Route Route { get; set; } = default!;
     public ICollection<Trip> Trips { get; set; } = default!;
     #endregion
 }

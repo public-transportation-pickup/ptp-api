@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Newtonsoft.Json;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Application.IntergrationServices.Models;
@@ -29,7 +30,7 @@ public class BusRouteService : IBusRouteService
             InBoundName = routeModel.InBoundName ?? string.Empty,
             OutBoundName = routeModel.OutBoundName ?? string.Empty,
             Name = routeModel.RouteName ?? string.Empty,
-            //RouteId = routeModel.RouteId,
+            RouteId = routeModel.RouteId,
             RouteNo = routeModel.RouteNo ?? string.Empty,
             Tickets = routeModel.Tickets ?? string.Empty,
             NumOfSeats = routeModel.NumOfSeats ?? string.Empty,
@@ -64,8 +65,9 @@ public class BusRouteService : IBusRouteService
         var timeTables = timeTableModels.ConvertAll(x => new TimeTable
         {
             Id = Guid.NewGuid(),
-            RouteVarId = routeVar.First(y => y.RouteVarId == x.RouteVarId).Id,
+            RouteVarId = routeVar.First(y => x.RouteVarId == y.RouteVarId).Id,
             ApplyDates = x.ApplyDates,
+            RouteId = route.Id,
             TimeTableId = x.TimeTableId,
             //StartDate = DateTime.Parse(x.StartDate),
             IsCurrent = x.IsCurrent,
@@ -104,9 +106,16 @@ public class BusRouteService : IBusRouteService
         #endregion
 
         #region Add Station and Routestation If Not exists
+        
         foreach (var routeV in routeVar)
         {
+            
             var stopModels = await GetStopModelsAsync(routeId, routeV.RouteVarId);
+            int index = 0;
+            foreach(var stop in stopModels) 
+            {
+                stop.Index = index++;
+            }
             // Check station has exist or not
             var repStopModels = new List<StopModel>();
 
@@ -118,7 +127,8 @@ public class BusRouteService : IBusRouteService
                     await _unitOfWork.RouteStationRepository.AddAsync(new RouteStation
                     {
                         StationId = stopIsDup.Id,
-                        RouteId = route.Id
+                        RouteId = route.Id,
+                        Index = stop.Index
                     });
                 }
                 else repStopModels.Add(stop);
@@ -148,7 +158,7 @@ public class BusRouteService : IBusRouteService
                     await _unitOfWork.RouteStationRepository.AddAsync(new RouteStation
                     {
                         StationId = stop.Id,
-                        RouteId = route.Id
+                        RouteId = route.Id,
                     });
                 }
                 await _unitOfWork.SaveChangesAsync();

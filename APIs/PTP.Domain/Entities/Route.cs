@@ -28,6 +28,7 @@ public class Route : BaseEntity
     public ICollection<RouteStation> RouteStations { get; set; } = default!;
 
     public ICollection<RouteVar> RouteVars { get; set; } = default!;
+    public ICollection<TimeTable> TimeTables { get; set; } = default!;
 
 
 }
