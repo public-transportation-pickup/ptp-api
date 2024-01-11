@@ -18,7 +18,7 @@ public interface IUnitOfWork
     IScheduleRepository ScheduleRepository { get; }
     IStationRepository StationRepository { get; }
     IStoreRepository StoreRepository { get; }
-    IStoreStationRepository StoreStationRepository { get; }
+    
     ITransactionRepository TransactionRepository { get; }
     ITripRepository TripRepository { get; }
     IUserRepository UserRepository { get; }

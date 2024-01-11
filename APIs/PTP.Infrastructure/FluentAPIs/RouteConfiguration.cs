@@ -8,6 +8,7 @@ public class RouteConfiguration : IEntityTypeConfiguration<Route>
     public void Configure(EntityTypeBuilder<Route> builder)
     {
         builder.HasKey(x => x.Id);
+        //builder.HasMany(x => x.Paths).WithOne(x => x.Route).HasForeignKey(x => x.RouteId);
         builder.HasMany(x => x.RouteStations).WithOne(x => x.Route).HasForeignKey(x => x.RouteId);
         builder.HasMany(x => x.RouteVars).WithOne(x => x.Route).HasForeignKey(x => x.RouteId);
         builder.HasMany(x => x.TimeTables).WithOne(x => x.Route).HasForeignKey(x => x.RouteId).OnDelete(DeleteBehavior.NoAction);

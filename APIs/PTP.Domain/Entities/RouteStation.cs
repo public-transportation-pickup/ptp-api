@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace PTP.Domain.Entities;
 public class RouteStation : BaseEntity
 {
@@ -13,5 +15,7 @@ public class RouteStation : BaseEntity
     public Route Route { get; set; } = default!;
     public Guid StationId { get; set; }
     public Station Station { get; set; } = default!;
+    public Guid RouteVarId { get; set; }
+    public RouteVar RouteVar { get; set; } = default!;
     #endregion
 }

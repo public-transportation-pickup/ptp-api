@@ -1,7 +1,10 @@
 using System.Diagnostics;
+using System.Security.Principal;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Application.IntergrationServices.Models;
+using PTP.Application.Utilities;
 using PTP.Domain.Entities;
 using PTP.Domain.Enums;
 
@@ -18,8 +21,10 @@ public class BusRouteService : IBusRouteService
     {
         var isDup = await _unitOfWork.RouteRepository.FirstOrDefaultAsync(x => x.RouteId == routeId);
         if (isDup is not null) return false;
+
         #region 1. Add Route
         RouteModel routeModel = await getRouteAsync(routeId);
+        
         var route = new Route
         {
             Id = Guid.NewGuid(),
@@ -40,6 +45,9 @@ public class BusRouteService : IBusRouteService
             TimeOfTrip = routeModel.TimeOfTrip ?? string.Empty,
             TotalTrip = routeModel.TotalTrip ?? string.Empty,
             Status = nameof(DefaultStatusEnum.Active),
+            AverageVelocity = routeModel.Distance / routeModel.TimeOfTrip!.ConvertAverageTime(),
+      
+        
         };
         await _unitOfWork.RouteRepository.AddAsync(route);
         #endregion
@@ -56,6 +64,8 @@ public class BusRouteService : IBusRouteService
             RouteVarShortName = x.RouteVarShortName,
             StartStop = x.StartStop,
             RunningTime = x.RunningTime,
+            Distance = x.Distance,
+            AverageVelocity = x.Distance / x.RunningTime
         });
         await _unitOfWork.RouteVarRepository.AddRangeAsync(routeVar);
         await _unitOfWork.SaveChangesAsync();
@@ -98,21 +108,21 @@ public class BusRouteService : IBusRouteService
         catch (Exception ex)
         {
             System.Console.WriteLine(ex.Message);
-            
+
         }
 
 
 
         #endregion
 
-        #region Add Station and Routestation If Not exists
-        
+        #region 5. Add Station and Routestation If Not exists
+
         foreach (var routeV in routeVar)
         {
-            
+
             var stopModels = await GetStopModelsAsync(routeId, routeV.RouteVarId);
             int index = 0;
-            foreach(var stop in stopModels) 
+            foreach (var stop in stopModels)
             {
                 stop.Index = index++;
             }
@@ -128,7 +138,8 @@ public class BusRouteService : IBusRouteService
                     {
                         StationId = stopIsDup.Id,
                         RouteId = route.Id,
-                        Index = stop.Index
+                        Index = stop.Index,
+                        RouteVarId = routeV.Id,
                     });
                 }
                 else repStopModels.Add(stop);
@@ -153,12 +164,15 @@ public class BusRouteService : IBusRouteService
                 });
                 await _unitOfWork.StationRepository.AddRangeAsync(stops);
                 await _unitOfWork.SaveChangesAsync();
-                foreach (var stop in stops)
+                foreach (var stop in repStopModels)
                 {
                     await _unitOfWork.RouteStationRepository.AddAsync(new RouteStation
                     {
-                        StationId = stop.Id,
+                        StationId = stops.First(x => x.StopId == stop.StopId).Id,
                         RouteId = route.Id,
+                        RouteVarId = routeV.Id,
+                        Index  = stop.Index,
+                        
                     });
                 }
                 await _unitOfWork.SaveChangesAsync();
@@ -167,10 +181,20 @@ public class BusRouteService : IBusRouteService
 
         }
         #endregion
+        
 
         return true;
 
     }
+    
+ 
+    // private async Task<PathModel> getPathAsync(int routeId, int routeVarId) {
+    //     using var response = await httpClient.GetAsync($"http://apicms.ebms.vn/businfo/getpathsbyvar/{routeId}/{routeVarId}");
+    //     response.EnsureSuccessStatusCode();
+    //     string responseBody = await response.Content.ReadAsStringAsync();
+    //     PathModel pathModel = JsonConvert.DeserializeObject<PathModel>(responseBody) ?? throw new Exception($"Deserialize Failed for Object! {responseBody}");
+    //     return pathModel;
+    // } 
     private async Task<RouteModel> getRouteAsync(int routeId)
     {
         using var response = await httpClient.GetAsync($"http://apicms.ebms.vn/businfo/getroutebyid/{routeId}");

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PTP.Infrastructure;
 
@@ -11,9 +12,11 @@ using PTP.Infrastructure;
 namespace PTP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240111044750_V2_ChangeDbschema")]
+    partial class V2_ChangeDbschema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -410,33 +413,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c2e09ab9-ec52-4497-b337-56261bc14014"),
+                            Id = new Guid("9356a4e7-e61e-43a2-9819-52696abfd108"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 11, 21, 9, 53, 93, DateTimeKind.Local).AddTicks(2474),
+                            CreationDate = new DateTime(2024, 1, 11, 11, 47, 50, 241, DateTimeKind.Local).AddTicks(2221),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("cf2febc3-4a55-4d8e-b7b2-ee3a67883e8d"),
+                            Id = new Guid("af717861-d8af-46e4-98cb-424ba41e465b"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 11, 21, 9, 53, 93, DateTimeKind.Local).AddTicks(2494),
+                            CreationDate = new DateTime(2024, 1, 11, 11, 47, 50, 241, DateTimeKind.Local).AddTicks(2240),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("c7d2bba4-0487-4f88-90b9-7966161d5528"),
+                            Id = new Guid("40c9768a-52d7-4e76-9a54-dc5d7dc92cab"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 11, 21, 9, 53, 93, DateTimeKind.Local).AddTicks(2498),
+                            CreationDate = new DateTime(2024, 1, 11, 11, 47, 50, 241, DateTimeKind.Local).AddTicks(2254),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("67091765-fd79-4493-b9d8-8f0c8c5c9470"),
+                            Id = new Guid("f6537a66-ebec-4715-a368-2b19c0e43d7f"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 11, 21, 9, 53, 93, DateTimeKind.Local).AddTicks(2500),
+                            CreationDate = new DateTime(2024, 1, 11, 11, 47, 50, 241, DateTimeKind.Local).AddTicks(2256),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });
@@ -447,9 +450,6 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("AverageVelocity")
-                        .HasColumnType("float");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -603,17 +603,11 @@ namespace PTP.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("AverageVelocity")
-                        .HasColumnType("float");
-
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<double>("Distance")
-                        .HasColumnType("float");
 
                     b.Property<string>("EndStop")
                         .IsRequired()

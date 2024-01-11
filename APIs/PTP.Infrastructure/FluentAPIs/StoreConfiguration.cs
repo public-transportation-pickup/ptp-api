@@ -8,7 +8,7 @@ public class StoreConfiguration : IEntityTypeConfiguration<Store>
     public void Configure(EntityTypeBuilder<Store> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.HasMany(x => x.StoreStations).WithOne(x => x.Store).HasForeignKey(x => x.StoreId);
+        builder.HasMany(x => x.Stations).WithOne(x => x.Store).HasForeignKey(x => x.StoreId);
         builder.HasMany(x => x.Products).WithOne(x => x.Store).HasForeignKey(x => x.StoreId);
         builder.HasMany(x => x.Menus).WithOne(x => x.Store).HasForeignKey(x => x.StoreId);
 

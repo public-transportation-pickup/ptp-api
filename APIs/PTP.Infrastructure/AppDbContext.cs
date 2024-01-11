@@ -26,12 +26,12 @@ namespace PTP.Infrastructure
 		public DbSet<RouteStation> RouteStation { get; set; }
 		public DbSet<Station> Station { get; set; }
 		public DbSet<Store> Store { get; set; }
-		public DbSet<StoreStation> StoreStation { get; set; }
+
 		public DbSet<Trip> Trip { get; set; }
 		public DbSet<Schedule> Schedules { get; set; } = default!;
 		public DbSet<TimeTable> TimeTables { get; set; } = default!;
 		public DbSet<RouteVar> RouteVars { get; set; } = default!;
-		
+		//public DbSet<Domain.Entities.Path> Path { get; set; } = default!;
 
 		#endregion
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

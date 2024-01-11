@@ -15,7 +15,7 @@ public class Station : BaseEntity
     public string AddressNo { get; set; } = default!;
     public string Street { get; set; } = default!;
     public string SupportDisability { get; set; } = default!;
-    
+
     #region Location 
     public string Address { get; set; } = default!;
     [Precision(18, 2)]
@@ -24,7 +24,9 @@ public class Station : BaseEntity
     public decimal Longitude { get; set; } = default!;
     #endregion
     #region Relationship
-    public ICollection<StoreStation> StoreStations { get; set; } = default!;
+    public Guid? StoreId { get; set; } = default!;
+    public Store? Store { get; set; } = default!;
+    public ICollection<Order> Orders { get; set; } = default!;
     public ICollection<RouteStation> RouteStations { get; set; } = default!;
     public ICollection<Schedule> Schedules { get; set; } = default!;
     #endregion

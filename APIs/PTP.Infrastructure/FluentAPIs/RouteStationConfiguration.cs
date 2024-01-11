@@ -8,6 +8,8 @@ public class RouteStationConfiguration : IEntityTypeConfiguration<RouteStation>
     public void Configure(EntityTypeBuilder<RouteStation> builder)
     {
         builder.HasKey(x => x.Id);
+        builder.HasOne(x => x.RouteVar).WithMany(x => x.RouteStations).HasForeignKey(x => x.RouteVarId)
+        .OnDelete(DeleteBehavior.NoAction);
         builder.HasOne(x => x.Route).WithMany(x => x.RouteStations).HasForeignKey(x => x.RouteId);
         builder.HasOne(x => x.Station).WithMany(x => x.RouteStations).HasForeignKey(x => x.StationId);
        

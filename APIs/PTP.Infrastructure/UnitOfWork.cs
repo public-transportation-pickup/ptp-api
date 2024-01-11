@@ -12,7 +12,7 @@ public class UnitOfWork : IUnitOfWork
     IPaymentRepository paymentRepository, IProductImageRepository productImageRepository, IProductInMenuRepository productInMenuRepository,
     IProductRepository productRepository, IRouteRepository routeRepository, IRouteStationRepository routeStationRepository,
     IScheduleRepository scheduleRepository, IStationRepository stationRepository, IStoreRepository storeRepository,
-    IStoreStationRepository storeStationRepository, ITransactionRepository transactionRepository, ITripRepository tripRepository,
+     ITransactionRepository transactionRepository, ITripRepository tripRepository,
     IUserRepository userRepository, IWalletRepository walletRepository, IWalletLogRepository walletLogRepository,
     IRouteVarRepository routeVarRepository, ITimeTableRepository timeTableRepository)
     {
@@ -32,7 +32,7 @@ public class UnitOfWork : IUnitOfWork
         ScheduleRepository = scheduleRepository;
         StationRepository = stationRepository;
         StoreRepository = storeRepository;
-        StoreStationRepository = storeStationRepository;
+
         TransactionRepository = transactionRepository;
         TripRepository = tripRepository;
         UserRepository = userRepository;
@@ -68,7 +68,7 @@ public class UnitOfWork : IUnitOfWork
 
     public IStoreRepository StoreRepository { get; }
 
-    public IStoreStationRepository StoreStationRepository { get; }
+    
 
     public ITransactionRepository TransactionRepository { get; }
 

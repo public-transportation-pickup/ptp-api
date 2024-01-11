@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PTP.Infrastructure;
 
@@ -11,9 +12,11 @@ using PTP.Infrastructure;
 namespace PTP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240110170812_V2_01_ChangeDbSchema")]
+    partial class V2_01_ChangeDbSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -410,33 +413,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c2e09ab9-ec52-4497-b337-56261bc14014"),
+                            Id = new Guid("f5b3dd1a-4815-447d-93ec-2089cd4fa3f2"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 11, 21, 9, 53, 93, DateTimeKind.Local).AddTicks(2474),
+                            CreationDate = new DateTime(2024, 1, 11, 0, 8, 12, 434, DateTimeKind.Local).AddTicks(8892),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("cf2febc3-4a55-4d8e-b7b2-ee3a67883e8d"),
+                            Id = new Guid("015d084e-8420-4c24-a171-d7faa136e5f7"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 11, 21, 9, 53, 93, DateTimeKind.Local).AddTicks(2494),
+                            CreationDate = new DateTime(2024, 1, 11, 0, 8, 12, 434, DateTimeKind.Local).AddTicks(8911),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("c7d2bba4-0487-4f88-90b9-7966161d5528"),
+                            Id = new Guid("14e18b04-fb1e-4a5e-a733-8a7858bc340e"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 11, 21, 9, 53, 93, DateTimeKind.Local).AddTicks(2498),
+                            CreationDate = new DateTime(2024, 1, 11, 0, 8, 12, 434, DateTimeKind.Local).AddTicks(8925),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("67091765-fd79-4493-b9d8-8f0c8c5c9470"),
+                            Id = new Guid("84d50a44-bde5-4a83-ac94-ef84a88b3bd5"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 11, 21, 9, 53, 93, DateTimeKind.Local).AddTicks(2500),
+                            CreationDate = new DateTime(2024, 1, 11, 0, 8, 12, 434, DateTimeKind.Local).AddTicks(8927),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });
@@ -447,9 +450,6 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("AverageVelocity")
-                        .HasColumnType("float");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -580,17 +580,12 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("RouteId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RouteVarId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("StationId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RouteId");
-
-                    b.HasIndex("RouteVarId");
 
                     b.HasIndex("StationId");
 
@@ -603,17 +598,11 @@ namespace PTP.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("AverageVelocity")
-                        .HasColumnType("float");
-
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<double>("Distance")
-                        .HasColumnType("float");
 
                     b.Property<string>("EndStop")
                         .IsRequired()
@@ -1294,12 +1283,6 @@ namespace PTP.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PTP.Domain.Entities.RouteVar", "RouteVar")
-                        .WithMany("RouteStations")
-                        .HasForeignKey("RouteVarId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("PTP.Domain.Entities.Station", "Station")
                         .WithMany("RouteStations")
                         .HasForeignKey("StationId")
@@ -1307,8 +1290,6 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Route");
-
-                    b.Navigation("RouteVar");
 
                     b.Navigation("Station");
                 });
@@ -1490,8 +1471,6 @@ namespace PTP.Infrastructure.Migrations
 
             modelBuilder.Entity("PTP.Domain.Entities.RouteVar", b =>
                 {
-                    b.Navigation("RouteStations");
-
                     b.Navigation("Timetables");
                 });
 

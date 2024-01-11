@@ -16,8 +16,9 @@ public class Order : BaseEntity
     #region Relationship Configuration
     public Guid UserId { get; set; }
     public User User { get; set; } = default!;
-    public Guid StoreStationId { get; set; }
-    public StoreStation StoreStation { get; set; } = default!;
+    public Guid StationId { get; set; } = default!;
+    public Station Station { get; set; } = default!;
+
     public ICollection<OrderDetail> OrderDetails { get; set; } = default!;
     public Guid PaymentId { get; set; } = default!;
     public Payment Payment { get; set; } = default!;

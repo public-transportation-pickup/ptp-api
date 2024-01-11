@@ -10,7 +10,7 @@ public class Route : BaseEntity
     public string Name { get; set; } = default!;
     public string Status { get; set; } = default!;
     public double Distance { get; set; } = 0d;
-
+    public double AverageVelocity { get; set; } = 0;
     public string RouteType { get; set; } = default!;
     public string TimeOfTrip { get; set; } = default!;
     public string HeadWay { get; set; } = default!;
@@ -28,6 +28,7 @@ public class Route : BaseEntity
     public ICollection<RouteStation> RouteStations { get; set; } = default!;
 
     public ICollection<RouteVar> RouteVars { get; set; } = default!;
+    //public ICollection<Path> Paths { get; set; } = default!;
     public ICollection<TimeTable> TimeTables { get; set; } = default!;
 
 
