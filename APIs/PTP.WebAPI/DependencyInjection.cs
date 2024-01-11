@@ -1,5 +1,6 @@
 using Hangfire;
 using PTP.Application;
+using PTP.Application.GlobalExceptionHandling;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Infrastructure;
 using Scrutor;
@@ -22,7 +23,7 @@ public static class DependencyInjection
 		builder.Services.AddSingleton(configuration);
 
 		builder.Services.AddInfrastructureServices(configuration.ConnectionStrings.DefaultConnection);
-
+		builder.Services.AddSingleton<GlobalErrorHandlingMiddleware>();
 		//Register to connect Redis
 
 		builder.Services.AddStackExchangeRedisCache(redisOptions =>
@@ -32,6 +33,7 @@ public static class DependencyInjection
 
 		// Register To Handle Query/Command of MediatR
 		builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+		// Scan and register all interfaces --> implementations 
 		builder.Services.Scan(scan => scan
 		 .FromAssemblies(PTP.Infrastructure.AssemblyReference.Assembly,
 		 PTP.Application.AssemblyReference.Assembly,

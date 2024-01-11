@@ -27,9 +27,17 @@ public class RoutesController : BaseController
         _mediator = mediator;
     }
 
-    #region READ
+    #region READ 
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [HttpGet]
     public async Task<IActionResult> Get() => Ok(await _mediator.Send(new GetAllRouteQuery()));
+
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    => Ok(await _mediator.Send(new GetRouteByIdQuery { Id = id }));
     #endregion
 
 }

@@ -9,6 +9,7 @@ namespace PTP.Application.Services.Interfaces
 {
     public interface ICacheService
     {
+        bool IsConnected();
         Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class;
 
         Task<T?> GetAsync<T>(string key, Func<Task<T>> factory, CancellationToken cancellationToken = default) where T : class;

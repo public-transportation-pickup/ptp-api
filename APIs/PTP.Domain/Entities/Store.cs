@@ -27,5 +27,6 @@ public class Store : BaseEntity
     public ICollection<Station> Stations { get; set; } = default!;
     public ICollection<Product> Products { get; set; } = default!;
     public ICollection<Menu> Menus { get; set; } = default!;
+    public ICollection<Wallet> Wallets { get; set; } = default!;
     #endregion
 }

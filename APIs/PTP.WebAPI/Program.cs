@@ -1,4 +1,5 @@
 using Hangfire;
+using PTP.Application.GlobalExceptionHandling;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.WebAPI;
 
@@ -16,6 +17,7 @@ var app = builder.Build();
 app.MapHangfireDashboard("/HangfireDashBoard");
 RecurringJob.AddOrUpdate<IBusRouteService>("check-routes", interService => interService.CheckNewCreatedRoute(), Cron.Monthly());
 // Configure the HTTP request pipeline.
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
