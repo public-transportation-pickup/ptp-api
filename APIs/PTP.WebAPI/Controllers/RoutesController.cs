@@ -1,6 +1,8 @@
 using System.Net;
+using System.Security.Principal;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using PTP.Application.Features.Routes.Commands;
 using PTP.Application.Features.Routes.Queries;
 using PTP.Application.IntergrationServices.Interfaces;
 
@@ -38,6 +40,15 @@ public class RoutesController : BaseController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     => Ok(await _mediator.Send(new GetRouteByIdQuery { Id = id }));
+    #endregion
+    #region Write
+    [Route("{id}/distance-modification")]
+    [HttpPut]
+    public async Task<IActionResult> Update([FromRoute] Guid id)
+    {
+        await _mediator.Send(new DistanceModificationCommand { Id = id});
+        return NoContent();
+    }
     #endregion
 
 }

@@ -3,6 +3,7 @@ public class AppSettings
 {
 	public ConnectionStrings ConnectionStrings { get; set; } = default!;
 	public FirebaseSettings FirebaseSettings { get; set; } = default!;
+	public string GoongAPIKey { get; set; } = default!;
 }
 
 public class FirebaseSettings
