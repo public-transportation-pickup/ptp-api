@@ -10,6 +10,10 @@ public class FirebaseSettings
 {
 	public string SenderId { get; set; } = default!;
 	public string ServerKey { get; set; } = default!;
+	public string ApiKeY { get; set; } = default!;
+	public string Bucket { get; set; } = default!;
+	public string AuthEmail { get; set; } = default!;
+	public string AuthPassword { get; set; } = default!;
 }
 public class ConnectionStrings
 {
