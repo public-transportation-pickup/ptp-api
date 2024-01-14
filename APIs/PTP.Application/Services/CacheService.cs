@@ -49,7 +49,7 @@ namespace PTP.Infrastructure.Caching
 
         public async Task<List<T>?> GetByPrefixAsync<T>(string prefixKey, CancellationToken cancellationToken = default) where T : class
         {
-            List<T> cachedValue = new();
+            List<T> cachedValue = new List<T>();
             foreach (var key in CachKeys.Keys)
             {
                 if (key.StartsWith(prefixKey))
@@ -101,7 +101,7 @@ namespace PTP.Infrastructure.Caching
         {
             foreach (var item in values)
             {
-                var key = prefixKey + item.Id;
+                var key = prefixKey+ item.Id;
                 await SetAsync<T>(key, item, cancellationToken);
             }
         }

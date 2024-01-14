@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PTP.Domain.Enums;
 
 namespace PTP.Domain.Entities;
 public class Store : BaseEntity
@@ -6,17 +7,15 @@ public class Store : BaseEntity
 	public string Name { get; set; } = default!;
 	public string Description { get; set; } = default!;
 	public string PhoneNumber { get; set; } = default!;
-	public string Status { get; set; } = default!;
-	public byte OpenedTime { get; set; } = default!;
-	public byte ClosedTime { get; set; } = default!;
-	[Precision(18, 10)]
+	public string Status { get; set; } = nameof(StoreStatusEnum.ACTIVE)!;
+    public TimeSpan OpenedTime { get; set; } = default!;
+    public TimeSpan ClosedTime { get; set; } = default!;
+    [Precision(18, 10)]
 	public decimal Latitude { get; set; } = default!;
 	[Precision(18, 10)]
 	public decimal Longitude { get; set; } = default!;
 	public string Address { get; set; } = default!;
 	public DateTime? ActivationDate { get; set; } = null;
-	[Precision(18, 2)]
-	public decimal CommisionRate { get; set; } = default!;
 
 	#region Image 
 	public string ImageName { get; set; } = string.Empty;
