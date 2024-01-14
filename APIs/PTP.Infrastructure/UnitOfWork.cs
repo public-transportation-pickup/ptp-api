@@ -1,4 +1,6 @@
+using AutoMapper;
 using PTP.Application;
+using PTP.Application.Data.Configuration;
 using PTP.Application.Repositories.Interfaces;
 using PTP.Domain.Entities;
 using PTP.Infrastructure.Repositories;
@@ -14,9 +16,10 @@ public class UnitOfWork : IUnitOfWork
     IScheduleRepository scheduleRepository, IStationRepository stationRepository, IStoreRepository storeRepository,
      ITransactionRepository transactionRepository, ITripRepository tripRepository,
     IUserRepository userRepository, IWalletRepository walletRepository, IWalletLogRepository walletLogRepository,
-    IRouteVarRepository routeVarRepository, ITimeTableRepository timeTableRepository)
+    IRouteVarRepository routeVarRepository, ITimeTableRepository timeTableRepository, IMapper mapper, IConnectionConfiguration connectionConfiguration)
     {
         _dbContext = dbcontext;
+        DirectionConnection = connectionConfiguration;
         RouteVarRepository = routeVarRepository;
         TimeTableRepository = timeTableRepository;
         CategoryRepository = categoryRepository;
@@ -32,7 +35,7 @@ public class UnitOfWork : IUnitOfWork
         ScheduleRepository = scheduleRepository;
         StationRepository = stationRepository;
         StoreRepository = storeRepository;
-
+        Mapper = mapper;
         TransactionRepository = transactionRepository;
         TripRepository = tripRepository;
         UserRepository = userRepository;
@@ -68,7 +71,7 @@ public class UnitOfWork : IUnitOfWork
 
     public IStoreRepository StoreRepository { get; }
 
-    
+
 
     public ITransactionRepository TransactionRepository { get; }
 
@@ -82,6 +85,10 @@ public class UnitOfWork : IUnitOfWork
     public IRouteVarRepository RouteVarRepository { get; }
 
     public ITimeTableRepository TimeTableRepository { get; }
+
+    public IMapper Mapper { get; }
+
+    public IConnectionConfiguration DirectionConnection { get; }
 
     public async Task<bool> SaveChangesAsync() => (await _dbContext.SaveChangesAsync()) > 0;
 

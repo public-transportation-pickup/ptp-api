@@ -1,9 +1,13 @@
+using AutoMapper;
+using PTP.Application.Data.Configuration;
 using PTP.Application.Repositories.Interfaces;
 
 namespace PTP.Application;
 public interface IUnitOfWork
 {
     #region Properties
+    IMapper Mapper { get; }
+    IConnectionConfiguration DirectionConnection { get; }
     ICategoryRepository CategoryRepository { get; }
     IMenuRepository MenuRepository { get; }
     IOrderDetailRepository OrderDetailRepository { get; }
@@ -18,7 +22,7 @@ public interface IUnitOfWork
     IScheduleRepository ScheduleRepository { get; }
     IStationRepository StationRepository { get; }
     IStoreRepository StoreRepository { get; }
-    
+
     ITransactionRepository TransactionRepository { get; }
     ITripRepository TripRepository { get; }
     IUserRepository UserRepository { get; }
