@@ -1,9 +1,9 @@
-using System.Reflection.Metadata.Ecma335;
 using Dapper;
 using MediatR;
 using PTP.Application.Commons;
 using PTP.Application.Data.Configuration;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
+using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Schedules;
 using PTP.Application.ViewModels.Trips;
 
@@ -28,6 +28,18 @@ public class GetTripByIdQuery : IRequest<TripViewModel>
 
             var result = await connection.QueryFirstOrDefaultAsync<TripViewModel>(query, parameters) ??
                             throw new NotFoundException($"no_data_found at {nameof(GetTripByIdQuery)}");
+            if (request.IsSchedule)
+            {
+                if (!string.IsNullOrEmpty(result.ApplyDates))
+                {
+                    if (!result.ApplyDates.CheckDayActive())
+                    {
+                        throw new Exception($"Trip {result.Id} does not active on this date {DateTime.Now}, ApplyDates: {result.ApplyDates}");
+                    }
+                }
+                else throw new Exception($"Trip {result.Id} not have ApplyDates");
+            }
+
             result.Schedules = request.IsSchedule ? await GetScheduleAsync(request.Id) : new List<ScheduleViewModel>();
             return result;
 
