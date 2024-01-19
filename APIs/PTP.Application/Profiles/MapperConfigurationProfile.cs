@@ -1,5 +1,9 @@
 using AutoMapper;
 using PTP.Application.ViewModels;
+using PTP.Application.ViewModels.Categories;
+using PTP.Application.ViewModels.Menus;
+using PTP.Application.ViewModels.ProductMenus;
+using PTP.Application.ViewModels.Products;
 using PTP.Application.ViewModels.Routes;
 using PTP.Application.ViewModels.RouteVars;
 using PTP.Application.ViewModels.Stores;
@@ -27,11 +31,72 @@ public class MapperConfigurationProfile : Profile
             .ForMember(x => x.ClosedTime, opt => opt.Ignore())
             .ForMember(x => x.OpenedTime, opt => opt.Ignore())
             .ForMember(x => x.File, opt => opt.Ignore())
+            .ReverseMap()
+            .ForMember(x => x.ImageName, opt => opt.Ignore());
+        #endregion
+
+        #region RouteVariation Mapper
+        CreateMap<RouteVar, RouteVarViewModel>().ReverseMap();
+		#endregion
+
+        #region Menu Mapper
+        CreateMap<Menu, MenuCreateModel>()
+            .ForMember(x => x.StartTime, opt => opt.Ignore())
+            .ForMember(x => x.EndTime, opt => opt.Ignore())
+            .ReverseMap();
+        CreateMap<Menu, MenuUpdateModel>()
+            .ForMember(x => x.StartTime, opt => opt.Ignore())
+            .ForMember(x => x.EndTime, opt => opt.Ignore())
+            .ReverseMap();
+        CreateMap<Menu,MenuViewModel>()
+            .ForMember(x=>x.Store,opt=>opt.MapFrom(x=>x.Store))
             .ReverseMap();
         #endregion
 
-		#region RouteVariation Mapper
-		CreateMap<RouteVar, RouteVarViewModel>().ReverseMap();
-		#endregion
-	}
+        #region Category Mapper
+        CreateMap<Category,CategoryViewModel>().ReverseMap();
+        CreateMap<Category,CategoryCreateModel>().ReverseMap();
+        CreateMap<Category,CategoryUpdateModel>().ReverseMap();
+
+        #endregion
+
+          
+        #region Product Mapper
+        CreateMap<Product,ProductViewModel>()
+        .ForMember(x=>x.StoreName, opt=>opt.MapFrom(x=>x.Store.Name))
+        .ForMember(x=>x.CategoryName, opt=>opt.MapFrom(x=>x.Category.Name))
+        .ReverseMap();
+
+        CreateMap<Product,ProductCreateModel>()
+        .ForMember(x => x.Image, opt => opt.Ignore())
+        .ReverseMap();
+
+        CreateMap<Product, ProductUpdateModel>()
+        .ForMember(x => x.Image, opt => opt.Ignore())
+        .ReverseMap()
+        .ForMember(x => x.ImageName, opt => opt.Ignore());
+
+        #endregion
+
+        #region ProductMenu
+        CreateMap<ProductInMenu,ProductMenuViewModel>()
+        .ForMember(x=>x.MenuName, opt=>opt.MapFrom(x=>x.Menu.Name))
+        .ForMember(x=>x.MenuDescription, opt=>opt.MapFrom(x=>x.Menu.Description))
+        .ForMember(x=>x.ProductName, opt=>opt.MapFrom(x=>x.Product.Name))
+        .ForMember(x=>x.ProductDescription, opt=>opt.MapFrom(x=>x.Product.Description))
+        .ForMember(x=>x.ImageName, opt=>opt.MapFrom(x=>x.Product.ImageName))
+        .ForMember(x=>x.ImageURL, opt=>opt.MapFrom(x=>x.Product.ImageURL))
+        .ForMember(x=>x.PreparationTime, opt=>opt.MapFrom(x=>x.Product.PreparationTime))
+        .ForMember(x=>x.CategoryName, opt=>opt.MapFrom(x=>x.Product.Category.Name))
+        .ForMember(x=>x.CategoryId, opt=>opt.MapFrom(x=>x.Product.Category.Id))
+        .ForMember(x=>x.StoreId, opt=>opt.MapFrom(x=>x.Product.StoreId))
+        .ReverseMap();
+
+        CreateMap<ProductInMenu,ProductMenuCreateModel>()
+        .ReverseMap();
+
+        CreateMap<ProductInMenu, ProductMenuUpdateModel>()
+        .ReverseMap();
+        #endregion
+    }
 }

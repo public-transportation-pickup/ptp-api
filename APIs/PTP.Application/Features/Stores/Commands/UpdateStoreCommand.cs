@@ -5,8 +5,10 @@ using Microsoft.Extensions.Logging;
 using PTP.Application.Commons;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.IntergrationServices.Interfaces;
+using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Stores;
 using PTP.Domain.Entities;
+using PTP.Domain.Globals;
 using System.Globalization;
 
 namespace PTP.Application.Features.Stores.Commands;
@@ -43,22 +45,29 @@ public class UpdateStoreCommand:IRequest<bool>
         private readonly IMapper _mapper;
         private ILogger<CommandHandler> _logger;
         private AppSettings _appSettings;
-        private readonly string FOLDER="StoreImages";
+
+        private readonly ICacheService _cacheService;
 
         public CommandHandler(IUnitOfWork unitOfWork,
             IMapper mapper, ILogger<CommandHandler> logger,
             ILocationService locationService,
-            AppSettings appSettings)
+            AppSettings appSettings,
+            ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _locationService=locationService;
             _appSettings=appSettings;
+            _cacheService=cacheService;
         }
 
         public async Task<bool> Handle(UpdateStoreCommand request, CancellationToken cancellationToken)
         {
+            //Remove From Cache
+            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            await _cacheService.RemoveAsync(CacheKey.STORE+request.StoreUpdate.Id);
+
             var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.StoreUpdate.Id);
             if(store is null ) throw new NotFoundException($"Store with Id-{request.StoreUpdate.Id} is not exist!");
             store = _mapper.Map(request.StoreUpdate,store);
@@ -67,8 +76,8 @@ public class UpdateStoreCommand:IRequest<bool>
             store.ClosedTime = TimeSpan.ParseExact(request.StoreUpdate.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
 
             if (request.StoreUpdate.File is not null){
-                await store.ImageName.RemoveFileAsync(FOLDER, appSettings: _appSettings);
-                var image = await request.StoreUpdate.File!.UploadFileAsync(FOLDER,_appSettings);
+                await store.ImageName.RemoveFileAsync(FolderKey.STORE, appSettings: _appSettings);
+                var image = await request.StoreUpdate.File!.UploadFileAsync(FolderKey.STORE,_appSettings);
                 store.ImageName=image.FileName;
                 store.ImageURL=image.URL;
             }

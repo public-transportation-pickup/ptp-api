@@ -8,6 +8,7 @@ using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Stores;
 using PTP.Domain.Entities;
+using PTP.Domain.Globals;
 using System.Globalization;
 
 namespace PTP.Application.Features.Stores.Commands
@@ -44,7 +45,6 @@ namespace PTP.Application.Features.Stores.Commands
             private readonly IMapper _mapper;
             private ILogger<CommandHandler> _logger;
             private AppSettings _appSettings;
-            private readonly string FOLDER="StoreImages";
 
             public CommandHandler(IUnitOfWork unitOfWork,
                  IMapper mapper, ILogger<CommandHandler> logger,
@@ -71,7 +71,7 @@ namespace PTP.Application.Features.Stores.Commands
                 store.Longitude=location.Lng;
 
                 //Add Image to FireBase
-                var image = await request.CreateModel.File!.UploadFileAsync(FOLDER,_appSettings);
+                var image = await request.CreateModel.File!.UploadFileAsync(FolderKey.STORE,_appSettings);
                 store.ImageName=image.FileName;
                 store.ImageURL=image.URL;
 
