@@ -24,7 +24,7 @@ public class AuthController : BaseController
     [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginRequestModel loginRequest)
     {
-        var result = await _authService.LoginAsync(loginRequest.Token, loginRequest.Role);
+        var result = await _authService.LoginAsync(loginRequest.Token, loginRequest.Role ?? string.Empty);
         if (result is not null) return Ok(result);
         else return BadRequest("Login Failed");
     }

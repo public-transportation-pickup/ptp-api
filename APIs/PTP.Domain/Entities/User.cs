@@ -7,7 +7,7 @@ public class User : BaseEntity
 	public string? Email { get; set; } = string.Empty;
 	public string? PhoneNumber { get; set; } = string.Empty;
 	public DateTime DateOfBirth { get; set; } = default!;
-	public string FCMToken { get; set; } = default!;
+	public string FCMToken { get; set; } = string.Empty;
 
 	#region  Relationship Configuration
 	public Guid RoleId { get; set; } = default!;
