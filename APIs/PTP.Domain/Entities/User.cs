@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 namespace PTP.Domain.Entities;
 public class User : BaseEntity
 {
-	public string FullName { get; set; } = default!;
+	public string FullName { get; set; } = string.Empty;
 	public string? Email { get; set; } = string.Empty;
-	public string? PhoneNumber { get; set; } = default!;
+	public string? PhoneNumber { get; set; } = string.Empty;
 	public DateTime DateOfBirth { get; set; } = default!;
 	public string FCMToken { get; set; } = default!;
 

@@ -32,7 +32,7 @@ public class GetRouteStationByParIdQuery : IRequest<IEnumerable<RouteStationView
             if(resultFromDb?.Count() > 0)
             {
                 return resultFromDb;
-            } else throw new Exception("no_data_found");
+            } else throw new Exception($"no_data_found at {nameof(GetRouteStationByParIdQuery)}");
 
         }
     }
