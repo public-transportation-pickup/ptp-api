@@ -20,7 +20,6 @@ namespace PTP.Infrastructure
 		public DbSet<OrderDetail> OrderDetails { get; set; }
 		public DbSet<Payment> Payment { get; set; }
 		public DbSet<Product> Product { get; set; }
-		public DbSet<ProductImage> ProductImage { get; set; }
 		public DbSet<ProductInMenu> ProductInMenu { get; set; }
 		public DbSet<Route> Route { get; set; }
 		public DbSet<RouteStation> RouteStation { get; set; }

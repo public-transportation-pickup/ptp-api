@@ -14,7 +14,6 @@ public interface IUnitOfWork
     IOrderRepository OrderRepository { get; }
     IPaymentRepository PaymentRepository { get; }
     IProductRepository ProductRepository { get; }
-    IProductImageRepository ProductImageRepository { get; }
     IProductInMenuRepository ProductInMenuRepository { get; }
     IRoleRepository RoleRepository { get; }
     IRouteRepository RouteRepository { get; }

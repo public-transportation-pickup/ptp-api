@@ -1,18 +1,21 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using PTP.Application.Features.Menus.Queries;
+using PTP.Application.Features.Products.Queries;
 using PTP.Application.Features.Routes.Queries;
 using PTP.Application.Features.Stores.Commands;
 using PTP.Application.Features.Stores.Queries;
+using PTP.Application.Features.Wallets.Queries;
 using PTP.Application.ViewModels.Stores;
 using System.Net;
 
 namespace PTP.WebAPI.Controllers
 {
-    public class StoreController:BaseController
+    public class StoresController:BaseController
     {
         private readonly IMediator _mediator;
 
-        public StoreController(IMediator mediator)
+        public StoresController(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -31,11 +34,40 @@ namespace PTP.WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         => Ok(await _mediator.Send(new GetStoreByIdQuery { Id = id }));
+
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [HttpGet("{id}/menus")]
+        public async Task<IActionResult> GetMenusByStoreId([FromRoute] Guid id)
+        => Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id }));
+
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [HttpGet("{id}/products")]
+        public async Task<IActionResult> GetProductsByStoreId([FromRoute] Guid id,Guid categoryId=default)
+        => Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id,CategoryId=categoryId }));
+
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [HttpGet("{id}/stations")]
+        public async Task<IActionResult> GetStationsStoreId([FromRoute] Guid id)
+        => Ok("Comming soon!");
+
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [HttpGet("{id}/wallets")]
+        public async Task<IActionResult> GetWalletByStoreId([FromRoute] Guid id)
+        => Ok(await _mediator.Send(new GetWalletByStoreIdQuery { StoreId = id }));
+
         #endregion
 
         #region COMMANDS
 
-        
+
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

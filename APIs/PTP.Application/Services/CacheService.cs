@@ -90,7 +90,7 @@ namespace PTP.Infrastructure.Caching
 
         public async Task SetAsync<T>(string key, T value, CancellationToken cancellationToken = default) where T : class
         {
-            string cacheValue = JsonConvert.SerializeObject(value);
+            string cacheValue = JsonConvert.SerializeObject(value, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
             await _distributedCache.SetStringAsync(key, cacheValue, cancellationToken);
 
             CachKeys.TryAdd(key, false);

@@ -4,6 +4,7 @@ using PTP.Application.GlobalExceptionHandling;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Infrastructure;
 using Scrutor;
+using System.Text.Json.Serialization;
 
 namespace PTP.WebAPI;
 public static class DependencyInjection
@@ -11,8 +12,8 @@ public static class DependencyInjection
 	public static WebApplicationBuilder AddWebAPIServices(this WebApplicationBuilder builder)
 	{
 		builder.Services.AddHttpContextAccessor();
-		builder.Services.AddControllers();
-		builder.Services.AddHttpClient();
+		builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+        builder.Services.AddHttpClient();
 		builder.Services.AddRouting(x =>
 		{
 			x.LowercaseQueryStrings = true;
@@ -49,8 +50,8 @@ public static class DependencyInjection
 						.UseRecommendedSerializerSettings()
 						.UseInMemoryStorage());
 		builder.Services.AddHangfireServer();
-		
- 
-		return builder;
+
+
+        return builder;
 	}
 }

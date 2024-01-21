@@ -5,6 +5,7 @@ using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Stores;
 using PTP.Domain.Entities;
+using PTP.Domain.Globals;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,6 @@ namespace PTP.Application.Features.Stores.Queries
             private readonly IMapper _mapper;
             private readonly ICacheService  _cacheService;
             private ILogger<QueryHandler> logger;
-            private const string CACHE_KEY = "STORE";
 
             public QueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService, ILogger<QueryHandler> logger)
             {
@@ -34,14 +34,14 @@ namespace PTP.Application.Features.Stores.Queries
             public async Task<IEnumerable<StoreViewModel>> Handle(GetAllStoreQuery request, CancellationToken cancellationToken)
             {
                 if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                var cacheResult = await _cacheService.GetByPrefixAsync<Store>(CACHE_KEY);
+                var cacheResult = await _cacheService.GetByPrefixAsync<Store>(CacheKey.STORE);
                 if (cacheResult!.Count > 0)
                 {
                     return _mapper.Map<IEnumerable<StoreViewModel>>(cacheResult);
                 }
-                var stores = await _unitOfWork.StoreRepository.GetAllAsync();
+                var stores = await _unitOfWork.StoreRepository.GetAllAsync(x=>x.User);
                 if (stores.Count == 0) throw new NotFoundException("There are no store in DB!");
-                await _cacheService.SetByPrefixAsync<Store>(CACHE_KEY, stores);
+                await _cacheService.SetByPrefixAsync<Store>(CacheKey.STORE, stores);
                 return _mapper.Map<IEnumerable<StoreViewModel>>(stores);
             }
         }
