@@ -5,6 +5,7 @@ using PTP.Application.Features.Products.Queries;
 using PTP.Application.Features.Routes.Queries;
 using PTP.Application.Features.Stores.Commands;
 using PTP.Application.Features.Stores.Queries;
+using PTP.Application.Features.Wallets.Queries;
 using PTP.Application.ViewModels.Stores;
 using System.Net;
 
@@ -45,8 +46,8 @@ namespace PTP.WebAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [HttpGet("{id}/products")]
-        public async Task<IActionResult> GetProductsByStoreId([FromRoute] Guid id)
-        => Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id }));
+        public async Task<IActionResult> GetProductsByStoreId([FromRoute] Guid id,Guid categoryId=default)
+        => Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id,CategoryId=categoryId }));
 
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -54,6 +55,13 @@ namespace PTP.WebAPI.Controllers
         [HttpGet("{id}/stations")]
         public async Task<IActionResult> GetStationsStoreId([FromRoute] Guid id)
         => Ok("Comming soon!");
+
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        [HttpGet("{id}/wallets")]
+        public async Task<IActionResult> GetWalletByStoreId([FromRoute] Guid id)
+        => Ok(await _mediator.Send(new GetWalletByStoreIdQuery { StoreId = id }));
 
         #endregion
 

@@ -39,7 +39,7 @@ namespace PTP.Application.Features.Stores.Queries
                 {
                     return _mapper.Map<IEnumerable<StoreViewModel>>(cacheResult);
                 }
-                var stores = await _unitOfWork.StoreRepository.GetAllAsync();
+                var stores = await _unitOfWork.StoreRepository.GetAllAsync(x=>x.User);
                 if (stores.Count == 0) throw new NotFoundException("There are no store in DB!");
                 await _cacheService.SetByPrefixAsync<Store>(CacheKey.STORE, stores);
                 return _mapper.Map<IEnumerable<StoreViewModel>>(stores);

@@ -3,8 +3,11 @@ using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using PTP.Application.GlobalExceptionHandling.Exceptions;
+using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Menus;
 using PTP.Domain.Entities;
+using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Menus.Commands;
 
@@ -33,13 +36,16 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private ILogger<CommandHandler> _logger;
+        private readonly ICacheService _cacheService;
         public CommandHandler(IUnitOfWork unitOfWork,
                 IMapper mapper,
-                ILogger<CommandHandler> logger)
+                ILogger<CommandHandler> logger,
+                ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper=mapper;
             _logger=logger;
+            _cacheService=cacheService;
         }
         public async Task<MenuViewModel> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
         {
@@ -49,7 +55,8 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
             menu.EndTime=TimeSpan.ParseExact(request.CreateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture);
 
             await _unitOfWork.MenuRepository.AddAsync(menu);
-            await _unitOfWork.SaveChangesAsync();
+            if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
+                await _cacheService.RemoveByPrefixAsync(CacheKey.MENU);
             return _mapper.Map<MenuViewModel>(menu);
         }
     }

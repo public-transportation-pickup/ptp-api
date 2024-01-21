@@ -13,6 +13,7 @@ namespace PTP.Application.Features.Products.Queries;
 public class GetProductsByStoreIdQuery:IRequest<IEnumerable<ProductViewModel>>
 {
     public Guid StoreId { get; set; } = default!;
+    public Guid CategoryId{get;set;}=default!;
 
    public class QueryValidation : AbstractValidator<GetProductsByStoreIdQuery>
    {
@@ -41,12 +42,15 @@ public class GetProductsByStoreIdQuery:IRequest<IEnumerable<ProductViewModel>>
            var cacheResult = await _cacheService.GetByPrefixAsync<Product>(CacheKey.PRODUCT);
            if (cacheResult!.Count>0)
            {
-               return _mapper.Map<IEnumerable<ProductViewModel>>(cacheResult.Where(x=>x.StoreId==request.StoreId));
+               return request.CategoryId == Guid.Empty 
+                    ? _mapper.Map<IEnumerable<ProductViewModel>>(cacheResult.Where(x=>x.StoreId==request.StoreId))
+                    : _mapper.Map<IEnumerable<ProductViewModel>>(cacheResult.Where(x => x.StoreId == request.StoreId&&x.CategoryId==request.CategoryId));
            }
            var product = await _unitOfWork.ProductRepository.WhereAsync(x=>x.StoreId==request.StoreId,x=>x.Store,x=>x.Category);
            if (product is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any products!");
            await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, product);
-           return _mapper.Map<IEnumerable<ProductViewModel>>(product);
+           var result= _mapper.Map<IEnumerable<ProductViewModel>>(product);
+           return request.CategoryId==Guid.Empty? result: result.Where(x=>x.CategoryId==request.CategoryId);
        }
    }
 }

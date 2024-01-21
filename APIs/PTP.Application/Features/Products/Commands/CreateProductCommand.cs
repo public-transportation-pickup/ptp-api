@@ -3,6 +3,8 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PTP.Application.Commons;
+using PTP.Application.GlobalExceptionHandling.Exceptions;
+using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Products;
 using PTP.Domain.Entities;
 using PTP.Domain.Globals;
@@ -33,15 +35,18 @@ public class CreateProductCommand:IRequest<ProductViewModel>
         private readonly IMapper _mapper;
         private ILogger<CommandHandler> _logger;
         private AppSettings _appSettings;
+        private readonly ICacheService _cacheService;
         public CommandHandler(IUnitOfWork unitOfWork,
                 IMapper mapper,
                 ILogger<CommandHandler> logger,
-                AppSettings appSettings)
+                AppSettings appSettings,
+                ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper=mapper;
             _logger=logger;
             _appSettings=appSettings;
+            _cacheService=cacheService;
         }
         public async Task<ProductViewModel> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
@@ -53,7 +58,8 @@ public class CreateProductCommand:IRequest<ProductViewModel>
             product.ImageName=image.FileName;
             product.ImageURL=image.URL;
             await _unitOfWork.ProductRepository.AddAsync(product);
-            await _unitOfWork.SaveChangesAsync();
+            if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
+                await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
             return _mapper.Map<ProductViewModel>(product);
         }
     }

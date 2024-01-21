@@ -2,8 +2,11 @@ using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using PTP.Application.GlobalExceptionHandling.Exceptions;
+using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.ProductMenus;
 using PTP.Domain.Entities;
+using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.ProductMenus.Commands;
 
@@ -26,13 +29,16 @@ public class CreateProductMenuCommand:IRequest<ProductMenuViewModel>
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private ILogger<CommandHandler> _logger;
+        private readonly ICacheService _cacheService;
         public CommandHandler(IUnitOfWork unitOfWork,
                 IMapper mapper,
-                ILogger<CommandHandler> logger)
+                ILogger<CommandHandler> logger,
+                ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper=mapper;
             _logger=logger;
+            _cacheService=cacheService;
         }
         public async Task<ProductMenuViewModel> Handle(CreateProductMenuCommand request, CancellationToken cancellationToken)
         {
@@ -40,7 +46,8 @@ public class CreateProductMenuCommand:IRequest<ProductMenuViewModel>
             var productMenu= _mapper.Map<ProductInMenu>(request.CreateModel);
 
             await _unitOfWork.ProductInMenuRepository.AddAsync(productMenu);
-            await _unitOfWork.SaveChangesAsync();
+            if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
+                await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
             return _mapper.Map<ProductMenuViewModel>(productMenu);
         }
     }

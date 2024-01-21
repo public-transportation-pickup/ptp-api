@@ -12,6 +12,7 @@ namespace PTP.Application.Features.ProductMenus.Queries;
 public class GetProductInMenuByMenuIdQuery:IRequest<IEnumerable<ProductMenuViewModel>>
 {
     public Guid MenuId{get;set;}
+    public Guid CategoryId{get;set;}=default!;
     public class CommmandValidation : AbstractValidator<GetProductInMenuByMenuIdQuery>
     {
         public CommmandValidation()
@@ -39,7 +40,9 @@ public class GetProductInMenuByMenuIdQuery:IRequest<IEnumerable<ProductMenuViewM
             var cacheResult = await _cacheService.GetByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU);
             if (cacheResult!.Count > 0)
             {
-                return _mapper.Map<IEnumerable<ProductMenuViewModel>>(cacheResult);
+                return request.CategoryId==Guid.Empty
+                    ? _mapper.Map<IEnumerable<ProductMenuViewModel>>(cacheResult.Where(x=>x.MenuId==request.MenuId))
+                    : _mapper.Map<IEnumerable<ProductMenuViewModel>>(cacheResult.Where(x=>x.MenuId==request.MenuId && x.Product.CategoryId==request.CategoryId));
             }
             var productMenus= await _unitOfWork.ProductInMenuRepository
                                 .WhereAsync(x=>x.MenuId==request.MenuId,
@@ -49,7 +52,9 @@ public class GetProductInMenuByMenuIdQuery:IRequest<IEnumerable<ProductMenuViewM
 
             if(productMenus.Count==0) throw new NotFoundException($"There are no product for Menu-{request.MenuId}!");
             await _cacheService.SetByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU, productMenus);
-            return _mapper.Map<IEnumerable<ProductMenuViewModel>>(productMenus);
+            return request.CategoryId==Guid.Empty
+                ?_mapper.Map<IEnumerable<ProductMenuViewModel>>(productMenus)
+                :_mapper.Map<IEnumerable<ProductMenuViewModel>>(productMenus.Where(x=>x.Product.CategoryId==request.CategoryId));
         }
     }
 }

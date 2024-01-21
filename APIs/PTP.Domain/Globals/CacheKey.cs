@@ -14,7 +14,7 @@ namespace PTP.Domain.Globals
         public static readonly string CATE = "CATE-";
         public static readonly string PRODUCT = "PRODUCT-";
         public static readonly string PRODUCTMENU = "PRODUCTMENU-";
-        //public static readonly string Menu = "MENU-";
+        public static readonly string WALLET = "WALLET-";
         //public static readonly string Menu = "MENU-";
         //public static readonly string Menu = "MENU-";
         //public static readonly string Menu = "MENU-";

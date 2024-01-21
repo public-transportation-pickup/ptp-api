@@ -8,6 +8,7 @@ using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Stores;
 using PTP.Domain.Entities;
+using PTP.Domain.Enums;
 using PTP.Domain.Globals;
 using System.Globalization;
 
@@ -44,18 +45,22 @@ namespace PTP.Application.Features.Stores.Commands
             private readonly ILocationService _locationService;
             private readonly IMapper _mapper;
             private ILogger<CommandHandler> _logger;
+
+            private ICacheService _cacheService;
             private AppSettings _appSettings;
 
             public CommandHandler(IUnitOfWork unitOfWork,
                  IMapper mapper, ILogger<CommandHandler> logger,
                  ILocationService locationService,
-                 AppSettings appSettings)
+                 AppSettings appSettings,
+                 ICacheService cacheService)
             {
                 _unitOfWork = unitOfWork;
                 _mapper = mapper;
                 _logger = logger;
                 _locationService=locationService;
                 _appSettings=appSettings;
+                _cacheService=cacheService;
             }
 
 
@@ -63,6 +68,11 @@ namespace PTP.Application.Features.Stores.Commands
             {
                 _logger.LogInformation("Create Store:\n");
                 var store= _mapper.Map<Store>(request.CreateModel);
+
+                var isDup = await _unitOfWork.UserRepository.WhereAsync(x=>x.PhoneNumber!.ToLower() == request.CreateModel.PhoneNumber!.ToLower());
+                if (isDup.Count() > 0)
+                    throw new Exception($"Error: {nameof(CreateStoreCommand)}_ phone is duplicate!");
+
                 store.OpenedTime= TimeSpan.ParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
                 store.ClosedTime = TimeSpan.ParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
                 //Get Lat, Lng from address
@@ -75,9 +85,37 @@ namespace PTP.Application.Features.Stores.Commands
                 store.ImageName=image.FileName;
                 store.ImageURL=image.URL;
 
+                //Config RelationShip
+                store.WalletId=await CreateWallet(store.Id);
+                store.StoreCode= (await _unitOfWork.StoreRepository.GetAllAsync()).Count + 1;
+                store.UserId = await CreateUser(store);
+
                 await _unitOfWork.StoreRepository.AddAsync(store);
-                await _unitOfWork.SaveChangesAsync();
+                if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
+                await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
                 return _mapper.Map<StoreViewModel>(store);
+            }
+
+            private async Task<Guid> CreateWallet(Guid storeId)
+            {
+                var wallet = new Wallet{Name="Store-Wallet", Amount=0, WalletType=WalletTypeEnum.Store.ToString(),StoreId=storeId};
+                await _unitOfWork.WalletRepository.AddAsync(wallet);
+                return wallet.Id;
+            }
+
+            private async Task<Guid> CreateUser(Store store){
+                var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x=>x.Name==RoleEnum.StoreManager.ToString());
+                var user = new User
+                    {
+                        FullName=store.Name,
+                        PhoneNumber=store.PhoneNumber,
+                        Password="@Abcaz12345",
+                        Email=$"Store{store.StoreCode}@gmail.com",
+                        StoreId=store.Id,
+                        RoleId=role!.Id
+                    };
+                await _unitOfWork.UserRepository.AddAsync(user);
+                return user.Id;  
             }
         }
     }

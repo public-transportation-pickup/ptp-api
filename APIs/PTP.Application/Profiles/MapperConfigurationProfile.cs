@@ -7,6 +7,7 @@ using PTP.Application.ViewModels.Products;
 using PTP.Application.ViewModels.Routes;
 using PTP.Application.ViewModels.RouteVars;
 using PTP.Application.ViewModels.Stores;
+using PTP.Application.ViewModels.Wallets;
 using PTP.Domain.Entities;
 
 namespace PTP.Application.Profiles;
@@ -21,7 +22,10 @@ public class MapperConfigurationProfile : Profile
         #endregion
 
         #region StoreMapper
-        CreateMap<Store, StoreViewModel>().ReverseMap();
+        CreateMap<Store, StoreViewModel>()
+            .ForMember(x=>x.Email,opt=>opt.MapFrom(x=>x.User.Email))
+            .ForMember(x => x.Password, opt => opt.MapFrom(x => x.User.Password))
+            .ReverseMap();
         CreateMap<Store, StoreCreateModel>()
             .ForMember(x => x.ClosedTime, opt => opt.Ignore())
             .ForMember(x => x.OpenedTime, opt => opt.Ignore())
@@ -97,6 +101,10 @@ public class MapperConfigurationProfile : Profile
 
         CreateMap<ProductInMenu, ProductMenuUpdateModel>()
         .ReverseMap();
+        #endregion
+
+        #region Wallet
+        CreateMap<Wallet,WalletViewModel>().ReverseMap();
         #endregion
     }
 }
