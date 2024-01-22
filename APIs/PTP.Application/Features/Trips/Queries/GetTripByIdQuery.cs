@@ -51,8 +51,19 @@ public class GetTripByIdQuery : IRequest<TripViewModel>
             var parameters = new DynamicParameters();
             parameters.Add("@id", tripId);
             var result = await connection.QueryAsync<ScheduleViewModel>(query, parameters);
-            return result?.Count() > 0 ? result :
-            throw new NotFoundException($"no_data_found at {nameof(GetScheduleAsync)}");
+            if (result?.Count() > 0)
+            {
+                var resultArr = result.ToArray();
+
+                // TODO: Cập nhật lại time, time và distance nếu đo từ start là không chuẩn
+                for (int i = 0; i < resultArr.Length; i++)
+                {
+                    if (i == 0) continue;
+                    resultArr[i].ArrivalTime = resultArr[i -1].ArrivalTime.Add(TimeSpan.FromMinutes((double)resultArr[i - 1].DurationToNext));
+                }
+                return resultArr.ToList();
+            }
+            else throw new Exception($"no_data_found at {nameof(GetTripByIdQuery)}_{nameof(GetScheduleAsync)}");
 
         }
     }

@@ -1,11 +1,3 @@
-using Hangfire;
-using PTP.Application;
-using PTP.Application.GlobalExceptionHandling;
-using PTP.Application.IntergrationServices.Interfaces;
-using PTP.Infrastructure;
-using Scrutor;
-using System.Text.Json.Serialization;
-
 namespace PTP.WebAPI;
 public static class DependencyInjection
 {
@@ -13,7 +5,10 @@ public static class DependencyInjection
 	{
 		builder.Services.AddHttpContextAccessor();
 		builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-        builder.Services.AddHttpClient();
+		builder.Services.AddHttpClient();
+		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddControllers();
+		builder.Services.AddHttpClient();
 		builder.Services.AddRouting(x =>
 		{
 			x.LowercaseQueryStrings = true;
@@ -43,15 +38,63 @@ public static class DependencyInjection
 		 .UsingRegistrationStrategy(RegistrationStrategy.Skip)
 		 .AsMatchingInterface()
 		 .WithScopedLifetime());
-		
+
 		// Add Hangfire
 		builder.Services.AddHangfire(config => config
 						.UseSimpleAssemblyNameTypeSerializer()
 						.UseRecommendedSerializerSettings()
 						.UseInMemoryStorage());
 		builder.Services.AddHangfireServer();
+		builder.Services.AddSwaggerGen(opt =>
+					{
+						opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Public-Transportation-Pickup", Version = "v1" });
+						var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+						var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+						opt.IncludeXmlComments(xmlPath);
+						opt.AddSecurityDefinition(name: "Bearer", securityScheme: new OpenApiSecurityScheme
+						{
+							Name = "Authorization",
+							Description = "Bearer Generated JWT-Token",
+							In = ParameterLocation.Header,
+							Type = SecuritySchemeType.ApiKey,
+							Scheme = "Bearer"
 
+						});
+						opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+						{
+							{
+								new OpenApiSecurityScheme
+								{
+									Reference = new OpenApiReference
+									{
+										Type = ReferenceType.SecurityScheme,
+										Id = JwtBearerDefaults.AuthenticationScheme
+									},
+									Scheme = "oauth2",
+									Name = "Bearer",
+									In = ParameterLocation.Header,
+								}, Array.Empty<string>()
+							}
+						});
+					});
 
-        return builder;
+		var key = Encoding.ASCII.GetBytes(configuration.JWTOptions.Secret);
+		builder.Services.AddAuthentication(x =>
+		{
+			x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+		}).AddJwtBearer(x =>
+		{
+			x.TokenValidationParameters = new TokenValidationParameters
+			{
+				ValidateIssuerSigningKey = true,
+				IssuerSigningKey = new SymmetricSecurityKey(key),
+				ValidateIssuer = true,
+				ValidIssuer = configuration.JWTOptions.Issuer,
+				ValidAudience = configuration.JWTOptions.Audience,
+				ValidateAudience = true
+			};
+		});
+		return builder;
 	}
 }

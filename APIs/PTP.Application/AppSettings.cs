@@ -4,6 +4,13 @@ public class AppSettings
 	public ConnectionStrings ConnectionStrings { get; set; } = default!;
 	public FirebaseSettings FirebaseSettings { get; set; } = default!;
 	public string GoongAPIKey { get; set; } = default!;
+	public JWTOptions JWTOptions { get; set; } = default!;
+}
+public class JWTOptions
+{
+	public string Secret { get; set; } = string.Empty;
+	public string Audience { get; set; } = string.Empty;
+	public string Issuer { get; set; } = string.Empty;
 }
 
 public class FirebaseSettings

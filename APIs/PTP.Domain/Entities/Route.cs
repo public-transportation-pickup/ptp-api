@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PTP.Domain.Enums;
 
 namespace PTP.Domain.Entities;
 public class Route : BaseEntity
@@ -6,7 +7,7 @@ public class Route : BaseEntity
 	public int RouteId { get; set; } = default!;
 	public string RouteNo { get; set; } = string.Empty;
 	public string Name { get; set; } = default!;
-	public string Status { get; set; } = default!;
+	public string Status { get; set; } = nameof(DefaultStatusEnum.Active);
 	public double Distance { get; set; } = 0d;
 	[Precision(18, 2)]
 	public double AverageVelocity { get; set; } = 0;

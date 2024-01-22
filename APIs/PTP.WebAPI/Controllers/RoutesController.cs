@@ -1,75 +1,85 @@
+using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Routes.Commands;
 using PTP.Application.Features.Routes.Queries;
-using System.Net;
+using PTP.Application.IntergrationServices.Interfaces;
+using PTP.Application.ViewModels.Routes;
 
 namespace PTP.WebAPI.Controllers;
 public class RoutesController : BaseController
 {
-	// private readonly IBusRouteService _intergrationBus;
-	// public RoutesController(IBusRouteService busRouteService)
-	// {
-	//     _intergrationBus = busRouteService;
-	// }
-	// [ProducesResponseType((int)HttpStatusCode.Created)]
-	// [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-	// [HttpPost]
-	// public async Task<IActionResult> Post()
-	// {
-	//     await _intergrationBus.CheckNewCreatedRoute();
-	//    return Ok();
-	// } 
 
 	private readonly IMediator _mediator;
 	public RoutesController(IMediator mediator)
 	{
 		_mediator = mediator;
 	}
-
+	/// <summary>
+	/// Lấy tất cả Route 
+	/// </summary>
+	/// <returns></returns>
 	#region READ 
 	[ProducesResponseType((int)HttpStatusCode.OK)]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+	[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 	[HttpGet]
 	public async Task<IActionResult> Get() => Ok(await _mediator.Send(new GetAllRouteQuery()));
+	/// <summary>
+	/// Lấy Route theo Id
+	/// </summary>
+	/// <param name="id">Guid</param>
+	/// <returns></returns>
 
 	[ProducesResponseType((int)HttpStatusCode.OK)]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+	[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 	[HttpGet("{id}")]
 	public async Task<IActionResult> GetById([FromRoute] Guid id)
 	=> Ok(await _mediator.Send(new GetRouteByIdQuery { Id = id }));
-
-	/// <summary>
-	/// Get Route Vars by routeId
-	/// </summary>
-	/// <param name="id">routeId</param>
-	/// <returns>IEnumerable<RouteVarViewModel></returns>
-	[HttpGet("{id}/route-vars")]
-	[ProducesResponseType((int)HttpStatusCode.OK)]
-	[ProducesResponseType((int)HttpStatusCode.BadRequest)]
-	public async Task<IActionResult> GetRouteVarByRouteId(Guid id)
-	{
-		return Ok(await _mediator.Send(new GetRouteVarByRouteIdQuery { Id = id }));
-	}
 	#endregion
 	#region Write
 	/// <summary>
-	/// - Update Route Distance and Duration by RouteId
-	/// - The updated is update into two routeVariation, for the clockwise and counter-clockwise
+	/// Cập nhật Distance và duration cho một route, chỉ gọi khi cần, API này call ra ngoài nhiều 
+	/// Note: Distance to Start và Duration to Start chưa chính xác, chỉ đúng trường hợp tuyến là 1 đường thẳng
 	/// </summary>
-	/// <param name="id">RouteId</param>
+	/// <param name="id">Guid</param>
 	/// <returns></returns>
 	[Route("{id}/distance-modification")]
 	[ProducesResponseType((int)HttpStatusCode.NoContent)]
 	[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+	[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 	[HttpPut]
 	public async Task<IActionResult> Update([FromRoute] Guid id)
 	{
 		await _mediator.Send(new DistanceModificationCommand { Id = id });
 		return NoContent();
 	}
-
-
+	/// <summary>
+	/// Xoá một route
+	/// </summary>
+	/// <param name="id"></param>
+	/// <returns></returns>
+	[ProducesResponseType((int)HttpStatusCode.NoContent)]
+	[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+	[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+	[HttpDelete("{id}")]
+	public async Task<IActionResult> Delete(Guid id)
+	{
+		return await _mediator.Send(new DeleteRouteCommand { Id = id }) ? NoContent() : BadRequest();
+	}
+	/// <summary>
+	/// Update một route
+	/// </summary>
+	/// <param name="id"></param>
+	/// <param name="model"></param>
+	/// <returns></returns>
+	[ProducesResponseType((int)HttpStatusCode.NoContent)]
+	[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+	[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+	[HttpPut("{id}")]
+	public async Task<IActionResult> Update(Guid id, [FromBody] RouteUpdateModel model)
+		=> await _mediator.Send(new UpdateRouteCommand { Id = id, Model = model }) ? NoContent() : BadRequest();
 	#endregion
 
 }
