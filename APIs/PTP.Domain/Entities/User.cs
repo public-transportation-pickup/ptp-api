@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace PTP.Domain.Entities;
 public class User : BaseEntity
 {
@@ -14,7 +16,7 @@ public class User : BaseEntity
 	public Guid WalletId { get; set; }
 	public Wallet Wallet { get; set; } = default!;
 	public ICollection<Order> Orders { get; set; } = default!;
-	public Guid? StoreId { get; set; }
+	public Guid? StoreId { get; set; } = null;
 	public Store? Store { get; set; } = default!;
 	#endregion
 
