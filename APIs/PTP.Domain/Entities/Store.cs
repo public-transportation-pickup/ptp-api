@@ -16,7 +16,6 @@ public class Store : BaseEntity
 	public decimal Longitude { get; set; } = default!;
 	public string Address { get; set; } = default!;
 	public DateTime? ActivationDate { get; set; } = null;
-	public int StoreCode { get; set; } = default!;
 
 	#region Image 
 	public string ImageName { get; set; } = string.Empty;

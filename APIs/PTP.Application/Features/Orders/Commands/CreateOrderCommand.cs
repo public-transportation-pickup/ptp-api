@@ -8,6 +8,7 @@ using PTP.Application.ViewModels.OrderDetails;
 using PTP.Application.ViewModels.Orders;
 using PTP.Application.ViewModels.Payments;
 using PTP.Domain.Entities;
+using PTP.Domain.Enums;
 
 namespace PTP.Application.Features.Orders;
 
@@ -53,8 +54,9 @@ public class CreateOrderCommand:IRequest<OrderViewModel>
             var order= _mapper.Map<Order>(request.CreateModel);
             await CreateOrderDetail(order.Id, request.CreateModel.OrderDetails);
             order.PaymentId = await CreatePayment(order.Id, request.CreateModel.Payment);
+            await CreateTransaction(order);
             await _unitOfWork.OrderRepository.AddAsync(order);
-            await _unitOfWork.SaveChangesAsync();
+            if(!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
             return _mapper.Map<OrderViewModel>(order);
         }
 
@@ -73,6 +75,23 @@ public class CreateOrderCommand:IRequest<OrderViewModel>
             var payment = new Payment { Total = model.Total, PaymentType = model.PaymentType, OrderId = orderId };
             await _unitOfWork.PaymentRepository.AddAsync(payment);
             return payment.Id;
+        }
+
+        private async Task CreateTransaction(Order order)
+        {
+            var userWallet= await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x=>x.UserId==order.UserId);
+            if(userWallet!.Amount<order.Total) throw new BadRequestException("Wallet is not enough monney!");
+            var storeWallet =  await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x=>x.StoreId==order.StoreId);
+            if(storeWallet is null ) throw new BadRequestException($"Wallet have Store Id-{order.StoreId} does not exist!");
+
+            var transactions= new List<Transaction>{
+                new Transaction{Name=nameof(TransactionTypeEnum.Transfer),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Transfer),WalletId=userWallet.Id,PaymentId=order.PaymentId},
+                new Transaction{Name=nameof(TransactionTypeEnum.Receive),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Receive),WalletId=storeWallet.Id,PaymentId=order.PaymentId}
+            };
+            await _unitOfWork.TransactionRepository.AddRangeAsync(transactions);
+            userWallet.Amount  -= order.Total;
+            storeWallet.Amount += order.Total;
+            _unitOfWork.WalletRepository.UpdateRange(new List<Wallet>{userWallet,storeWallet});
         }
     }
 }

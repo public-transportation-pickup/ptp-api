@@ -12,6 +12,7 @@ public class OrderViewModel
     public Guid UserId { get; set; }
     public Guid StationId { get; set; } = default!;
     public string StationName{get;set;}=default!;
+    public string StationAddress{get;set;}=default!;
     public Guid StoreId { get; set; }
     public string StoreName{get;set;}=default!;
     public string StorePhoneNumber{get;set;}=default!;

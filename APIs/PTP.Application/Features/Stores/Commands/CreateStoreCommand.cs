@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Firebase.Auth;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using PTP.Domain.Entities;
 using PTP.Domain.Enums;
 using PTP.Domain.Globals;
 using System.Globalization;
+using User = PTP.Domain.Entities.User;
 
 namespace PTP.Application.Features.Stores.Commands
 {
@@ -73,6 +75,8 @@ namespace PTP.Application.Features.Stores.Commands
                 if (isDup.Count() > 0)
                     throw new Exception($"Error: {nameof(CreateStoreCommand)}_ phone is duplicate!");
 
+                store.UserId = await CreateUser(store);
+
                 store.OpenedTime= TimeSpan.ParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
                 store.ClosedTime = TimeSpan.ParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
                 //Get Lat, Lng from address
@@ -87,8 +91,7 @@ namespace PTP.Application.Features.Stores.Commands
 
                 //Config RelationShip
                 store.WalletId=await CreateWallet(store.Id);
-                store.StoreCode= (await _unitOfWork.StoreRepository.GetAllAsync()).Count + 1;
-                store.UserId = await CreateUser(store);
+                
 
                 await _unitOfWork.StoreRepository.AddAsync(store);
                 if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
@@ -110,12 +113,32 @@ namespace PTP.Application.Features.Stores.Commands
                         FullName=store.Name,
                         PhoneNumber=store.PhoneNumber,
                         Password="@Abcaz12345",
-                        Email=$"Store{store.StoreCode}@gmail.com",
+                        Email=$"Store{DateTime.Now.Hour+DateTime.Now.Minute+DateTime.Now.Second}@gmail.com",
                         StoreId=store.Id,
                         RoleId=role!.Id
                     };
                 await _unitOfWork.UserRepository.AddAsync(user);
+                if(!await CreateUserToFirebaseAsync(user.Email,user.Password)) throw new Exception($"Create Account to FireBase Fail!");
                 return user.Id;  
+            }
+
+            private async Task<bool> CreateUserToFirebaseAsync(string email, string password)
+            {
+                var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey: _appSettings.FirebaseSettings.ApiKeY));
+                try
+                {
+                    var result = await auth.CreateUserWithEmailAndPasswordAsync(email: email, password: password);
+                    if (result.User is not null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"{ex}");
+                }
+
             }
         }
     }
