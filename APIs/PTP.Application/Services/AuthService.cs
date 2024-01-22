@@ -14,13 +14,12 @@ public class AuthService : IAuthService
 		_appSettings = appSettings;
 		_jwtTokenGenerator = jWTTokenGenerator;
 	}
-
-	public async Task<LoginResponseModel> LoginAsync(string token, string role)
+		public async Task<LoginResponseModel> LoginAsync(string token, string role)
 	{
 		var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey: _appSettings.FirebaseSettings.ApiKeY));
 		var user = await auth.GetUserAsync(token) ??
 					throw new Exception($"Error at: {nameof(IAuthService)}_ User not exist on firebase authentication");
-		var userInDb = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email == user.Email, x => x.Role);
+		var userInDb = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email == user.Email, x => x.Role);	
 		if (userInDb is not null)
 		{
 			// TODO: Gen token rồi trả Token system

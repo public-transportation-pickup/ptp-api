@@ -12,7 +12,7 @@ public static class FirebaseUtility
                 var fs = fileUpload.OpenReadStream();
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey:appSettings.FirebaseSettings.ApiKeY));
                 var user = await auth.GetUserAsync(firebaseToken: string.Empty);
-                
+    
                 var a = await auth.SignInWithEmailAndPasswordAsync(email:appSettings.FirebaseSettings.AuthEmail, password:appSettings.FirebaseSettings.AuthPassword);
                 var cancellation = new FirebaseStorage(
                     appSettings.FirebaseSettings.Bucket,
