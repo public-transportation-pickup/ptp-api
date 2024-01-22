@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using PTP.Application.ViewModels.Users;
 
@@ -6,6 +7,16 @@ public class UpdateUserCommand : IRequest
 {
 	public Guid Id { get; set; } = Guid.Empty;
 	public UserUpdateModel Model { get; set; } = default!;
+	public class CommandValidation : AbstractValidator<UpdateUserCommand>
+	{
+		public CommandValidation() 
+		{
+			RuleFor(x => x.Id).NotNull().NotEmpty().WithMessage("Id must not null or empty");
+			RuleFor(x => x.Model.FullName).NotNull().NotEmpty()
+							.WithMessage("Name must not null or empty");
+			
+		}
+	}
 	public class CommandHandler : IRequestHandler<UpdateUserCommand>
 	{
 		private readonly IUnitOfWork _unitOfWork;

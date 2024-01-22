@@ -15,6 +15,7 @@ public class CreateRouteVarCommand : IRequest<RouteVarViewModel?>
         public CommandValidation()
         {
             RuleFor(req => req.Model.RouteId).NotNull().NotEmpty();
+            RuleFor(req => req.Model.RouteVarName).NotNull().NotEmpty();
         }
     }
     public class CommandHandler : IRequestHandler<CreateRouteVarCommand, RouteVarViewModel?>

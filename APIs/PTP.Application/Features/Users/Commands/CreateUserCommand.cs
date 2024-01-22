@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using FluentValidation;
 using MediatR;
 using PTP.Application.Features.Users.Queries;
 using PTP.Application.ViewModels.Users;
@@ -9,6 +10,17 @@ namespace PTP.Application.Features.Users.Commands;
 public class CreateUserCommand : IRequest<UserViewModel>
 {
     public UserCreateModel Model { get; set; } = default!;
+    public class CommandValidation : AbstractValidator<CreateUserCommand>
+    {
+        public CommandValidation()
+        {
+            RuleFor(x => x.Model.Email).NotNull().NotEmpty()
+            .EmailAddress()
+            .WithMessage($"Email not valid");
+            RuleFor(x => x.Model.FullName).NotNull().NotEmpty().WithMessage($"Full Name is not valid");
+
+        }
+    }
     public class CommandHandler : IRequestHandler<CreateUserCommand, UserViewModel>
     {
         private readonly IUnitOfWork _unitOfWork;

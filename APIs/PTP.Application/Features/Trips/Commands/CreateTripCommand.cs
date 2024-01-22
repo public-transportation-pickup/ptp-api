@@ -16,6 +16,7 @@ public class CreateTripCommand : IRequest<TripViewModel?>
             .NotEmpty()
             .Matches(@"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$")
             .WithMessage($"{nameof(CreateTripCommand)}: StartTime is required and in format: 'HH:MM'");
+            
         }
     }
     public class CommandHandler : IRequestHandler<CreateTripCommand, TripViewModel?>
