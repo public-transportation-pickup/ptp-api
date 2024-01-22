@@ -1,21 +1,11 @@
-using System.Reflection;
-using System.Text;
-using Hangfire;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using PTP.Application;
-using PTP.Application.GlobalExceptionHandling;
-using PTP.Application.IntergrationServices.Interfaces;
-using PTP.Infrastructure;
-using Scrutor;
-
 namespace PTP.WebAPI;
 public static class DependencyInjection
 {
 	public static WebApplicationBuilder AddWebAPIServices(this WebApplicationBuilder builder)
 	{
 		builder.Services.AddHttpContextAccessor();
+		builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+		builder.Services.AddHttpClient();
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddControllers();
 		builder.Services.AddHttpClient();

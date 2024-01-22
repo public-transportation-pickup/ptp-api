@@ -51,6 +51,10 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Category");
@@ -76,8 +80,8 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EndTime")
-                        .HasColumnType("int");
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -92,8 +96,8 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StartTime")
-                        .HasColumnType("int");
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -114,10 +118,6 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("CommissionRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -141,6 +141,10 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("StationId")
                         .HasColumnType("uniqueidentifier");
 
@@ -148,16 +152,22 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("Total")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("UserId")
+                        .HasPrecision(18, 2)
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("StationId");
+
+                    b.HasIndex("StoreId");
 
                     b.HasIndex("UserId");
 
@@ -192,7 +202,7 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductInMenuId")
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
@@ -202,7 +212,7 @@ namespace PTP.Infrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductInMenuId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderDetails");
                 });
@@ -266,47 +276,6 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ModificatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModificationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("StoreId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("StoreId");
-
-                    b.ToTable("Product");
-                });
-
-            modelBuilder.Entity("PTP.Domain.Entities.ProductImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("ImageName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -324,14 +293,27 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PreparationTime")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("StoreId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("ProductImage");
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.ProductInMenu", b =>
@@ -410,33 +392,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("faceb5a1-74ff-47e3-b924-8a46a9fba059"),
+                            Id = new Guid("b6bf29a8-c93e-4225-808d-b003a7ed0a49"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 14, 23, 19, 13, 311, DateTimeKind.Local).AddTicks(852),
+                            CreationDate = new DateTime(2024, 1, 22, 0, 35, 0, 409, DateTimeKind.Local).AddTicks(4579),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("1f1d3a6c-bf8a-417b-9135-5a9261695ca8"),
+                            Id = new Guid("49717bcb-030f-4c25-ba63-3e5b940a7ea5"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 14, 23, 19, 13, 311, DateTimeKind.Local).AddTicks(882),
+                            CreationDate = new DateTime(2024, 1, 22, 0, 35, 0, 409, DateTimeKind.Local).AddTicks(4605),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("f04b304e-e863-4afc-b57d-ae63f0e475db"),
+                            Id = new Guid("c95c41cc-f90a-4da0-be77-ad7b40643de6"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 14, 23, 19, 13, 311, DateTimeKind.Local).AddTicks(885),
+                            CreationDate = new DateTime(2024, 1, 22, 0, 35, 0, 409, DateTimeKind.Local).AddTicks(4608),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("d8169739-7310-47cb-a841-3a11fffb50c1"),
+                            Id = new Guid("39633f15-0eee-4819-8440-c895fde4457e"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 14, 23, 19, 13, 311, DateTimeKind.Local).AddTicks(888),
+                            CreationDate = new DateTime(2024, 1, 22, 0, 35, 0, 409, DateTimeKind.Local).AddTicks(4610),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });
@@ -852,6 +834,15 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("StoreCode")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("WalletId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.ToTable("Store");
@@ -1014,14 +1005,13 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateOfBirth")
+                    b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FCMToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
@@ -1045,10 +1035,16 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StoreId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("WalletId")
@@ -1057,6 +1053,10 @@ namespace PTP.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("StoreId")
+                        .IsUnique()
+                        .HasFilter("[StoreId] IS NOT NULL");
 
                     b.ToTable("User");
                 });
@@ -1102,7 +1102,9 @@ namespace PTP.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StoreId");
+                    b.HasIndex("StoreId")
+                        .IsUnique()
+                        .HasFilter("[StoreId] IS NOT NULL");
 
                     b.HasIndex("UserId")
                         .IsUnique()
@@ -1173,6 +1175,12 @@ namespace PTP.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PTP.Domain.Entities.Store", "Store")
+                        .WithMany("Orders")
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("PTP.Domain.Entities.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
@@ -1180,6 +1188,8 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Station");
+
+                    b.Navigation("Store");
 
                     b.Navigation("User");
                 });
@@ -1192,15 +1202,15 @@ namespace PTP.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PTP.Domain.Entities.ProductInMenu", "ProductInMenu")
+                    b.HasOne("PTP.Domain.Entities.Product", "Product")
                         .WithMany("OrderDetails")
-                        .HasForeignKey("ProductInMenuId")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Order");
 
-                    b.Navigation("ProductInMenu");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Payment", b =>
@@ -1231,17 +1241,6 @@ namespace PTP.Infrastructure.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Store");
-                });
-
-            modelBuilder.Entity("PTP.Domain.Entities.ProductImage", b =>
-                {
-                    b.HasOne("PTP.Domain.Entities.Product", "Product")
-                        .WithMany("ProductImages")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.ProductInMenu", b =>
@@ -1384,14 +1383,20 @@ namespace PTP.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PTP.Domain.Entities.Store", "Store")
+                        .WithOne("User")
+                        .HasForeignKey("PTP.Domain.Entities.User", "StoreId");
+
                     b.Navigation("Role");
+
+                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Wallet", b =>
                 {
                     b.HasOne("PTP.Domain.Entities.Store", "Store")
-                        .WithMany("Wallets")
-                        .HasForeignKey("StoreId");
+                        .WithOne("Wallet")
+                        .HasForeignKey("PTP.Domain.Entities.Wallet", "StoreId");
 
                     b.HasOne("PTP.Domain.Entities.User", "User")
                         .WithOne("Wallet")
@@ -1438,14 +1443,9 @@ namespace PTP.Infrastructure.Migrations
 
             modelBuilder.Entity("PTP.Domain.Entities.Product", b =>
                 {
-                    b.Navigation("ProductImages");
+                    b.Navigation("OrderDetails");
 
                     b.Navigation("ProductInMenus");
-                });
-
-            modelBuilder.Entity("PTP.Domain.Entities.ProductInMenu", b =>
-                {
-                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Role", b =>
@@ -1482,11 +1482,16 @@ namespace PTP.Infrastructure.Migrations
                 {
                     b.Navigation("Menus");
 
+                    b.Navigation("Orders");
+
                     b.Navigation("Products");
 
                     b.Navigation("Stations");
 
-                    b.Navigation("Wallets");
+                    b.Navigation("User")
+                        .IsRequired();
+
+                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.TimeTable", b =>

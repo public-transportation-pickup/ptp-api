@@ -11,7 +11,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly AppDbContext _dbContext;
     public UnitOfWork(AppDbContext dbcontext, IRoleRepository roleRepository, ICategoryRepository categoryRepository,
     IMenuRepository menuRepository, IOrderDetailRepository orderDetailRepository, IOrderRepository orderRepository,
-    IPaymentRepository paymentRepository, IProductImageRepository productImageRepository, IProductInMenuRepository productInMenuRepository,
+    IPaymentRepository paymentRepository, IProductInMenuRepository productInMenuRepository,
     IProductRepository productRepository, IRouteRepository routeRepository, IRouteStationRepository routeStationRepository,
     IScheduleRepository scheduleRepository, IStationRepository stationRepository, IStoreRepository storeRepository,
      ITransactionRepository transactionRepository, ITripRepository tripRepository,
@@ -27,7 +27,6 @@ public class UnitOfWork : IUnitOfWork
         OrderDetailRepository = orderDetailRepository;
         OrderRepository = orderRepository;
         PaymentRepository = paymentRepository;
-        ProductImageRepository = productImageRepository;
         ProductInMenuRepository = productInMenuRepository;
         ProductRepository = productRepository;
         RouteRepository = routeRepository;
@@ -57,7 +56,6 @@ public class UnitOfWork : IUnitOfWork
 
     public IProductRepository ProductRepository { get; }
 
-    public IProductImageRepository ProductImageRepository { get; }
 
     public IProductInMenuRepository ProductInMenuRepository { get; }
 
