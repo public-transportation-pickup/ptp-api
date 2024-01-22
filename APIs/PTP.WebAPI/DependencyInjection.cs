@@ -1,3 +1,15 @@
+using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using PTP.Application;
+using PTP.Application.GlobalExceptionHandling;
+using PTP.Infrastructure;
+using Scrutor;
+using System.Reflection;
+using System.Text;
+using System.Text.Json.Serialization;
+
 namespace PTP.WebAPI;
 public static class DependencyInjection
 {

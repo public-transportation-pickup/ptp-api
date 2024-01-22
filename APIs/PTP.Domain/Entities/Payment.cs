@@ -4,8 +4,9 @@ using PTP.Domain.Enums;
 namespace PTP.Domain.Entities;
 public class Payment : BaseEntity
 {
-    public string Name { get; set; } = default!;
-    public string Status { get; set; } = nameof(PaymentStatusEnum.Created);
+    public decimal Total { get; set; } = default!;
+    public string PaymentType { get; set; } = default!;
+    public string Status { get; set; } = nameof(PaymentStatusEnum.Paid);
 
     #region Relationship
     public Guid OrderId { get; set; } = default!;

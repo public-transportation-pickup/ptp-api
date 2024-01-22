@@ -6,6 +6,7 @@ public class OrderDetail : BaseEntity
 	[Precision(18, 2)]
 	public decimal ActualPrice { get; set; } = 0;
 	public int Quantity { get; set; } = 1;
+	public string Note { get; set; } = default!;
 	#region RelationshipConfiguration
 	public Guid ProductId { get; set; }
 	public Product Product { get; set; } = default!;

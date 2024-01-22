@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace PTP.Domain.Entities;
 public class User : BaseEntity
 {

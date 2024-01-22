@@ -1,6 +1,6 @@
 namespace PTP.Domain.Enums;
 public enum PaymentStatusEnum 
 {
-    Created,
+    Paid,
     Completed
 }

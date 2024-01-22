@@ -81,6 +81,7 @@ public class MapperConfigurationProfile : Profile
 		CreateMap<User, UserUpdateModel>()
 			.ForMember(x => x.RoleName, opt => opt.Ignore())
 			.ReverseMap();
+        #endregion
         #region RouteVariation Mapper
         CreateMap<RouteVar, RouteVarViewModel>().ReverseMap();
 		#endregion
