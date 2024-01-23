@@ -30,7 +30,8 @@ public class MapperConfigurationProfile : Profile
 		CreateMap<Store, StoreViewModel>()
 			.ForMember(x => x.Email, opt => opt.MapFrom(x => x.User.Email))
 			.ForMember(x => x.Password, opt => opt.MapFrom(x => x.User.Password))
-			.ReverseMap();
+            .ForMember(x => x.WalletAmount, opt => opt.MapFrom(x => x.Wallet!.Amount))
+            .ReverseMap();
 		CreateMap<Store, StoreCreateModel>()
 			.ForMember(x => x.ClosedTime, opt => opt.Ignore())
 			.ForMember(x => x.OpenedTime, opt => opt.Ignore())
@@ -148,15 +149,17 @@ public class MapperConfigurationProfile : Profile
 			.ForMember(x=>x.PaymentType,opt=>opt.MapFrom(x=>x.Payment.PaymentType))
 			.ForMember(x=>x.PaymentStatus,opt=>opt.MapFrom(x=>x.Payment.Status))
 			.ReverseMap();
-			
-		CreateMap<Order,OrderCreateModel>()
+
+		CreateMap<Order, OrderCreateModel>()
 			.ForMember(x => x.Payment, opt => opt.Ignore())
 			.ForMember(x => x.OrderDetails, opt => opt.Ignore())
-			.ReverseMap();
-		#endregion
+			.ReverseMap()
+			.ForMember(x => x.Payment, opt => opt.Ignore())
+			.ForMember(x => x.OrderDetails, opt => opt.Ignore());
+        #endregion
 
-		#region OrderDetail
-		CreateMap<OrderDetail,OrderDetailViewModel>()
+        #region OrderDetail
+        CreateMap<OrderDetail,OrderDetailViewModel>()
 			.ForMember(x=>x.ProductName,opt=>opt.MapFrom(x=>x.Product.Name))
 			.ForMember(x=>x.ProductPrice,opt=>opt.MapFrom(x=>x.Product.Price))
 			.ForMember(x=>x.Description,opt=>opt.MapFrom(x=>x.Product.Description))

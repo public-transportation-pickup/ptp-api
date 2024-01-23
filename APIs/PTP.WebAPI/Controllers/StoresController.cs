@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Menus.Queries;
+using PTP.Application.Features.Orders.Queries;
 using PTP.Application.Features.Products.Queries;
 using PTP.Application.Features.Stores.Commands;
 using PTP.Application.Features.Stores.Queries;
@@ -62,6 +63,12 @@ namespace PTP.WebAPI.Controllers
 		public async Task<IActionResult> GetWalletByStoreId([FromRoute] Guid id)
 		=> Ok(await _mediator.Send(new GetWalletByStoreIdQuery { StoreId = id }));
 
+		[ProducesResponseType((int)HttpStatusCode.OK)]
+		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+		[HttpGet("{id}/orders")]
+		public async Task<IActionResult> GetOrdersByStoreId([FromRoute] Guid id)
+		=> Ok(await _mediator.Send(new GetOrdersByStoreIdQuery { StoreId = id }));
 		#endregion
 
 		#region COMMANDS

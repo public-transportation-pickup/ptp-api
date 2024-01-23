@@ -29,5 +29,6 @@ namespace PTP.Application.ViewModels.Stores
         public string Email {  get; set; } = default!;
         public string Password { get; set; } = default!;
         public Guid WalletId { get; set; }
+        public decimal WalletAmount { get; set; } = default!;
     }
 }

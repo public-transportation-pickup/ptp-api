@@ -1,6 +1,7 @@
 using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using PTP.Application.Features.Orders.Queries;
 using PTP.Application.Features.Users.Commands;
 using PTP.Application.Features.Users.Queries;
 using PTP.Application.ViewModels.Users;
@@ -34,6 +35,17 @@ public class UsersController : BaseController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     => Ok(await _mediator.Send(new GetUserByIdQuery { Id = id }));
+
+    /// <summary>
+    /// Lấy order theo UserId
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [HttpGet("{id}/orders")]
+    public async Task<IActionResult> GetOrderByUserId(Guid id)
+    => Ok(await _mediator.Send(new GetOrdersByUserIdQuery { UserId = id }));
     #endregion
     #region WRITE
 

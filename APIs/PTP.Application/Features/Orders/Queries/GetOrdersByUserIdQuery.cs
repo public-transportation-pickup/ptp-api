@@ -43,7 +43,7 @@ public class GetOrdersByUserIdQuery:IRequest<IEnumerable<OrderViewModel>>
             // }
             
             var orders= await _unitOfWork.OrderRepository.WhereAsync(x=>
-                        x.StoreId==request.UserId,
+                        x.UserId==request.UserId,
                         x=>x.Store,x=>x.Station,x=>x.Payment);
             if(orders.Count==0) throw new NotFoundException("There are no order existed!");
             return _mapper.Map<IEnumerable<OrderViewModel>>(orders);

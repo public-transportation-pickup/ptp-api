@@ -51,7 +51,7 @@ namespace PTP.Application.Features.Stores.Queries
                 {
                     return _mapper.Map<StoreViewModel>(cacheResult);
                 }
-                var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.Id,x=>x.User);
+                var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.Id,x=>x.User,x=>x.Wallet!);
                 if (store is null) throw new BadRequestException($"Store with ID-{request.Id} is not exist!");
                 await _cacheService.SetAsync<Store>(CacheKey.STORE + request.Id, store);
                 return _mapper.Map<StoreViewModel>(store);
