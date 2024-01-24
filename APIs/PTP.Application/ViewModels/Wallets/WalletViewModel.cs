@@ -1,3 +1,6 @@
+using PTP.Application.ViewModels.Transactions;
+using PTP.Application.ViewModels.WalletLogs;
+
 namespace PTP.Application.ViewModels.Wallets;
 public class WalletViewModel
 {
@@ -7,4 +10,7 @@ public class WalletViewModel
     public string? WalletType { get; set; } 
     public Guid? UserId{get;set;}
     public Guid? StoreId{get;set;}
+
+    public IEnumerable<TransactionViewModel>? Transactions { get; set; }
+    public IEnumerable<WalletLogViewModel>? WalletLogs {  get; set; }
 }

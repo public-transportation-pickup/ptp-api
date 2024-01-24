@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Orders.Queries;
 using PTP.Application.Features.Users.Commands;
 using PTP.Application.Features.Users.Queries;
+using PTP.Application.Features.Wallets.Queries;
 using PTP.Application.ViewModels.Users;
 
 namespace PTP.WebAPI.Controllers;
@@ -35,6 +36,18 @@ public class UsersController : BaseController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     => Ok(await _mediator.Send(new GetUserByIdQuery { Id = id }));
+
+    /// <summary>
+    /// Lấy Wallet theo UserId
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [HttpGet("{id}/wallets")]
+    public async Task<IActionResult> GeWallettByUserId(Guid id)
+    => Ok(await _mediator.Send(new GetWalletByUserIdQuery { UserId = id }));
+
 
     /// <summary>
     /// Lấy order theo UserId

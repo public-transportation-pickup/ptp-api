@@ -10,8 +10,10 @@ using PTP.Application.ViewModels.Routes;
 using PTP.Application.ViewModels.RouteVars;
 using PTP.Application.ViewModels.Stores;
 using PTP.Application.ViewModels.Timetables;
+using PTP.Application.ViewModels.Transactions;
 using PTP.Application.ViewModels.Trips;
 using PTP.Application.ViewModels.Users;
+using PTP.Application.ViewModels.WalletLogs;
 using PTP.Application.ViewModels.Wallets;
 using PTP.Domain.Entities;
 
@@ -137,7 +139,10 @@ public class MapperConfigurationProfile : Profile
 		#endregion
 
 		#region Wallet
-		CreateMap<Wallet, WalletViewModel>().ReverseMap();
+		CreateMap<Wallet, WalletViewModel>()
+			.ForMember(x=>x.WalletLogs,opt=>opt.MapFrom(x=>x.WalletLogs))
+            .ForMember(x => x.Transactions, opt => opt.MapFrom(x => x.Transactions))
+            .ReverseMap();
 		#endregion
 
 		#region Order
@@ -149,6 +154,7 @@ public class MapperConfigurationProfile : Profile
 			.ForMember(x=>x.PaymentType,opt=>opt.MapFrom(x=>x.Payment.PaymentType))
 			.ForMember(x=>x.PaymentStatus,opt=>opt.MapFrom(x=>x.Payment.Status))
 			.ReverseMap();
+		CreateMap<Order, OrderUpdateModel>().ReverseMap();
 
 		CreateMap<Order, OrderCreateModel>()
 			.ForMember(x => x.Payment, opt => opt.Ignore())
@@ -168,5 +174,13 @@ public class MapperConfigurationProfile : Profile
 
 		CreateMap<OrderDetail,OrderDetailCreateModel>().ReverseMap();
 		#endregion
-	}
+
+		#region Transactions
+		CreateMap<Transaction, TransactionViewModel>().ReverseMap();
+        #endregion
+
+        #region WalletLogs
+        CreateMap<WalletLog, WalletLogViewModel>().ReverseMap();
+        #endregion
+    }
 }
