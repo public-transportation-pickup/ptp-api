@@ -21,9 +21,9 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
         {
             RuleFor(x => x.CreateModel.Name).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.CreateModel.Description).NotNull().NotEmpty().WithMessage("Description must not null or empty");
-            RuleFor(x => x.CreateModel.StartTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
+            RuleFor(x => x.CreateModel.StartTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
                 .WithMessage("StartTime must not null or empty");
-            RuleFor(x => x.CreateModel.EndTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
+            RuleFor(x => x.CreateModel.EndTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
                 .WithMessage("EndTime must not null or empty");
             RuleFor(x => x.CreateModel.DateFilter).NotNull().NotEmpty().WithMessage("DateFilter must not null or empty");
             RuleFor(x => x.CreateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
@@ -50,9 +50,11 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
         public async Task<MenuViewModel> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create Menu:\n");
+            DateTime.TryParseExact(request.CreateModel.StartTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime);
+            DateTime.TryParseExact(request.CreateModel.EndTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endTime);
+            if(startTime>=endTime) throw new BadRequestException("Open Time must higher than CloseTime");
             var menu= _mapper.Map<Menu>(request.CreateModel);
-            menu.StartTime=TimeSpan.ParseExact(request.CreateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture);
-            menu.EndTime=TimeSpan.ParseExact(request.CreateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture);
+           
 
             await _unitOfWork.MenuRepository.AddAsync(menu);
             if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");

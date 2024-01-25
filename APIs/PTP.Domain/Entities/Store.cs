@@ -8,8 +8,8 @@ public class Store : BaseEntity
 	public string Description { get; set; } = default!;
 	public string PhoneNumber { get; set; } = default!;
 	public string Status { get; set; } = nameof(StoreStatusEnum.ACTIVE)!;
-    public TimeSpan OpenedTime { get; set; } = default!;
-    public TimeSpan ClosedTime { get; set; } = default!;
+    public string OpenedTime { get; set; } = default!;
+    public string ClosedTime { get; set; } = default!;
     [Precision(18, 10)]
 	public decimal Latitude { get; set; } = default!;
 	[Precision(18, 10)]

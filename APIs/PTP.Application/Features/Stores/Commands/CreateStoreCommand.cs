@@ -32,9 +32,9 @@ namespace PTP.Application.Features.Stores.Commands
                 RuleFor(x => x.CreateModel.PhoneNumber).NotNull().NotEmpty()
                     .Matches(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$")
                     .WithMessage("PhoneNumber is not correct format!");
-                RuleFor(x => x.CreateModel.OpenedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
+                RuleFor(x => x.CreateModel.OpenedTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
                     .WithMessage("OpenedTime must not null or empty");
-                RuleFor(x => x.CreateModel.ClosedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
+                RuleFor(x => x.CreateModel.ClosedTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
                     .WithMessage("ClosedTime must not null or empty");
                 RuleFor(x => x.CreateModel.Address).NotNull().NotEmpty().WithMessage("Address must not null or empty");
                 RuleFor(x => x.CreateModel.File).NotNull().NotEmpty().WithMessage("File must not null or empty");
@@ -69,6 +69,9 @@ namespace PTP.Application.Features.Stores.Commands
             public async Task<StoreViewModel> Handle(CreateStoreCommand request, CancellationToken cancellationToken)
             {
                 _logger.LogInformation("Create Store:\n");
+                DateTime.TryParseExact(request.CreateModel.OpenedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime openTime);
+                DateTime.TryParseExact(request.CreateModel.ClosedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime closedTime);
+                if(openTime>=closedTime) throw new BadRequestException("Open Time must higher than CloseTime");
                 var store= _mapper.Map<Store>(request.CreateModel);
 
                 var isDup = await _unitOfWork.UserRepository.WhereAsync(x=>x.PhoneNumber!.ToLower() == request.CreateModel.PhoneNumber!.ToLower());
@@ -76,9 +79,7 @@ namespace PTP.Application.Features.Stores.Commands
                     throw new Exception($"Error: {nameof(CreateStoreCommand)}_ phone is duplicate!");
 
                 store.UserId = await CreateUser(store);
-
-                store.OpenedTime= TimeSpan.ParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
-                store.ClosedTime = TimeSpan.ParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
+                        
                 //Get Lat, Lng from address
                 var location= await _locationService.GetGeometry(request.CreateModel.Address);
                 store.Latitude=location.Lat;

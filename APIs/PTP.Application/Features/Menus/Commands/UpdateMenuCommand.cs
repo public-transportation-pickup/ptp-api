@@ -20,9 +20,9 @@ public class UpdateMenuCommand:IRequest<bool>
             RuleFor(x => x.UpdateModel.Id).NotNull().NotEmpty().WithMessage("Id must not null or empty");
             RuleFor(x => x.UpdateModel.Name).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.UpdateModel.Description).NotNull().NotEmpty().WithMessage("Description must not null or empty");
-            RuleFor(x => x.UpdateModel.StartTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
+            RuleFor(x => x.UpdateModel.StartTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
                 .WithMessage("StartTime must not null or empty");
-            RuleFor(x => x.UpdateModel.EndTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
+            RuleFor(x => x.UpdateModel.EndTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
                 .WithMessage("EndTime must not null or empty");
             RuleFor(x => x.UpdateModel.DateFilter).NotNull().NotEmpty().WithMessage("DateFilter must not null or empty");
             RuleFor(x => x.UpdateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
@@ -50,15 +50,17 @@ public class UpdateMenuCommand:IRequest<bool>
         public async Task<bool> Handle(UpdateMenuCommand request, CancellationToken cancellationToken)
         {
              _logger.LogInformation("Update Menu:\n");
+            DateTime.TryParseExact(request.UpdateModel.StartTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime);
+            DateTime.TryParseExact(request.UpdateModel.EndTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endTime);
+            if(startTime>=endTime) throw new BadRequestException("Open Time must higher than CloseTime");
+            
             //Remove From Cache       
             
             var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.UpdateModel.Id);
             if(menu is null ) throw new NotFoundException($"Menu with Id-{request.UpdateModel.Id} is not exist!");
             
             menu= _mapper.Map(request.UpdateModel,menu);
-            menu.StartTime=TimeSpan.ParseExact(request.UpdateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture);
-            menu.EndTime=TimeSpan.ParseExact(request.UpdateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture);
-
+           
             _unitOfWork.MenuRepository.Update(menu);
             var result= await _unitOfWork.SaveChangesAsync();
             if(result){

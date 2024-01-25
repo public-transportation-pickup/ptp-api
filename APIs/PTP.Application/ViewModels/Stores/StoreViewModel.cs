@@ -15,8 +15,8 @@ namespace PTP.Application.ViewModels.Stores
         public string Description { get; set; } = default!;
         public string PhoneNumber { get; set; } = default!;
         public string Status { get; set; } = default!;
-        public TimeSpan OpenedTime { get; set; } = default!;
-        public TimeSpan ClosedTime { get; set; } = default!;
+        public string OpenedTime { get; set; } = default!;
+        public string ClosedTime { get; set; } = default!;
         [Precision(18, 2)]
         public decimal Latitude { get; set; } = default!;
         [Precision(18, 2)]

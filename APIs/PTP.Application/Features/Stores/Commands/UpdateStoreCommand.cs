@@ -27,9 +27,9 @@ public class UpdateStoreCommand:IRequest<bool>
             RuleFor(x => x.StoreUpdate.PhoneNumber).NotNull().NotEmpty()
                 .Matches(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$")
                 .WithMessage("PhoneNumber is not correct format!");
-            RuleFor(x => x.StoreUpdate.OpenedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
+            RuleFor(x => x.StoreUpdate.OpenedTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
                 .WithMessage("OpenedTime must not null or empty");
-            RuleFor(x => x.StoreUpdate.ClosedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
+            RuleFor(x => x.StoreUpdate.ClosedTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
                 .WithMessage("ClosedTime must not null or empty");
             RuleFor(x => x.StoreUpdate.Address).NotNull().NotEmpty().WithMessage("Address must not null or empty");
             RuleFor(x => x.StoreUpdate.ActivationDate).NotNull().NotEmpty()
@@ -65,6 +65,12 @@ public class UpdateStoreCommand:IRequest<bool>
         public async Task<bool> Handle(UpdateStoreCommand request, CancellationToken cancellationToken)
         {
             //Remove From Cache
+
+            DateTime.TryParseExact(request.StoreUpdate.OpenedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime openTime);
+            DateTime.TryParseExact(request.StoreUpdate.ClosedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime closedTime);
+            if(openTime>=closedTime) throw new BadRequestException("Open Time must higher than CloseTime");
+            
+            
             if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             await _cacheService.RemoveAsync(CacheKey.STORE+request.StoreUpdate.Id);
 
@@ -72,9 +78,7 @@ public class UpdateStoreCommand:IRequest<bool>
             if(store is null ) throw new NotFoundException($"Store with Id-{request.StoreUpdate.Id} is not exist!");
             store = _mapper.Map(request.StoreUpdate,store);
 
-            store.OpenedTime = TimeSpan.ParseExact(request.StoreUpdate.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
-            store.ClosedTime = TimeSpan.ParseExact(request.StoreUpdate.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
-
+        
             if (request.StoreUpdate.File is not null){
                 await store.ImageName.RemoveFileAsync(FolderKey.STORE, appSettings: _appSettings);
                 var image = await request.StoreUpdate.File!.UploadFileAsync(FolderKey.STORE,_appSettings);

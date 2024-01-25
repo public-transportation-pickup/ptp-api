@@ -8,7 +8,7 @@ public class Order : BaseEntity
 	public string PhoneNumber {  get; set; }=default!;
 	[Precision(18, 2)]	
 	public decimal Total { get; set; } = 0;
-	public string Status { get; set; } = nameof(OrderStatusEnum.Created)!;
+	public string Status { get; set; } = nameof(OrderStatusEnum.Payed)!;
 	[Precision(18, 2)]
 
 	#region Relationship Configuration

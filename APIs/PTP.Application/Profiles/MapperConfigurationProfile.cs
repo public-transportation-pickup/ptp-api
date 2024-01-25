@@ -35,13 +35,9 @@ public class MapperConfigurationProfile : Profile
             .ForMember(x => x.WalletAmount, opt => opt.MapFrom(x => x.Wallet!.Amount))
             .ReverseMap();
 		CreateMap<Store, StoreCreateModel>()
-			.ForMember(x => x.ClosedTime, opt => opt.Ignore())
-			.ForMember(x => x.OpenedTime, opt => opt.Ignore())
 			.ForMember(x => x.File, opt => opt.Ignore())
 			.ReverseMap();
 		CreateMap<Store, StoreUpdateModel>()
-			.ForMember(x => x.ClosedTime, opt => opt.Ignore())
-			.ForMember(x => x.OpenedTime, opt => opt.Ignore())
 			.ForMember(x => x.File, opt => opt.Ignore())
 			.ReverseMap()
 			.ForMember(x => x.ImageName, opt => opt.Ignore());
