@@ -24,7 +24,15 @@ public class RoutesController : BaseController
 	[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 	[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 	[HttpGet]
-	public async Task<IActionResult> Get() => Ok(await _mediator.Send(new GetAllRouteQuery()));
+	public async Task<IActionResult> Get(
+	
+		[FromQuery] Dictionary<string, string> filter = default!,
+		[FromQuery] int pageNumber = 0) 
+			=> Ok(await _mediator.Send(new GetAllRouteQuery 
+			{
+				Filter = filter,
+				PageNumber = pageNumber
+			}));
 	/// <summary>
 	/// Lấy Route theo Id
 	/// </summary>

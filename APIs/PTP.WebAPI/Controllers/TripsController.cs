@@ -21,13 +21,21 @@ public class TripsController : BaseController
     /// </summary>
     /// <param name="routeId"></param>
     /// <param name="routeVarId"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="filter"></param>
     /// <returns></returns>
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [Route("/api/routes/{routeId}/route-vars/{routeVarId}/trips")]
     [HttpGet]
-    public async Task<IActionResult> GetTripsByParentId(Guid routeId, Guid routeVarId)
-    => Ok(await mediator.Send(new GetAllTripByRouteIdQuery { RouteId = routeId, RouteVarId = routeVarId }));
+    public async Task<IActionResult> GetTripsByParentId(Guid routeId, Guid routeVarId, [FromQuery] int pageNumber = 0, [FromQuery] Dictionary<string, string> filter = default!)
+    => Ok(await mediator.Send(new GetAllTripByRouteIdQuery
+    {
+        RouteId = routeId,
+        RouteVarId = routeVarId,
+        Filter = filter,
+        PageNumber = pageNumber
+    }));
 
 
     /// <summary>
@@ -98,7 +106,7 @@ public class TripsController : BaseController
     /// <returns></returns>
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id) 
+    public async Task<IActionResult> Delete(Guid id)
         => await mediator.Send(new DeleteTripCommand { Id = id }) ? NoContent() : BadRequest();
 
     #endregion
