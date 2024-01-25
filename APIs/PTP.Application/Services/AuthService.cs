@@ -14,12 +14,12 @@ public class AuthService : IAuthService
 		_appSettings = appSettings;
 		_jwtTokenGenerator = jWTTokenGenerator;
 	}
-		public async Task<LoginResponseModel> LoginAsync(string token, string role)
+	public async Task<LoginResponseModel> LoginAsync(string token, string role)
 	{
 		var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey: _appSettings.FirebaseSettings.ApiKeY));
 		var user = await auth.GetUserAsync(token) ??
 					throw new Exception($"Error at: {nameof(IAuthService)}_ User not exist on firebase authentication");
-		var userInDb = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email == user.Email, x => x.Role);	
+		var userInDb = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email == user.Email, x => x.Role);
 		if (userInDb is not null)
 		{
 			// TODO: Gen token rồi trả Token system
@@ -31,7 +31,7 @@ public class AuthService : IAuthService
 		}
 		else
 		{
-			var roleInDb = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => string.Equals(x.Name, role, StringComparison.OrdinalIgnoreCase))
+			var roleInDb = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == role.ToLower())
 						?? throw new Exception($"Error: {nameof(AuthService)}_ Role Not found: rolename: {role}");
 			// TODO: Insert Db
 			PTP.Domain.Entities.User newUser = new()
@@ -41,7 +41,6 @@ public class AuthService : IAuthService
 				Id = Guid.NewGuid(),
 				Email = user.Email,
 				RoleId = roleInDb.Id,
-				Role = roleInDb
 			};
 			await _unitOfWork.UserRepository.AddAsync(newUser);
 			if (await _unitOfWork.SaveChangesAsync())

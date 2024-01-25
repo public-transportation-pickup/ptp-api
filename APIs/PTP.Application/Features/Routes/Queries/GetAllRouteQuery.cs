@@ -1,17 +1,26 @@
+using System.Text.Json.Serialization;
 using AutoMapper;
 using Dapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using PTP.Application.Commons;
 using PTP.Application.Data.Configuration;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Routes;
 using PTP.Domain.Entities;
 
 namespace PTP.Application.Features.Routes.Queries;
-public class GetAllRouteQuery : IRequest<IEnumerable<RouteViewModel>>
+public class GetAllRouteQueryModel
+{
+	public Dictionary<string, string> Filter { get; set; } = default!;
+
+	public int PageNumber { get; set; } = default!;
+}
+public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<RouteViewModel>>
 {
 
-	public class QueryHandler : IRequestHandler<GetAllRouteQuery, IEnumerable<RouteViewModel>>
+	public class QueryHandler : IRequestHandler<GetAllRouteQuery, PaginatedList<RouteViewModel>>
 	{
 		private readonly IConnectionConfiguration _connection;
 		private readonly IMapper _mapper;
@@ -25,9 +34,11 @@ public class GetAllRouteQuery : IRequest<IEnumerable<RouteViewModel>>
 			_cacheService = cacheService;
 			_connection = connection;
 		}
-		public async Task<IEnumerable<RouteViewModel>> Handle(GetAllRouteQuery request, CancellationToken cancellationToken)
+		public async Task<PaginatedList<RouteViewModel>> Handle(GetAllRouteQuery request, CancellationToken cancellationToken)
 		{
+
 			using var connection = _connection.GetDbConnection();
+			IEnumerable<RouteViewModel> result;
 			if (_cacheService.IsConnected())
 			{
 				logger.LogInformation("Have Cache");
@@ -35,30 +46,53 @@ public class GetAllRouteQuery : IRequest<IEnumerable<RouteViewModel>>
 				if (cacheResult is null)
 				{
 					string query = @"SELECT * FROM [Route] ORDER BY RouteId WHERE IsDeleted = 0";
-					var result = await connection.QueryAsync<Route>(query);
-					if (result is not null && result.Count() > 0)
+					var resultInDb = await connection.QueryAsync<Route>(query);
+					if (resultInDb is not null && resultInDb.Count() > 0)
 					{
+						result = _mapper.Map<IEnumerable<RouteViewModel>>(resultInDb);
 						if (_cacheService.IsConnected())
 						{
-							await _cacheService.SetAsync(CACHE_KEY, result);
+							await _cacheService.SetAsync(CACHE_KEY, resultInDb);
 						}
-						return _mapper.Map<IEnumerable<RouteViewModel>>(result);
+
 					}
 					else throw new Exception("Result is null");
 				}
-				else return _mapper.Map<IEnumerable<RouteViewModel>>(cacheResult);
+				else result = _mapper.Map<IEnumerable<RouteViewModel>>(cacheResult);
 			}
 			else
 			{
-				string query = @"SELECT * FROM [Route] ORDER BY RouteId";
-				var result = await connection.QueryAsync<Route>(query);
-				if (result is not null && result.Count() > 0)
-				{
 
-					return _mapper.Map<IEnumerable<RouteViewModel>>(result);
+				string query = @"SELECT * FROM [Route] WHERE  IsDeleted = 0 ORDER BY CreationDate DESC";
+				var resultInDb = await connection.QueryAsync<Route>(query);
+				if (resultInDb is not null && resultInDb.Any())
+				{
+					result = _mapper.Map<IEnumerable<RouteViewModel>>(resultInDb);
 				}
 				else throw new Exception("Result is null");
 			}
+			List<RouteViewModel> returnResult = new();
+			request.Filter.Remove("pageNumber");
+			if (request.Filter?.Count > 0)
+			{
+				
+				
+				foreach (var item in request.Filter)
+				{
+					System.Console.WriteLine(item.Key);
+					// TODO, Loop to find matching 
+					//System.Console.WriteLine(FilterUtilities.SelectItems(result, item.Key, item.Value).ToList().Count);
+
+					returnResult = returnResult.Union(FilterUtilities.SelectItems(result, item.Key, item.Value).ToList()).ToList();
+
+				}
+				
+			}
+			else returnResult = result.ToList();
+			return PaginatedList<RouteViewModel>.Create(
+							source: returnResult.AsQueryable(),
+							pageIndex: request.PageNumber,
+							pageSize: 10);
 
 		}
 	}

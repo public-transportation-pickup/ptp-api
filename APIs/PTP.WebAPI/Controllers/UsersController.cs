@@ -21,8 +21,12 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> Get()
-    => Ok(await _mediator.Send(new GetAllUserQuery()));
+    public async Task<IActionResult> Get([FromQuery] int pageNumber = 0, [FromQuery] Dictionary<string, string> filter = default!)
+    => Ok(await _mediator.Send(new GetAllUserQuery
+    {
+        Filter = filter,
+        PageNumber = pageNumber
+    }));
 
     /// <summary>
     /// Lấy User theo Id
