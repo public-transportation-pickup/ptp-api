@@ -80,8 +80,9 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -96,8 +97,9 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -118,6 +120,9 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CanceledReason")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -142,6 +147,10 @@ namespace PTP.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PickUpTime")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -254,6 +263,7 @@ namespace PTP.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -399,33 +409,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3c743c1d-179e-4d84-9939-6ee95bfd4680"),
+                            Id = new Guid("eb4cf385-220b-4e2b-8c7f-11605259dcc4"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 24, 0, 29, 8, 432, DateTimeKind.Local).AddTicks(824),
+                            CreationDate = new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6260),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("36509517-1977-4456-ac42-091adbd3c562"),
+                            Id = new Guid("8dac7a9a-b438-4149-b81a-5fdcce2819be"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 24, 0, 29, 8, 432, DateTimeKind.Local).AddTicks(845),
+                            CreationDate = new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6284),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("4f1a2ae6-f1df-4f9d-a3b4-8720e6a1a54f"),
+                            Id = new Guid("aea060bb-7079-4764-a764-90e3782f6044"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 24, 0, 29, 8, 432, DateTimeKind.Local).AddTicks(849),
+                            CreationDate = new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6286),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("822bca68-4bf5-4a9b-ac03-dc91e67ea78d"),
+                            Id = new Guid("90b3f5d2-f21a-4c25-8849-5616a969df07"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 24, 0, 29, 8, 432, DateTimeKind.Local).AddTicks(852),
+                            CreationDate = new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6289),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });
@@ -788,8 +798,9 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("ClosedTime")
-                        .HasColumnType("time");
+                    b.Property<string>("ClosedTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -830,8 +841,9 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("OpenedTime")
-                        .HasColumnType("time");
+                    b.Property<string>("OpenedTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()

@@ -68,7 +68,7 @@ public class UpdateStoreCommand:IRequest<bool>
 
             DateTime.TryParseExact(request.StoreUpdate.OpenedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime openTime);
             DateTime.TryParseExact(request.StoreUpdate.ClosedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime closedTime);
-            if(openTime>=closedTime) throw new BadRequestException("Open Time must higher than CloseTime");
+            if(openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
             
             
             if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");

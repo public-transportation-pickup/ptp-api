@@ -52,7 +52,7 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
             _logger.LogInformation("Create Menu:\n");
             DateTime.TryParseExact(request.CreateModel.StartTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime);
             DateTime.TryParseExact(request.CreateModel.EndTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endTime);
-            if(startTime>=endTime) throw new BadRequestException("Open Time must higher than CloseTime");
+            if(startTime>=endTime) throw new BadRequestException("Start Time must higher than End Time");
             var menu= _mapper.Map<Menu>(request.CreateModel);
            
 

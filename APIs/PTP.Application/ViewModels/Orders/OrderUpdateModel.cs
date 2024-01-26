@@ -9,6 +9,7 @@ namespace PTP.Application.ViewModels.Orders
     public class OrderUpdateModel
     {
         public Guid Id { get; set; }
+        public string? CanceledReason { get; set; }
         public string Status { get; set; } = default!;
     }
 }

@@ -52,7 +52,7 @@ public class UpdateMenuCommand:IRequest<bool>
              _logger.LogInformation("Update Menu:\n");
             DateTime.TryParseExact(request.UpdateModel.StartTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime);
             DateTime.TryParseExact(request.UpdateModel.EndTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endTime);
-            if(startTime>=endTime) throw new BadRequestException("Open Time must higher than CloseTime");
+            if(startTime>=endTime) throw new BadRequestException("End Time must higher than Start Time");
             
             //Remove From Cache       
             

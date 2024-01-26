@@ -71,7 +71,7 @@ namespace PTP.Application.Features.Stores.Commands
                 _logger.LogInformation("Create Store:\n");
                 DateTime.TryParseExact(request.CreateModel.OpenedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime openTime);
                 DateTime.TryParseExact(request.CreateModel.ClosedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime closedTime);
-                if(openTime>=closedTime) throw new BadRequestException("Open Time must higher than CloseTime");
+                if(openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
                 var store= _mapper.Map<Store>(request.CreateModel);
 
                 var isDup = await _unitOfWork.UserRepository.WhereAsync(x=>x.PhoneNumber!.ToLower() == request.CreateModel.PhoneNumber!.ToLower());

@@ -2,6 +2,7 @@ using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Orders;
+using PTP.Application.Features.Orders.Commands;
 using PTP.Application.Features.Orders.Queries;
 using PTP.Application.ViewModels.Orders;
 
@@ -40,18 +41,18 @@ public class OrderController:BaseController
  
 
 
-    // [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    // [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    // [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-    // [HttpPut("{id}")]
-    // public async Task<IActionResult> Update(Guid id,ProductMenuUpdateModel model){
-    //     if(id!=model.Id) return BadRequest("Id is not match!");
-    //     var result=  await _mediator.Send(new UpdateProductMenuCommand { UpdateModel=model});
-    //     if(!result){
-    //         return BadRequest("Update Fail!");
-    //     }
-    //     return NoContent();
-    // }
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id,OrderUpdateModel model){
+        if(id!=model.Id) return BadRequest("Id is not match!");
+        var result=  await _mediator.Send(new UpdateOrderCommand { UpdateModel=model});
+        if(!result){
+            return BadRequest("Update Fail!");
+        }
+        return NoContent();
+    }
 
     // [ProducesResponseType((int)HttpStatusCode.NoContent)]
     // [ProducesResponseType((int)HttpStatusCode.BadRequest)]

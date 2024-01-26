@@ -9,6 +9,7 @@ using PTP.Application.ViewModels.Orders;
 using PTP.Application.ViewModels.Payments;
 using PTP.Domain.Entities;
 using PTP.Domain.Enums;
+using System.Globalization;
 
 namespace PTP.Application.Features.Orders;
 
@@ -51,6 +52,8 @@ public class CreateOrderCommand:IRequest<OrderViewModel>
         public async Task<OrderViewModel> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create Order:\n");
+            DateTime.TryParseExact(request.CreateModel.PickUpTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime pickUpTime);
+            if (pickUpTime < DateTime.Now) throw new BadRequestException("PickUp time is invalid!");
             var order= _mapper.Map<Order>(request.CreateModel);
             await CreateOrderDetail(order.Id, request.CreateModel.OrderDetails);
             order.PaymentId = await CreatePayment(order.Id, request.CreateModel.Payment);

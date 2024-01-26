@@ -6,5 +6,6 @@ public enum OrderStatusEnum
     Preparing,
     Prepared,
     Completed,
-    Canceled
+    Canceled,
+    PickUpTimeOut
 }

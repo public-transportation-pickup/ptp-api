@@ -7,6 +7,7 @@ public class OrderViewModel
     public Guid Id{get;set;}
     public string Name { get; set; } = default!;
     public string PhoneNumber {  get; set; }=default!;
+    public string PickUpTime { get; set; } = default!;
     public decimal Total { get; set; } = 0;
     public string Status { get; set; } = default!;
     public Guid UserId { get; set; }
