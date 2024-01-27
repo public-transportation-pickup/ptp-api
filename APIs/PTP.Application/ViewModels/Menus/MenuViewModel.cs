@@ -1,3 +1,4 @@
+using PTP.Application.ViewModels.ProductMenus;
 using PTP.Application.ViewModels.Stores;
 using PTP.Domain.Enums;
 
@@ -15,6 +16,6 @@ public class MenuViewModel
     public Guid StoreId { get; set; }
     public DateTime CreationDate { get; set; }
     public StoreViewModel Store { get; set; } = default!;
-    //public ICollection<ProductInMenu> ProductInMenus { get; set; }
+    public ICollection<ProductMenuViewModel>? ProductInMenus { get; set; }
 
 }

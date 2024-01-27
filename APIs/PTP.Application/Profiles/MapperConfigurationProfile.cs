@@ -85,11 +85,13 @@ public class MapperConfigurationProfile : Profile
 			.ReverseMap();
 		CreateMap<Menu, MenuViewModel>()
 			.ForMember(x => x.Store, opt => opt.MapFrom(x => x.Store))
-			.ReverseMap();
-		#endregion
+			.ForMember(x => x.ProductInMenus, opt => opt.Ignore())
+			.ReverseMap()
+			.ForMember(x => x.ProductInMenus, opt => opt.Ignore());
+        #endregion
 
-		#region Category Mapper
-		CreateMap<Category, CategoryViewModel>().ReverseMap();
+        #region Category Mapper
+        CreateMap<Category, CategoryViewModel>().ReverseMap();
 		CreateMap<Category, CategoryCreateModel>().ReverseMap();
 		CreateMap<Category, CategoryUpdateModel>().ReverseMap();
 
