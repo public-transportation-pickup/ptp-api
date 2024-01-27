@@ -41,14 +41,13 @@ public class TripsController : BaseController
     /// <summary>
     /// Lấy toàn bộ trip theo TimeTableId
     /// </summary>
-    /// <param name="id">Guid</param>
     /// <returns></returns>
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [Route("/api/timetables/{id}/trips")]
     [HttpGet]
-    public async Task<IActionResult> GetTripsByTimeTableId([FromQuery] Guid id)
+    public async Task<IActionResult> GetTripsByTimeTableId(Guid id)
     => Ok(await mediator.Send(new GetTripsByTimeTableIdQuery { TimeTableId = id }));
     /// <summary>
     /// Get Trip By id
@@ -106,7 +105,7 @@ public class TripsController : BaseController
     /// <returns></returns>
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete([FromRoute]Guid id)
         => await mediator.Send(new DeleteTripCommand { Id = id }) ? NoContent() : BadRequest();
 
     #endregion

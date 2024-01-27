@@ -6,6 +6,7 @@ using PTP.Application.ViewModels.ProductMenus;
 using PTP.Application.ViewModels.Products;
 using PTP.Application.ViewModels.Routes;
 using PTP.Application.ViewModels.RouteVars;
+using PTP.Application.ViewModels.Stations;
 using PTP.Application.ViewModels.Stores;
 using PTP.Application.ViewModels.Timetables;
 using PTP.Application.ViewModels.Trips;
@@ -148,6 +149,10 @@ public class MapperConfigurationProfile : Profile
 
 		#region Wallet
 		CreateMap<Wallet, WalletViewModel>().ReverseMap();
+		#endregion
+		#region Station
+		CreateMap<Station, StationViewModel>().ReverseMap();
+		CreateMap<Station, StationUpdateModel>().ReverseMap();
 		#endregion
 	}
 }
