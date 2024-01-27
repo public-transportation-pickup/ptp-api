@@ -21,9 +21,9 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
         {
             RuleFor(x => x.CreateModel.Name).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.CreateModel.Description).NotNull().NotEmpty().WithMessage("Description must not null or empty");
-            RuleFor(x => x.CreateModel.StartTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
+            RuleFor(x => x.CreateModel.StartTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                 .WithMessage("StartTime must not null or empty");
-            RuleFor(x => x.CreateModel.EndTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
+            RuleFor(x => x.CreateModel.EndTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                 .WithMessage("EndTime must not null or empty");
             RuleFor(x => x.CreateModel.DateFilter).NotNull().NotEmpty().WithMessage("DateFilter must not null or empty");
             RuleFor(x => x.CreateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
@@ -50,9 +50,9 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
         public async Task<MenuViewModel> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create Menu:\n");
-            DateTime.TryParseExact(request.CreateModel.StartTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime);
-            DateTime.TryParseExact(request.CreateModel.EndTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endTime);
-            if(startTime>=endTime) throw new BadRequestException("Start Time must higher than End Time");
+            TimeSpan.TryParseExact(request.CreateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan startTime);
+            TimeSpan.TryParseExact(request.CreateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan endTime);
+            if (startTime>=endTime) throw new BadRequestException("Start Time must higher than End Time");
             var menu= _mapper.Map<Menu>(request.CreateModel);
            
 

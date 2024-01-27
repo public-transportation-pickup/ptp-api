@@ -27,9 +27,9 @@ public class UpdateStoreCommand:IRequest<bool>
             RuleFor(x => x.StoreUpdate.PhoneNumber).NotNull().NotEmpty()
                 .Matches(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$")
                 .WithMessage("PhoneNumber is not correct format!");
-            RuleFor(x => x.StoreUpdate.OpenedTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
+            RuleFor(x => x.StoreUpdate.OpenedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                 .WithMessage("OpenedTime must not null or empty");
-            RuleFor(x => x.StoreUpdate.ClosedTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
+            RuleFor(x => x.StoreUpdate.ClosedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                 .WithMessage("ClosedTime must not null or empty");
             RuleFor(x => x.StoreUpdate.Address).NotNull().NotEmpty().WithMessage("Address must not null or empty");
             RuleFor(x => x.StoreUpdate.ActivationDate).NotNull().NotEmpty()
@@ -66,9 +66,9 @@ public class UpdateStoreCommand:IRequest<bool>
         {
             //Remove From Cache
 
-            DateTime.TryParseExact(request.StoreUpdate.OpenedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime openTime);
-            DateTime.TryParseExact(request.StoreUpdate.ClosedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime closedTime);
-            if(openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
+            TimeSpan.TryParseExact(request.StoreUpdate.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan openTime);
+            TimeSpan.TryParseExact(request.StoreUpdate.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan closedTime);
+            if (openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
             
             
             if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PTP.Application.Features.Menus.Queries;
 using PTP.Application.Features.Orders.Queries;
 using PTP.Application.Features.Products.Queries;
@@ -39,8 +40,13 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet("{id}/menus")]
-		public async Task<IActionResult> GetMenusByStoreId([FromRoute] Guid id)
-		=> Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id }));
+		public async Task<IActionResult> GetMenusByStoreId([FromRoute] Guid id,string? arrivalTime)
+		{
+			if (arrivalTime.IsNullOrEmpty()) return Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id }));
+
+            return Ok(await _mediator.Send(new GetMenuDetailByStoreId { StoreId = id,ArrivalTime=arrivalTime! }));
+        }
+		
 
 		[ProducesResponseType((int)HttpStatusCode.OK)]
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]

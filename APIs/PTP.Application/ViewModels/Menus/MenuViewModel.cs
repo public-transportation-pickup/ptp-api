@@ -16,6 +16,6 @@ public class MenuViewModel
     public Guid StoreId { get; set; }
     public DateTime CreationDate { get; set; }
     public StoreViewModel Store { get; set; } = default!;
-    public ICollection<ProductMenuViewModel>? ProductInMenus { get; set; }
+    public IEnumerable<ProductMenuViewModel>? ProductInMenus { get; set; }
 
 }

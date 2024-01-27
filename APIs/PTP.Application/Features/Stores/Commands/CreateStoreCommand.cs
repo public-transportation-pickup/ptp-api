@@ -35,9 +35,9 @@ namespace PTP.Application.Features.Stores.Commands
                 RuleFor(x => x.CreateModel.PhoneNumber).NotNull().NotEmpty()
                     .Matches(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$")
                     .WithMessage("PhoneNumber is not correct format!");
-                RuleFor(x => x.CreateModel.OpenedTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
+                RuleFor(x => x.CreateModel.OpenedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                     .WithMessage("OpenedTime must not null or empty");
-                RuleFor(x => x.CreateModel.ClosedTime).NotNull().NotEmpty().Matches(@"^(0[0-9]|1[0-2]):[0-5][0-9]\s*(AM|PM)$")
+                RuleFor(x => x.CreateModel.ClosedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                     .WithMessage("ClosedTime must not null or empty");
                 RuleFor(x => x.CreateModel.Address).NotNull().NotEmpty().WithMessage("Address must not null or empty");
                 RuleFor(x => x.CreateModel.File).NotNull().NotEmpty().WithMessage("File must not null or empty");
@@ -75,8 +75,8 @@ namespace PTP.Application.Features.Stores.Commands
             public async Task<StoreViewModel> Handle(CreateStoreCommand request, CancellationToken cancellationToken)
             {
                 _logger.LogInformation("Create Store:\n");
-                DateTime.TryParseExact(request.CreateModel.OpenedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime openTime);
-                DateTime.TryParseExact(request.CreateModel.ClosedTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime closedTime);
+                TimeSpan.TryParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture,  out TimeSpan openTime);
+                TimeSpan.TryParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture,  out TimeSpan closedTime);
                 if(openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
                 var store= _mapper.Map<Store>(request.CreateModel);
 
