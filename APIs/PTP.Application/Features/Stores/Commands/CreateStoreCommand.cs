@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using Firebase.Auth;
 using FluentValidation;
 using MediatR;
@@ -114,18 +115,17 @@ namespace PTP.Application.Features.Stores.Commands
 
             private async Task<Guid> CreateUser(Store store)
             {
-
-                UserViewModel result = await mediator.Send(new CreateUserCommand
+                var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == nameof(RoleEnum.StoreManager).ToLower())
+                ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
+                User user = new User
                 {
-                    Model = new UserCreateModel
-                    {
-                        FullName=store.Name,
-                        PhoneNumber=store.PhoneNumber,
-                        Password="@Abcaz12345",
-                        Email=$"Store{DateTime.Now.Hour+DateTime.Now.Minute+DateTime.Now.Second}@gmail.com",
-                        StoreId=store.Id,
-                        RoleId=role!.Id
-                    };
+                    FullName=store.Name,
+                    PhoneNumber=store.PhoneNumber,
+                    Password="@Abcaz12345",
+                    Email=$"Store{DateTime.Now.Hour+DateTime.Now.Minute+DateTime.Now.Second}@gmail.com",
+                    StoreId=store.Id,
+                    RoleId=role!.Id
+                };
                 await _unitOfWork.UserRepository.AddAsync(user);
                 if(!await CreateUserToFirebaseAsync(user.Email,user.Password)) throw new Exception($"Create Account to FireBase Fail!");
                 return user.Id;  
