@@ -11,5 +11,7 @@ public class ProductInMenuConfiguration : IEntityTypeConfiguration<ProductInMenu
         builder.HasOne(x => x.Menu).WithMany(x => x.ProductInMenus).HasForeignKey(x => x.MenuId);
         builder.HasOne(x => x.Product).WithMany(x => x.ProductInMenus).HasForeignKey(x => x.ProductId)
         .OnDelete(DeleteBehavior.NoAction);
+        builder.HasMany(x => x.OrderDetails).WithOne(x => x.ProductInMenu).HasForeignKey(x => x.ProductMenuId).OnDelete(DeleteBehavior.NoAction);
+
     }
 }

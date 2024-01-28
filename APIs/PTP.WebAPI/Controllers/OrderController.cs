@@ -1,10 +1,12 @@
 using System.Net;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Orders;
 using PTP.Application.Features.Orders.Commands;
 using PTP.Application.Features.Orders.Queries;
 using PTP.Application.ViewModels.Orders;
+using PTP.Domain.Enums;
 
 namespace PTP.WebAPI.Controllers;
 
@@ -24,9 +26,10 @@ public class OrderController:BaseController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     => Ok(await _mediator.Send(new GetOrdersByIdQuery { Id = id }));
-    #endregion 
-        
+    #endregion
+
     #region Commands
+    [Authorize(Roles = nameof(RoleEnum.Customer))]    
     [ProducesResponseType((int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]

@@ -8,8 +8,8 @@ public class OrderDetail : BaseEntity
 	public int Quantity { get; set; } = 1;
 	public string Note { get; set; } = default!;
 	#region RelationshipConfiguration
-	public Guid ProductId { get; set; }
-	public Product Product { get; set; } = default!;
+	public Guid ProductMenuId { get; set; }
+	public ProductInMenu ProductInMenu { get; set; } = default!;
 	public Guid OrderId { get; set; } = default!;
 	public Order Order { get; set; } = default!;
 	#endregion

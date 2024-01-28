@@ -48,7 +48,7 @@ public class GetOrdersByIdQuery:IRequest<OrderViewModel>
                         x=>x.Store,x=>x.Station,x=>x.Payment);
             if(order is null) throw new NotFoundException($"Order with {request.Id} is not existed!");
             var result= _mapper.Map<OrderViewModel>(order);
-            var ordetails= await _unitOfWork.OrderDetailRepository.WhereAsync(x=>x.OrderId==request.Id,x=>x.Product);
+            var ordetails= await _unitOfWork.OrderDetailRepository.WhereAsync(x=>x.OrderId==request.Id,x=>x.ProductInMenu,x=>x.ProductInMenu.Product);
             result.OrderDetails= _mapper.Map<IEnumerable<OrderDetailViewModel>>(ordetails);
             return result;
         }

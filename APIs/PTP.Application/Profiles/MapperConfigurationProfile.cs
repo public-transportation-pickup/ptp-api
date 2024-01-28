@@ -165,10 +165,12 @@ public class MapperConfigurationProfile : Profile
 
         #region OrderDetail
         CreateMap<OrderDetail,OrderDetailViewModel>()
-			.ForMember(x=>x.ProductName,opt=>opt.MapFrom(x=>x.Product.Name))
-			.ForMember(x=>x.ProductPrice,opt=>opt.MapFrom(x=>x.Product.Price))
-			.ForMember(x=>x.Description,opt=>opt.MapFrom(x=>x.Product.Description))
-			.ForMember(x=>x.ImageURL,opt=>opt.MapFrom(x=>x.Product.ImageURL))
+            .ForMember(x => x.MenuId, opt => opt.MapFrom(x => x.ProductInMenu.MenuId))
+            .ForMember(x => x.ProductId, opt => opt.MapFrom(x => x.ProductInMenu.ProductId))
+            .ForMember(x=>x.ProductName,opt=>opt.MapFrom(x=>x.ProductInMenu.Product.Name))
+			.ForMember(x=>x.ProductPrice,opt=>opt.MapFrom(x=>x.ProductInMenu.Product.Price))
+			.ForMember(x=>x.Description,opt=>opt.MapFrom(x=>x.ProductInMenu.Product.Description))
+			.ForMember(x=>x.ImageURL,opt=>opt.MapFrom(x=>x.ProductInMenu.Product.ImageURL))
 			.ReverseMap();
 
 		CreateMap<OrderDetail,OrderDetailCreateModel>().ReverseMap();

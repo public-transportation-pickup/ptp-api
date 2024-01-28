@@ -24,7 +24,7 @@ public class CreateOrderCommand:IRequest<OrderViewModel>
             RuleFor(x => x.CreateModel.Name).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.CreateModel.PhoneNumber).NotNull().NotEmpty().WithMessage("PhoneNumber must not null or empty");
             RuleFor(x => x.CreateModel.Total).NotNull().NotEmpty().WithMessage("Total must not null or empty");
-            RuleFor(x => x.CreateModel.UserId).NotNull().NotEmpty().WithMessage("UserId must not null or empty");
+            //RuleFor(x => x.CreateModel.UserId).NotNull().NotEmpty().WithMessage("UserId must not null or empty");
             RuleFor(x => x.CreateModel.StationId).NotNull().NotEmpty().WithMessage("StationId must not null or empty");
             RuleFor(x => x.CreateModel.StoreId).NotNull().NotEmpty().WithMessage("StoreId must not null or empty");
             RuleFor(x => x.CreateModel.Payment.Total).NotNull().NotEmpty().WithMessage("Payment Total must not null or empty");
@@ -38,23 +38,26 @@ public class CreateOrderCommand:IRequest<OrderViewModel>
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private ILogger<CommandHandler> _logger;
+        private readonly IClaimsService _claimsService;
         private readonly ICacheService _cacheService;
-        public CommandHandler(IUnitOfWork unitOfWork,
-                IMapper mapper,
-                ILogger<CommandHandler> logger,
-                ICacheService cacheService)
+        public CommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CommandHandler> logger, IClaimsService claimsService, ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
-            _mapper=mapper;
-            _logger=logger;
-            _cacheService=cacheService;
+            _mapper = mapper;
+            _logger = logger;
+            _claimsService = claimsService;
+            _cacheService = cacheService;
         }
+
+
+
         public async Task<OrderViewModel> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create Order:\n");
-            DateTime.TryParseExact(request.CreateModel.PickUpTime, "h:mm tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime pickUpTime);
-            if (pickUpTime < DateTime.Now) throw new BadRequestException("PickUp time is invalid!");
+            //TimeSpan.TryParseExact(request.CreateModel.PickUpTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan pickUpTime);
+            //if (pickUpTime < DateTime.Now.TimeOfDay) throw new BadRequestException("PickUp time is invalid!");
             var order= _mapper.Map<Order>(request.CreateModel);
+            order.UserId = _claimsService.GetCurrentUser;
             await CreateOrderDetail(order.Id, request.CreateModel.OrderDetails);
             order.PaymentId = await CreatePayment(order.Id, request.CreateModel.Payment);
             await CreateTransaction(order);

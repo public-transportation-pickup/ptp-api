@@ -13,6 +13,10 @@ namespace PTP.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_OrderDetails_Product_ProductId",
+                table: "OrderDetails");
+
             migrationBuilder.DeleteData(
                 table: "Role",
                 keyColumn: "Id",
@@ -41,6 +45,16 @@ namespace PTP.Infrastructure.Migrations
                 name: "Name",
                 table: "Payment",
                 newName: "PaymentType");
+
+            migrationBuilder.RenameColumn(
+                name: "ProductId",
+                table: "OrderDetails",
+                newName: "ProductMenuId");
+
+            migrationBuilder.RenameIndex(
+                name: "IX_OrderDetails_ProductId",
+                table: "OrderDetails",
+                newName: "IX_OrderDetails_ProductMenuId");
 
             migrationBuilder.AlterColumn<string>(
                 name: "OpenedTime",
@@ -108,35 +122,46 @@ namespace PTP.Infrastructure.Migrations
                 columns: new[] { "Id", "CreatedBy", "CreationDate", "IsDeleted", "ModificatedBy", "ModificationDate", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("8dac7a9a-b438-4149-b81a-5fdcce2819be"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6284), false, null, null, "Customer" },
-                    { new Guid("90b3f5d2-f21a-4c25-8849-5616a969df07"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6289), false, null, null, "TransportationEmployee" },
-                    { new Guid("aea060bb-7079-4764-a764-90e3782f6044"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6286), false, null, null, "Admin" },
-                    { new Guid("eb4cf385-220b-4e2b-8c7f-11605259dcc4"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6260), false, null, null, "StoreManager" }
+                    { new Guid("75f403de-f951-4f78-b27a-1025d7fbed15"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 28, 22, 11, 19, 319, DateTimeKind.Local).AddTicks(7614), false, null, null, "StoreManager" },
+                    { new Guid("7ad0102a-6273-4e34-bd01-8cf2118d9e0c"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 28, 22, 11, 19, 319, DateTimeKind.Local).AddTicks(7638), false, null, null, "Admin" },
+                    { new Guid("addc9612-1069-4fc0-a720-bed52d0d75ab"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 28, 22, 11, 19, 319, DateTimeKind.Local).AddTicks(7641), false, null, null, "TransportationEmployee" },
+                    { new Guid("c9f382a7-c64d-40ad-a4ff-4a7fd23d3871"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 28, 22, 11, 19, 319, DateTimeKind.Local).AddTicks(7635), false, null, null, "Customer" }
                 });
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_OrderDetails_ProductInMenu_ProductMenuId",
+                table: "OrderDetails",
+                column: "ProductMenuId",
+                principalTable: "ProductInMenu",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
-                table: "Role",
-                keyColumn: "Id",
-                keyValue: new Guid("8dac7a9a-b438-4149-b81a-5fdcce2819be"));
+            migrationBuilder.DropForeignKey(
+                name: "FK_OrderDetails_ProductInMenu_ProductMenuId",
+                table: "OrderDetails");
 
             migrationBuilder.DeleteData(
                 table: "Role",
                 keyColumn: "Id",
-                keyValue: new Guid("90b3f5d2-f21a-4c25-8849-5616a969df07"));
+                keyValue: new Guid("75f403de-f951-4f78-b27a-1025d7fbed15"));
 
             migrationBuilder.DeleteData(
                 table: "Role",
                 keyColumn: "Id",
-                keyValue: new Guid("aea060bb-7079-4764-a764-90e3782f6044"));
+                keyValue: new Guid("7ad0102a-6273-4e34-bd01-8cf2118d9e0c"));
 
             migrationBuilder.DeleteData(
                 table: "Role",
                 keyColumn: "Id",
-                keyValue: new Guid("eb4cf385-220b-4e2b-8c7f-11605259dcc4"));
+                keyValue: new Guid("addc9612-1069-4fc0-a720-bed52d0d75ab"));
+
+            migrationBuilder.DeleteData(
+                table: "Role",
+                keyColumn: "Id",
+                keyValue: new Guid("c9f382a7-c64d-40ad-a4ff-4a7fd23d3871"));
 
             migrationBuilder.DropColumn(
                 name: "Total",
@@ -158,6 +183,16 @@ namespace PTP.Infrastructure.Migrations
                 name: "PaymentType",
                 table: "Payment",
                 newName: "Name");
+
+            migrationBuilder.RenameColumn(
+                name: "ProductMenuId",
+                table: "OrderDetails",
+                newName: "ProductId");
+
+            migrationBuilder.RenameIndex(
+                name: "IX_OrderDetails_ProductMenuId",
+                table: "OrderDetails",
+                newName: "IX_OrderDetails_ProductId");
 
             migrationBuilder.AlterColumn<TimeSpan>(
                 name: "OpenedTime",
@@ -208,6 +243,13 @@ namespace PTP.Infrastructure.Migrations
                     { new Guid("b6bf29a8-c93e-4225-808d-b003a7ed0a49"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 22, 0, 35, 0, 409, DateTimeKind.Local).AddTicks(4579), false, null, null, "StoreManager" },
                     { new Guid("c95c41cc-f90a-4da0-be77-ad7b40643de6"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 22, 0, 35, 0, 409, DateTimeKind.Local).AddTicks(4608), false, null, null, "Admin" }
                 });
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_OrderDetails_Product_ProductId",
+                table: "OrderDetails",
+                column: "ProductId",
+                principalTable: "Product",
+                principalColumn: "Id");
         }
     }
 }

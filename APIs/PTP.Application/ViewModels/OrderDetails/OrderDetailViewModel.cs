@@ -6,7 +6,9 @@ public class OrderDetailViewModel
     public decimal ActualPrice { get; set; } 
     public int Quantity { get; set; }
     public string? Note { get; set; }
+    public Guid ProductMenuId {  get; set; }
     public Guid OrderId { get; set; } = default!;
+    public Guid MenuId { get; set; }=default!;
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = default!;
     public decimal ProductPrice { get; set; } = default!;

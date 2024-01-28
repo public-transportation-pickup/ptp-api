@@ -215,7 +215,7 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid>("ProductMenuId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
@@ -225,7 +225,7 @@ namespace PTP.Infrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductMenuId");
 
                     b.ToTable("OrderDetails");
                 });
@@ -409,33 +409,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("eb4cf385-220b-4e2b-8c7f-11605259dcc4"),
+                            Id = new Guid("75f403de-f951-4f78-b27a-1025d7fbed15"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6260),
+                            CreationDate = new DateTime(2024, 1, 28, 22, 11, 19, 319, DateTimeKind.Local).AddTicks(7614),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("8dac7a9a-b438-4149-b81a-5fdcce2819be"),
+                            Id = new Guid("c9f382a7-c64d-40ad-a4ff-4a7fd23d3871"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6284),
+                            CreationDate = new DateTime(2024, 1, 28, 22, 11, 19, 319, DateTimeKind.Local).AddTicks(7635),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("aea060bb-7079-4764-a764-90e3782f6044"),
+                            Id = new Guid("7ad0102a-6273-4e34-bd01-8cf2118d9e0c"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6286),
+                            CreationDate = new DateTime(2024, 1, 28, 22, 11, 19, 319, DateTimeKind.Local).AddTicks(7638),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("90b3f5d2-f21a-4c25-8849-5616a969df07"),
+                            Id = new Guid("addc9612-1069-4fc0-a720-bed52d0d75ab"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 1, 27, 1, 10, 12, 962, DateTimeKind.Local).AddTicks(6289),
+                            CreationDate = new DateTime(2024, 1, 28, 22, 11, 19, 319, DateTimeKind.Local).AddTicks(7641),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });
@@ -1218,15 +1218,15 @@ namespace PTP.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PTP.Domain.Entities.Product", "Product")
+                    b.HasOne("PTP.Domain.Entities.ProductInMenu", "ProductInMenu")
                         .WithMany("OrderDetails")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("ProductMenuId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Order");
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductInMenu");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Payment", b =>
@@ -1459,9 +1459,12 @@ namespace PTP.Infrastructure.Migrations
 
             modelBuilder.Entity("PTP.Domain.Entities.Product", b =>
                 {
-                    b.Navigation("OrderDetails");
-
                     b.Navigation("ProductInMenus");
+                });
+
+            modelBuilder.Entity("PTP.Domain.Entities.ProductInMenu", b =>
+                {
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("PTP.Domain.Entities.Role", b =>
