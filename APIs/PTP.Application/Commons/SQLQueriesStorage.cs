@@ -90,6 +90,8 @@ public static class SqlQueriesStorage
                                                 ON r.Id = tt.RouteId
                                                 JOIN [RouteVars] rv
                                                 ON tt.RouteVarId = rv.Id
+                                                WHERE tt.RouteVarId = @routeVarId
+                                                AND tt.RouteId = @routeId
                                                 AND tt.IsDeleted = 0
                                                 ORDER BY TimeTableId";
 	/// <summary>
