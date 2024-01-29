@@ -8,7 +8,7 @@ public class Order : BaseEntity
 	public string PhoneNumber {  get; set; }=default!;
 	[Precision(18, 2)]	
 	public decimal Total { get; set; } = 0;
-	public string PickUpTime {  get; set; } = default!;
+	public DateTime PickUpTime {  get; set; } = default!;
 	public string? CanceledReason {  get; set; }
 	public string Status { get; set; } = nameof(OrderStatusEnum.Payed)!;
 	[Precision(18, 2)]
