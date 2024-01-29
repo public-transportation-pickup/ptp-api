@@ -65,6 +65,12 @@ public class UpdateStoreCommand:IRequest<bool>
         public async Task<bool> Handle(UpdateStoreCommand request, CancellationToken cancellationToken)
         {
             //Remove From Cache
+
+            TimeSpan.TryParseExact(request.StoreUpdate.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan openTime);
+            TimeSpan.TryParseExact(request.StoreUpdate.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan closedTime);
+            if (openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
+            
+            
             if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             await _cacheService.RemoveAsync(CacheKey.STORE+request.StoreUpdate.Id);
 
@@ -72,9 +78,7 @@ public class UpdateStoreCommand:IRequest<bool>
             if(store is null ) throw new NotFoundException($"Store with Id-{request.StoreUpdate.Id} is not exist!");
             store = _mapper.Map(request.StoreUpdate,store);
 
-            store.OpenedTime = TimeSpan.ParseExact(request.StoreUpdate.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
-            store.ClosedTime = TimeSpan.ParseExact(request.StoreUpdate.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
-
+        
             if (request.StoreUpdate.File is not null){
                 await store.ImageName.RemoveFileAsync(FolderKey.STORE, appSettings: _appSettings);
                 var image = await request.StoreUpdate.File!.UploadFileAsync(FolderKey.STORE,_appSettings);

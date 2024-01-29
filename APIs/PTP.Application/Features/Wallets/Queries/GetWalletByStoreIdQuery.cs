@@ -44,8 +44,8 @@ public class GetWalletByStoreIdQuery:IRequest<WalletViewModel>
             {
                 return _mapper.Map<WalletViewModel>(cacheResult.Where(x=>x.StoreId==request.StoreId));
             }
-            var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x=>x.StoreId==request.StoreId);
-            if (wallet is null) throw new BadRequestException($"Store with WalletId-{request.StoreId} is not exist!");
+            var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x=>x.StoreId==request.StoreId,x=>x.Transactions,x=>x.WalletLogs);
+            if (wallet is null) throw new BadRequestException($"Store-{request.StoreId} is not exist any Wallet!");
             await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
             return _mapper.Map<WalletViewModel>(wallet);
         }

@@ -4,5 +4,6 @@ public class OrderDetailCreateModel
 {
     public decimal ActualPrice { get; set; } = 0;
     public int Quantity { get; set; } = 1;
-    public Guid ProductId { get; set; }
+    public string? Note { get; set; }
+    public Guid ProductMenuId { get; set; }
 }

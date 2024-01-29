@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Azure.Core;
+using Firebase.Auth;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -13,6 +15,7 @@ using PTP.Domain.Entities;
 using PTP.Domain.Enums;
 using PTP.Domain.Globals;
 using System.Globalization;
+using User = PTP.Domain.Entities.User;
 
 namespace PTP.Application.Features.Stores.Commands
 {
@@ -72,14 +75,17 @@ namespace PTP.Application.Features.Stores.Commands
             public async Task<StoreViewModel> Handle(CreateStoreCommand request, CancellationToken cancellationToken)
             {
                 _logger.LogInformation("Create Store:\n");
-                var store = _mapper.Map<Store>(request.CreateModel);
+                TimeSpan.TryParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture,  out TimeSpan openTime);
+                TimeSpan.TryParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture,  out TimeSpan closedTime);
+                if(openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
+                var store= _mapper.Map<Store>(request.CreateModel);
 
                 var isDup = await _unitOfWork.UserRepository.WhereAsync(x => x.PhoneNumber!.ToLower() == request.CreateModel.PhoneNumber!.ToLower());
                 if (isDup.Count() > 0)
                     throw new Exception($"Error: {nameof(CreateStoreCommand)}_ phone is duplicate!");
 
-                store.OpenedTime = TimeSpan.ParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
-                store.ClosedTime = TimeSpan.ParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
+                store.UserId = await CreateUser(store);
+                        
                 //Get Lat, Lng from address
                 var location = await _locationService.GetGeometry(request.CreateModel.Address);
                 store.Latitude = location.Lat;
@@ -91,9 +97,8 @@ namespace PTP.Application.Features.Stores.Commands
                 store.ImageURL = image.URL;
 
                 //Config RelationShip
-                store.WalletId = await CreateWallet(store.Id);
-                store.StoreCode = (await _unitOfWork.StoreRepository.GetAllAsync()).Count + 1;
-                store.UserId = await CreateUser(store);
+                store.WalletId=await CreateWallet(store.Id);
+                
 
                 await _unitOfWork.StoreRepository.AddAsync(store);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
@@ -110,20 +115,39 @@ namespace PTP.Application.Features.Stores.Commands
 
             private async Task<Guid> CreateUser(Store store)
             {
-
-                UserViewModel result = await mediator.Send(new CreateUserCommand
+                var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == nameof(RoleEnum.StoreManager).ToLower())
+                ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
+                User user = new User
                 {
-                    Model = new UserCreateModel
+                    FullName=store.Name,
+                    PhoneNumber=store.PhoneNumber,
+                    Password="@Abcaz12345",
+                    Email=$"Store{DateTime.Now.Hour+DateTime.Now.Minute+DateTime.Now.Second}@gmail.com",
+                    StoreId=store.Id,
+                    RoleId=role!.Id
+                };
+                await _unitOfWork.UserRepository.AddAsync(user);
+                if(!await CreateUserToFirebaseAsync(user.Email,user.Password)) throw new Exception($"Create Account to FireBase Fail!");
+                return user.Id;  
+            }
+
+            private async Task<bool> CreateUserToFirebaseAsync(string email, string password)
+            {
+                var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey: _appSettings.FirebaseSettings.ApiKeY));
+                try
+                {
+                    var result = await auth.CreateUserWithEmailAndPasswordAsync(email: email, password: password);
+                    if (result.User is not null)
                     {
-                        DateOfBirth = DateTime.Now,
-                        Email = $"Store{store.StoreCode}@gmail.com",
-                        FullName = store.Name,
-                        RoleName = nameof(RoleEnum.StoreManager),
-                        PhoneNumber = store.PhoneNumber,
-                        Password = "@Abcaz12345",
+                        return true;
                     }
-                });
-                return result.Id;
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"{ex}");
+                }
+
             }
         }
     }
