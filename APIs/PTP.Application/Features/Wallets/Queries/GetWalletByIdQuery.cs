@@ -2,10 +2,9 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using PTP.Application.Features.Routes.Queries;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
-using PTP.Application.ViewModels.Stores;
+using PTP.Application.ViewModels.Wallets;
 using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 using System;
@@ -14,21 +13,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PTP.Application.Features.Stores.Queries
+namespace PTP.Application.Features.Wallets.Queries
 {
-    public class GetStoreByIdQuery : IRequest<StoreViewModel>
+    public class GetWalletByIdQuery:IRequest<WalletViewModel>
     {
         public Guid Id { get; set; } = default!;
 
-        public class QueryValidation : AbstractValidator<GetStoreByIdQuery>
+        public class QueryValidation : AbstractValidator<GetWalletByIdQuery>
         {
             public QueryValidation()
             {
                 RuleFor(x => x.Id).NotNull().NotEmpty().WithMessage("Id must not null or empty");
             }
         }
-
-        public class QueryHandler : IRequestHandler<GetStoreByIdQuery, StoreViewModel>
+        public class QueryHandler : IRequestHandler<GetWalletByIdQuery, WalletViewModel>
         {
             private readonly IUnitOfWork _unitOfWork;
             private readonly IMapper _mapper;
@@ -42,19 +40,18 @@ namespace PTP.Application.Features.Stores.Queries
                 _cacheService = cacheService;
                 _logger = logger;
             }
-
-            public async Task<StoreViewModel> Handle(GetStoreByIdQuery request, CancellationToken cancellationToken)
+            public async Task<WalletViewModel> Handle(GetWalletByIdQuery request, CancellationToken cancellationToken)
             {
                 if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                var cacheResult = await _cacheService.GetAsync<Store>(CacheKey.STORE+request.Id);
-                if (cacheResult is not null)
+                var cacheResult = await _cacheService.GetByPrefixAsync<Wallet>(CacheKey.WALLET+request.Id);
+                if (cacheResult!.Count > 0)
                 {
-                    return _mapper.Map<StoreViewModel>(cacheResult);
+                    return _mapper.Map<WalletViewModel>(cacheResult);
                 }
-                var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.Id,x=>x.User,x=>x.Wallet!);
-                if (store is null) throw new BadRequestException($"Store with ID-{request.Id} is not exist!");
-                await _cacheService.SetAsync<Store>(CacheKey.STORE + request.Id, store);
-                return _mapper.Map<StoreViewModel>(store);
+                var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x => x.Id == request.Id, x => x.Transactions, x => x.WalletLogs);
+                if (wallet is null) throw new BadRequestException($"WalletId-{request.Id} is not exist!");
+                await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
+                return _mapper.Map<WalletViewModel>(wallet);
             }
         }
     }

@@ -2,6 +2,8 @@ using AutoMapper;
 using PTP.Application.ViewModels;
 using PTP.Application.ViewModels.Categories;
 using PTP.Application.ViewModels.Menus;
+using PTP.Application.ViewModels.OrderDetails;
+using PTP.Application.ViewModels.Orders;
 using PTP.Application.ViewModels.ProductMenus;
 using PTP.Application.ViewModels.Products;
 using PTP.Application.ViewModels.Routes;
@@ -9,8 +11,10 @@ using PTP.Application.ViewModels.RouteVars;
 using PTP.Application.ViewModels.Stations;
 using PTP.Application.ViewModels.Stores;
 using PTP.Application.ViewModels.Timetables;
+using PTP.Application.ViewModels.Transactions;
 using PTP.Application.ViewModels.Trips;
 using PTP.Application.ViewModels.Users;
+using PTP.Application.ViewModels.WalletLogs;
 using PTP.Application.ViewModels.Wallets;
 using PTP.Domain.Entities;
 
@@ -29,31 +33,15 @@ public class MapperConfigurationProfile : Profile
 		CreateMap<Store, StoreViewModel>()
 			.ForMember(x => x.Email, opt => opt.MapFrom(x => x.User.Email))
 			.ForMember(x => x.Password, opt => opt.MapFrom(x => x.User.Password))
-			.ReverseMap();
+            .ForMember(x => x.WalletAmount, opt => opt.MapFrom(x => x.Wallet!.Amount))
+            .ReverseMap();
 		CreateMap<Store, StoreCreateModel>()
-			.ForMember(x => x.ClosedTime, opt => opt.Ignore())
-			.ForMember(x => x.OpenedTime, opt => opt.Ignore())
 			.ForMember(x => x.File, opt => opt.Ignore())
 			.ReverseMap();
 		CreateMap<Store, StoreUpdateModel>()
-			.ForMember(x => x.ClosedTime, opt => opt.Ignore())
-			.ForMember(x => x.OpenedTime, opt => opt.Ignore())
 			.ForMember(x => x.File, opt => opt.Ignore())
 			.ReverseMap()
 			.ForMember(x => x.ImageName, opt => opt.Ignore());
-		#endregion
-		#region StoreMapper
-		CreateMap<Store, StoreViewModel>().ReverseMap();
-		CreateMap<Store, StoreCreateModel>()
-			.ForMember(x => x.ClosedTime, opt => opt.Ignore())
-			.ForMember(x => x.OpenedTime, opt => opt.Ignore())
-			.ForMember(x => x.File, opt => opt.Ignore())
-			.ReverseMap();
-		CreateMap<Store, StoreUpdateModel>()
-			.ForMember(x => x.ClosedTime, opt => opt.Ignore())
-			.ForMember(x => x.OpenedTime, opt => opt.Ignore())
-			.ForMember(x => x.File, opt => opt.Ignore())
-			.ReverseMap();
 		#endregion
 
 		#region RouteVariation Mapper
@@ -99,11 +87,13 @@ public class MapperConfigurationProfile : Profile
 			.ReverseMap();
 		CreateMap<Menu, MenuViewModel>()
 			.ForMember(x => x.Store, opt => opt.MapFrom(x => x.Store))
-			.ReverseMap();
-		#endregion
+			.ForMember(x => x.ProductInMenus, opt => opt.Ignore())
+			.ReverseMap()
+			.ForMember(x => x.ProductInMenus, opt => opt.Ignore());
+        #endregion
 
-		#region Category Mapper
-		CreateMap<Category, CategoryViewModel>().ReverseMap();
+        #region Category Mapper
+        CreateMap<Category, CategoryViewModel>().ReverseMap();
 		CreateMap<Category, CategoryCreateModel>().ReverseMap();
 		CreateMap<Category, CategoryUpdateModel>().ReverseMap();
 
@@ -149,11 +139,55 @@ public class MapperConfigurationProfile : Profile
 		#endregion
 
 		#region Wallet
-		CreateMap<Wallet, WalletViewModel>().ReverseMap();
+		CreateMap<Wallet, WalletViewModel>()
+			.ForMember(x=>x.WalletLogs,opt=>opt.MapFrom(x=>x.WalletLogs))
+            .ForMember(x => x.Transactions, opt => opt.MapFrom(x => x.Transactions))
+            .ReverseMap();
 		#endregion
-		#region Station
-		CreateMap<Station, StationViewModel>().ReverseMap();
-		CreateMap<Station, StationUpdateModel>().ReverseMap();
+
+		#region Order
+		CreateMap<Order,OrderViewModel>()
+			.ForMember(x=>x.StationAddress,opt=>opt.MapFrom(x=>x.Station.Address))
+			.ForMember(x=>x.StationName,opt=>opt.MapFrom(x=>x.Station.Name))
+			.ForMember(x=>x.StorePhoneNumber,opt=>opt.MapFrom(x=>x.Store.PhoneNumber))
+			.ForMember(x=>x.StoreName,opt=>opt.MapFrom(x=>x.Store.Name))
+			.ForMember(x=>x.PaymentType,opt=>opt.MapFrom(x=>x.Payment.PaymentType))
+			.ForMember(x=>x.PaymentStatus,opt=>opt.MapFrom(x=>x.Payment.Status))
+			.ReverseMap();
+		CreateMap<Order, OrderUpdateModel>().ReverseMap();
+
+		CreateMap<Order, OrderCreateModel>()
+			.ForMember(x => x.Payment, opt => opt.Ignore())
+			.ForMember(x => x.OrderDetails, opt => opt.Ignore())
+			.ReverseMap()
+			.ForMember(x => x.Payment, opt => opt.Ignore())
+			.ForMember(x => x.OrderDetails, opt => opt.Ignore());
+        #endregion
+
+        #region OrderDetail
+        CreateMap<OrderDetail,OrderDetailViewModel>()
+            .ForMember(x => x.MenuId, opt => opt.MapFrom(x => x.ProductInMenu.MenuId))
+            .ForMember(x => x.ProductId, opt => opt.MapFrom(x => x.ProductInMenu.ProductId))
+            .ForMember(x=>x.ProductName,opt=>opt.MapFrom(x=>x.ProductInMenu.Product.Name))
+			.ForMember(x=>x.ProductPrice,opt=>opt.MapFrom(x=>x.ProductInMenu.Product.Price))
+			.ForMember(x=>x.Description,opt=>opt.MapFrom(x=>x.ProductInMenu.Product.Description))
+			.ForMember(x=>x.ImageURL,opt=>opt.MapFrom(x=>x.ProductInMenu.Product.ImageURL))
+			.ReverseMap();
+
+		CreateMap<OrderDetail,OrderDetailCreateModel>().ReverseMap();
 		#endregion
-	}
+
+		#region Transactions
+		CreateMap<Transaction, TransactionViewModel>().ReverseMap();
+        #endregion
+
+        #region WalletLogs
+        CreateMap<WalletLog, WalletLogViewModel>().ReverseMap();
+        #endregion
+
+        #region Station
+        CreateMap<Station, StationViewModel>().ReverseMap();
+        CreateMap<Station, StationUpdateModel>().ReverseMap();
+        #endregion
+    }
 }

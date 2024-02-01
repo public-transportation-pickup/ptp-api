@@ -50,15 +50,17 @@ public class UpdateMenuCommand:IRequest<bool>
         public async Task<bool> Handle(UpdateMenuCommand request, CancellationToken cancellationToken)
         {
              _logger.LogInformation("Update Menu:\n");
+            TimeSpan.TryParseExact(request.UpdateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan startTime);
+            TimeSpan.TryParseExact(request.UpdateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan endTime);
+            if (startTime >= endTime) throw new BadRequestException("Start Time must higher than End Time");
+
             //Remove From Cache       
-            
+
             var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.UpdateModel.Id);
             if(menu is null ) throw new NotFoundException($"Menu with Id-{request.UpdateModel.Id} is not exist!");
             
             menu= _mapper.Map(request.UpdateModel,menu);
-            menu.StartTime=TimeSpan.ParseExact(request.UpdateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture);
-            menu.EndTime=TimeSpan.ParseExact(request.UpdateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture);
-
+           
             _unitOfWork.MenuRepository.Update(menu);
             var result= await _unitOfWork.SaveChangesAsync();
             if(result){
