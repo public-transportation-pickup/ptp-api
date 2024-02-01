@@ -9,6 +9,8 @@ public class ProductViewModel
     public int PreparationTime { get; set; } = default!;
     public string ImageName { get; set; } = default!;
     public string ImageURL { get; set; } = default!;
+    public DateTime? ManufacturingDate{get;set;}
+	public DateTime? ExpirationDate{get;set;}
     public DateTime CreationDate { get; set; }
     public Guid StoreId { get; set; }
     public string StoreName{get;set;}=default!;

@@ -31,7 +31,10 @@ public class UpdateStoreCommand:IRequest<bool>
                 .WithMessage("OpenedTime must not null or empty");
             RuleFor(x => x.StoreUpdate.ClosedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                 .WithMessage("ClosedTime must not null or empty");
-            RuleFor(x => x.StoreUpdate.Address).NotNull().NotEmpty().WithMessage("Address must not null or empty");
+            RuleFor(x => x.StoreUpdate.AddressNo).NotNull().NotEmpty().WithMessage("AddressNo must not null or empty");
+            RuleFor(x => x.StoreUpdate.Street).NotNull().NotEmpty().WithMessage("Street must not null or empty");
+            RuleFor(x => x.StoreUpdate.Ward).NotNull().NotEmpty().WithMessage("Ward must not null or empty");
+            RuleFor(x => x.StoreUpdate.Zone).NotNull().NotEmpty().WithMessage("Zone must not null or empty");
             RuleFor(x => x.StoreUpdate.ActivationDate).NotNull().NotEmpty()
                 .GreaterThanOrEqualTo(DateTime.Now.AddDays(3))
                 .LessThanOrEqualTo(DateTime.Now.AddYears(2))
@@ -86,8 +89,11 @@ public class UpdateStoreCommand:IRequest<bool>
                 store.ImageURL=image.URL;
             }
 
-            if(!request.StoreUpdate.Address.Equals(store.Address)){
-                var location= await _locationService.GetGeometry(request.StoreUpdate.Address);
+            if(!request.StoreUpdate.AddressNo.Equals(store.AddressNo)|| !request.StoreUpdate.Street.Equals(store.Street) ||
+                    !request.StoreUpdate.Zone.Equals(store.Zone)|| !request.StoreUpdate.Ward.Equals(store.Ward))
+            {
+                var addressStr = $"{request.StoreUpdate.AddressNo},{request.StoreUpdate.Street},{request.StoreUpdate.Ward},{request.StoreUpdate.Zone}";
+                var location = await _locationService.GetGeometry(addressStr);
                 store.Latitude=location.Lat;
                 store.Longitude=location.Lng;
             }

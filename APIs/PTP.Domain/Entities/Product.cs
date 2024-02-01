@@ -9,6 +9,8 @@ public class Product : BaseEntity
 	public string Description { get; set; } = default!;
     public string ImageName { get; set; } = default!;
     public string ImageURL { get; set; } = default!;
+	public DateTime? ManufacturingDate{get;set;}
+	public DateTime? ExpirationDate{get;set;}
 	public int PreparationTime { get; set; } = default!;
 
     #region Config Relationship

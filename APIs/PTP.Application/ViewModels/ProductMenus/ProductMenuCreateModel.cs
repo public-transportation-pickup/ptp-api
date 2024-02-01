@@ -8,4 +8,5 @@ public class ProductMenuCreateModel
     public Guid MenuId { get; set; }
     public string Status { get; set; } =default!;
 	public decimal ActualPrice { get; set; } = 0;
+    public int QuantityInDay{get;set;}
 }

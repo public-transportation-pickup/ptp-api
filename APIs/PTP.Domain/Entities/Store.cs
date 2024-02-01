@@ -14,8 +14,11 @@ public class Store : BaseEntity
 	public decimal Latitude { get; set; } = default!;
 	[Precision(18, 10)]
 	public decimal Longitude { get; set; } = default!;
-	public string Address { get; set; } = default!;
-	public DateTime? ActivationDate { get; set; } = null;
+    public string Zone { get; set; } = default!;
+    public string Ward { get; set; } = default!;
+    public string AddressNo { get; set; } = default!;
+    public string Street { get; set; } = default!;
+    public DateTime? ActivationDate { get; set; } = null;
 
 	#region Image 
 	public string ImageName { get; set; } = string.Empty;

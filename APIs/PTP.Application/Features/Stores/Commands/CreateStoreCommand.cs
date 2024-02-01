@@ -39,7 +39,10 @@ namespace PTP.Application.Features.Stores.Commands
                     .WithMessage("OpenedTime must not null or empty");
                 RuleFor(x => x.CreateModel.ClosedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                     .WithMessage("ClosedTime must not null or empty");
-                RuleFor(x => x.CreateModel.Address).NotNull().NotEmpty().WithMessage("Address must not null or empty");
+                RuleFor(x => x.CreateModel.AddressNo).NotNull().NotEmpty().WithMessage("AddressNo must not null or empty");
+                RuleFor(x => x.CreateModel.Street).NotNull().NotEmpty().WithMessage("Street must not null or empty");
+                RuleFor(x => x.CreateModel.Ward).NotNull().NotEmpty().WithMessage("Ward must not null or empty");
+                RuleFor(x => x.CreateModel.Zone).NotNull().NotEmpty().WithMessage("Zone must not null or empty");
                 RuleFor(x => x.CreateModel.File).NotNull().NotEmpty().WithMessage("File must not null or empty");
             }
         }
@@ -85,9 +88,10 @@ namespace PTP.Application.Features.Stores.Commands
                     throw new Exception($"Error: {nameof(CreateStoreCommand)}_ phone is duplicate!");
 
                 store.UserId = await CreateUser(store);
-                        
+
                 //Get Lat, Lng from address
-                var location = await _locationService.GetGeometry(request.CreateModel.Address);
+                var addressStr = $"{request.CreateModel.AddressNo},{request.CreateModel.Street},{request.CreateModel.Ward},{request.CreateModel.Zone}";
+                var location = await _locationService.GetGeometry(addressStr);
                 store.Latitude = location.Lat;
                 store.Longitude = location.Lng;
 
