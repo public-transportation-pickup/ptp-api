@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using PTP.Application.Commons;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Stores;
@@ -16,6 +17,7 @@ namespace PTP.Application.Features.Stores.Queries
 {
     public class GetAllStoreQuery : IRequest<IEnumerable<StoreViewModel>>
     {
+        public Dictionary<string, string>? Filter { get; set; } = default!;
         public class QueryHandler : IRequestHandler<GetAllStoreQuery, IEnumerable<StoreViewModel>>
         {
             private readonly IUnitOfWork _unitOfWork;
@@ -42,7 +44,16 @@ namespace PTP.Application.Features.Stores.Queries
                 var stores = await _unitOfWork.StoreRepository.GetAllAsync(x=>x.User,x=>x.Wallet!);
                 if (stores.Count == 0) throw new NotFoundException("There are no store in DB!");
                 await _cacheService.SetByPrefixAsync<Store>(CacheKey.STORE, stores);
-                return _mapper.Map<IEnumerable<StoreViewModel>>(stores);
+                var viewModels= _mapper.Map<IEnumerable<StoreViewModel>>(stores);
+                if(request.Filter!.Count>0)
+                {
+                    foreach(var filter in request.Filter) 
+                    {
+                        return viewModels.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
+                    }
+                }
+                
+                return viewModels;
             }
         }
     }

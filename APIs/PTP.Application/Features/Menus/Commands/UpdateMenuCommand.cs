@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Menus;
+using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Menus.Commands;
@@ -59,6 +60,7 @@ public class UpdateMenuCommand:IRequest<bool>
             var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.UpdateModel.Id);
             if(menu is null ) throw new NotFoundException($"Menu with Id-{request.UpdateModel.Id} is not exist!");
             
+            if(menu.StartTime!= startTime || menu.EndTime!=endTime) await CheckTime(menu.StoreId,startTime,endTime);
             menu= _mapper.Map(request.UpdateModel,menu);
            
             _unitOfWork.MenuRepository.Update(menu);
@@ -68,6 +70,21 @@ public class UpdateMenuCommand:IRequest<bool>
                 await _cacheService.RemoveAsync(CacheKey.MENU+request.UpdateModel.Id);
             }
             return result;
+        }
+
+        private async Task<bool> CheckTime(Guid storeId,TimeSpan sTime, TimeSpan eTime) 
+        {
+            var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
+                                 x.StoreId == storeId);
+             
+            if(menus.Count==0) return true;
+
+            foreach (var item in menus)
+            {
+                if (item.StartTime <= sTime && item.EndTime > sTime) throw new BadRequestException($"Start time is duplicate with menu-{item.Id}" );
+                if (item.StartTime < eTime && item.EndTime >= eTime) throw new BadRequestException($"End time is duplicate with menu-{item.Id}" );
+            }
+            return true;
         }
     }
 }

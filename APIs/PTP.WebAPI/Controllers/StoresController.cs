@@ -7,6 +7,7 @@ using PTP.Application.Features.Products.Queries;
 using PTP.Application.Features.Stores.Commands;
 using PTP.Application.Features.Stores.Queries;
 using PTP.Application.Features.Wallets.Queries;
+using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Stores;
 using System.Net;
 
@@ -25,8 +26,16 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet]
-		public async Task<IActionResult> Get() => Ok(await _mediator.Send(new GetAllStoreQuery()));
-
+		public async Task<IActionResult> Get([FromQuery] int pageNumber = 0,[FromQuery] int pageSize = 10, [FromQuery] Dictionary<string, string> filter = default!)
+		{
+			var result = await _mediator.Send(new GetAllStoreQuery{Filter=filter});
+			return Ok(PaginatedList<StoreViewModel>.Create(
+				source:result.AsQueryable(),
+				pageIndex:pageNumber,
+				pageSize:pageSize
+			));
+		}
+		
 
 
 		[ProducesResponseType((int)HttpStatusCode.OK)]

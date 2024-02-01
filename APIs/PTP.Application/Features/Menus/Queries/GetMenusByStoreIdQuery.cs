@@ -49,7 +49,7 @@ public class GetMenusByStoreId:IRequest<IEnumerable<MenuViewModel>>
             var menus = await _unitOfWork.MenuRepository.WhereAsync(x=>x.StoreId==request.StoreId,x=>x.Store);
             if (menus is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any menus!");
             await _cacheService.SetByPrefixAsync<Menu>(CacheKey.MENU, menus);
-            return _mapper.Map<IEnumerable<MenuViewModel>>(menus);
+            return (_mapper.Map<IEnumerable<MenuViewModel>>(menus)).OrderBy(x=>x.StartTime);
         }
     }
 }
