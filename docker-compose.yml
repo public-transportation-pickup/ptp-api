@@ -1,0 +1,35 @@
+version: '3.5'
+networks:
+  web:
+    external: true
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=EXPRESS
+      - SA_PASSWORD=z@123456!
+    ports:
+      - target: 1433
+        published: 1434
+  redis: 
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+  public-transportation-pickup-api:
+    container_name: public-transportation-pickup-api
+    tty: true
+    depends_on:
+      - sql-server
+      - redis
+    image: ${DOCKER_REGISTRY-}public-transportation-pickup-api:v1
+    build: 
+      context: .
+      dockerfile: APIs/PTP.WebAPI/Dockerfile
+    environment:
+    - CONNECTIONSTRINGS__DEFAULTCONNECTION=Server=sql-server;Database=[PTP.Database];Trusted_Connection=False;User Id=sa;Password=z@123456!;MultipleActiveResultSets=true;TrustServerCertificate=true
+    - CONNECTIONSTRINGS_REDISCONNECTION=Server=redis;password:eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    ports:
+    - "4201:80"

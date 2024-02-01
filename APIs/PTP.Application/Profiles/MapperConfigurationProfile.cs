@@ -47,6 +47,7 @@ public class MapperConfigurationProfile : Profile
 		#region RouteVariation Mapper
 		CreateMap<RouteVar, RouteVarViewModel>().ReverseMap();
 		CreateMap<RouteVar, RouteVarCreateModel>().ReverseMap();
+		CreateMap<RouteVar, RouteVar>();
 		#endregion
 		#region TimeTable
 		CreateMap<TimetableViewModel, TimeTable>().ReverseMap();

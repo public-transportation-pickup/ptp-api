@@ -89,5 +89,18 @@ public class StationsController : BaseController
     }
 
 
+    /// <summary>
+    /// Lấy hết station theo RouteVarId có xếp theo Index
+    /// </summary>
+    /// <param name="routeVarId"></param>
+    /// <returns></returns>
+    [HttpGet("/api/route-vars/{routeVarId}/stations")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError )]
+    public async Task<IActionResult> GetStationByRouteVarId(Guid routeVarId)
+    {
+        return Ok(await mediator.Send(new GetAllStationByRouteIdQuery { Id = routeVarId }));
+    }
 
 }

@@ -1,11 +1,3 @@
-using Firebase.Auth;
-using FluentValidation;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using PTP.Application.Features.Users.Queries;
-using PTP.Application.ViewModels.Users;
-using PTP.Domain.Entities;
-using PTP.Domain.Enums;
 using User = PTP.Domain.Entities.User;
 
 namespace PTP.Application.Features.Users.Commands;
@@ -49,11 +41,23 @@ public class CreateUserCommand : IRequest<UserViewModel>
 			request.Model.RoleName = request.Model.RoleName ?? nameof(RoleEnum.Customer);
 			var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == request.Model.RoleName.ToLower())
 				?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {request.Model.RoleName}");
-			user.WalletId= await CreateWallet(user.Id);
+			user.WalletId = await CreateWallet(user.Id);
 			user.RoleId = role.Id;
 			await _unitOfWork.UserRepository.AddAsync(user);
 			if (await _unitOfWork.SaveChangesAsync())
 			{
+				if (role.Name == nameof(RoleEnum.Customer))
+				{
+					var wallet = new Wallet
+					{
+						Amount = 0,
+						Name = $"Ví của {user.Email}",
+						WalletType = nameof(WalletTypeEnum.Customer),
+						Store = null,
+						UserId = user.Id
+					};
+					await _unitOfWork.WalletRepository.AddAsync(wallet);
+				}
 				return await _mediator.Send(new GetUserByIdQuery { Id = user.Id }, cancellationToken);
 			}
 			else
@@ -80,12 +84,12 @@ public class CreateUserCommand : IRequest<UserViewModel>
 
 		}
 
-        private async Task<Guid> CreateWallet(Guid userId)
-        {
-            var wallet = new Wallet { Name = "User-Wallet", Amount = 0, WalletType = WalletTypeEnum.Customer.ToString(), UserId = userId };
-            await _unitOfWork.WalletRepository.AddAsync(wallet);
-            return wallet.Id;
-        }
+		private async Task<Guid> CreateWallet(Guid userId)
+		{
+			var wallet = new Wallet { Name = "User-Wallet", Amount = 0, WalletType = WalletTypeEnum.Customer.ToString(), UserId = userId };
+			await _unitOfWork.WalletRepository.AddAsync(wallet);
+			return wallet.Id;
+		}
 
-    }
+	}
 }
