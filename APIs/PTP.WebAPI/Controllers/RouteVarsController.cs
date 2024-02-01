@@ -3,7 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.RouteVars.Commands;
 using PTP.Application.Features.RouteVars.Queries;
+using PTP.Application.ViewModels.RouteStations;
 using PTP.Application.ViewModels.RouteVars;
+using PTP.Application.ViewModels.Stations;
 
 namespace PTP.WebAPI.Controllers;
 public class RouteVarsController : BaseController
@@ -85,5 +87,16 @@ public class RouteVarsController : BaseController
         else return BadRequest();
     }
     #endregion
-
+    /// <summary>
+    /// Duplicate một routeVar, thay đổi tuyến đường
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="models"></param>
+    /// <returns></returns>
+    [Route("api/route-vars/{id}/duplicate")]
+    [HttpPost]
+    public async Task<IActionResult> Duplicate([FromRoute] Guid id, [FromBody] List<RouteStationDuplicateModel> models)
+    {
+        return Ok(await _mediator.Send(new DuplicateRouteVarCommand {Id = id, Stations = models}));
+    }
 }

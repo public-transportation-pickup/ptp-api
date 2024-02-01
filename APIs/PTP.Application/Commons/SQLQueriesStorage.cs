@@ -1,6 +1,13 @@
 namespace PTP.Application.Commons;
 public static class SqlQueriesStorage
 {
+    public const string GET_STATION_BY_ROUTEVARID =@"
+                                            SELECT s.Id, s.[Name], rs.[Index]
+                                            FROM RouteStation rs
+                                            INNER JOIN Station s
+                                            ON rs.StationId = s.Id
+                                            WHERE rs.RouteVarId = @routeVarId
+                                            ORDER BY rs.[Index]";
 	public const string GET_ALL_USER = @"
                                         SELECT u.Id, FullName, 
                                         [Email], PhoneNumber, 
