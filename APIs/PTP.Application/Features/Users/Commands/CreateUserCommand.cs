@@ -1,4 +1,11 @@
-using User = PTP.Domain.Entities.User;
+
+
+using Firebase.Auth;
+using FluentValidation;
+using MediatR;
+using PTP.Application.Features.Users.Queries;
+using PTP.Application.ViewModels.Users;
+using PTP.Domain.Enums;
 
 namespace PTP.Application.Features.Users.Commands;
 public class CreateUserCommand : IRequest<UserViewModel>
@@ -29,7 +36,7 @@ public class CreateUserCommand : IRequest<UserViewModel>
 		}
 		public async Task<UserViewModel> Handle(CreateUserCommand request, CancellationToken cancellationToken)
 		{
-			var user = _unitOfWork.Mapper.Map<User>(request.Model);
+			var user = _unitOfWork.Mapper.Map<Domain.Entities.User>(request.Model);
 
 			var isDup = await _unitOfWork.UserRepository.WhereAsync(x => x.Email!.ToLower() == request.Model.Email!.ToLower() ||
 				x.PhoneNumber!.ToLower() == request.Model.PhoneNumber!.ToLower());
@@ -48,7 +55,7 @@ public class CreateUserCommand : IRequest<UserViewModel>
 			{
 				if (role.Name == nameof(RoleEnum.Customer))
 				{
-					var wallet = new Wallet
+					var wallet = new Domain.Entities.Wallet
 					{
 						Amount = 0,
 						Name = $"Ví của {user.Email}",
@@ -86,7 +93,7 @@ public class CreateUserCommand : IRequest<UserViewModel>
 
 		private async Task<Guid> CreateWallet(Guid userId)
 		{
-			var wallet = new Wallet { Name = "User-Wallet", Amount = 0, WalletType = WalletTypeEnum.Customer.ToString(), UserId = userId };
+			var wallet = new Domain.Entities.Wallet { Name = "User-Wallet", Amount = 0, WalletType = WalletTypeEnum.Customer.ToString(), UserId = userId };
 			await _unitOfWork.WalletRepository.AddAsync(wallet);
 			return wallet.Id;
 		}

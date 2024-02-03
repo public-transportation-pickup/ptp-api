@@ -7,6 +7,7 @@ public static class SqlQueriesStorage
                                             INNER JOIN Station s
                                             ON rs.StationId = s.Id
                                             WHERE rs.RouteVarId = @routeVarId
+                                            AND s.ISDELETED = 0
                                             ORDER BY rs.[Index]";
 	public const string GET_ALL_USER = @"
                                         SELECT u.Id, FullName, 
@@ -38,6 +39,7 @@ public static class SqlQueriesStorage
                                         WHERE RouteId = @id
                                         AND rs.IsDeleted = 0
                                         AND RouteVarId = @routeVarId
+                                        AND rs.IsDeleted = 0
                                         ORDER BY [Index]";
 
 	/// <summary>

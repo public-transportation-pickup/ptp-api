@@ -32,6 +32,8 @@ public class DistanceModificationCommand : IRequest<bool>
 			foreach (var routeVar in routeStations)
 			{
 				var rV = await _unitOfWork.RouteVarRepository.GetByIdAsync(routeVar.First().RouteVarId) ?? throw new Exception("no_data_found");
+				if (rV.IsDistance) continue;
+				else rV.IsDistance = true;
 				var start = routeVar.First(x => x.Index == 0);
 				foreach (var routeStation in routeVar)
 				{
