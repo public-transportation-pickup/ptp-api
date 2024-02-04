@@ -55,7 +55,8 @@ public static class DependencyInjection
 		builder.Services.AddHangfire(config => config
 						.UseSimpleAssemblyNameTypeSerializer()
 						.UseRecommendedSerializerSettings()
-						.UseInMemoryStorage());
+						.UseInMemoryStorage()
+						);
 		builder.Services.AddHangfireServer();
 		builder.Services.AddSwaggerGen(opt =>
 					{
