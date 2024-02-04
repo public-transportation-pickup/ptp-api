@@ -14,7 +14,7 @@ builder.AddWebAPIServices();
 
 
 var app = builder.Build();
-app.UseHangfireDashboard("hangfire", new DashboardOptions { IgnoreAntiforgeryToken = true }, null);
+app.UseHangfireDashboard("/hangfire", new DashboardOptions { IgnoreAntiforgeryToken = true }, null);
 RecurringJob.AddOrUpdate<IBusRouteService>("check-routes", interService => interService.CheckNewCreatedRoute(), Cron.Monthly());
 // Configure the HTTP request pipeline.
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
