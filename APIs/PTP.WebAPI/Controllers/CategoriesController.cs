@@ -25,7 +25,10 @@ public class CategoriesController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> Get() => Ok(await _mediator.Send(new GetAllCategoryQuery()));
+    public async Task<IActionResult> Get([FromQuery] int pageNumber = 0,
+                                        [FromQuery] int pageSize = 10, 
+                                        [FromQuery] Dictionary<string, string> filter = default!) 
+    => Ok(await _mediator.Send(new GetAllCategoryQuery{PageNumber=pageNumber,PageSize=pageSize,Filter=filter}));
 
 
 
@@ -41,8 +44,11 @@ public class CategoriesController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{id}/products")]
-    public async Task<IActionResult> GetProductsByCategoryId([FromRoute] Guid id)
-    => Ok(await _mediator.Send(new GetProductsByCategoryIdQuery { CategoryId = id }));
+    public async Task<IActionResult> GetProductsByCategoryId([FromRoute] Guid id,
+                                                            [FromQuery] int pageNumber = 0,
+                                                            [FromQuery] int pageSize = 10, 
+                                                            [FromQuery] Dictionary<string, string> filter = default!)
+    => Ok(await _mediator.Send(new GetProductsByCategoryIdQuery { CategoryId = id ,PageNumber=pageNumber,PageSize=pageSize,Filter=filter}));
     #endregion 
 
     #region Commands

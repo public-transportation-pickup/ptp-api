@@ -415,33 +415,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e6a8ff5b-120f-41e6-ab0b-2910c4b7b2a1"),
+                            Id = new Guid("870e33a9-e5de-40ca-91e3-3f234fa43338"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 2, 2, 1, 52, 18, 870, DateTimeKind.Local).AddTicks(4813),
+                            CreationDate = new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2170),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("58b0c766-f9f5-4bc6-b676-72889284ee1f"),
+                            Id = new Guid("a87a471d-3beb-4567-b31b-57ab734db62a"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 2, 2, 1, 52, 18, 870, DateTimeKind.Local).AddTicks(4836),
+                            CreationDate = new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2189),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("0c635260-3530-4350-b1f4-b239a0fb4002"),
+                            Id = new Guid("5f0e282c-cff6-48b7-bca6-95ff40106590"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 2, 2, 1, 52, 18, 870, DateTimeKind.Local).AddTicks(4839),
+                            CreationDate = new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2201),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("59248067-6960-44ef-8470-001b0986c2d6"),
+                            Id = new Guid("f3bdb0cb-79fe-437b-8560-52f8d1b37227"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 2, 2, 1, 52, 18, 870, DateTimeKind.Local).AddTicks(4842),
+                            CreationDate = new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2204),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });
@@ -627,6 +627,9 @@ namespace PTP.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDistance")
                         .HasColumnType("bit");
 
                     b.Property<Guid?>("ModificatedBy")

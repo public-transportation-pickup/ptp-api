@@ -9,6 +9,7 @@ public class RouteVar : BaseEntity
 string RouteVarShortName, string RouteNo, string StartStop, 
 string EndStop, double Distance, bool OutBound, int RunningTime
     */
+	public bool IsDistance { get; set; } = false;
 	public int RouteVarId { get; set; } = default!;
 	public string RouteVarName { get; set; } = default!;
 	public string RouteVarShortName { get; set; } = default!;

@@ -16,7 +16,5 @@ public class RouteStationsController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetRouteStationByParId(Guid id, Guid routeVarId)
     => Ok(await mediator.Send(new GetRouteStationByParIdQuery {Id = id, RouteVarId = routeVarId}));
-
-    
     #endregion
 }

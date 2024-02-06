@@ -38,8 +38,11 @@ public class MenusController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{menuid}/products-menu")]
-    public async Task<IActionResult> GetProductMenuByMenuId([FromRoute] Guid menuid)
-    => Ok(await _mediator.Send(new GetProductInMenuByMenuIdQuery { MenuId = menuid }));
+    public async Task<IActionResult> GetProductMenuByMenuId([FromRoute] Guid menuid,
+                                                            [FromQuery] int pageNumber = 0,
+                                                            [FromQuery] int pageSize = 10, 
+                                                            [FromQuery] Dictionary<string, string> filter = default!)
+    => Ok(await _mediator.Send(new GetProductInMenuByMenuIdQuery { MenuId = menuid,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
 
     #endregion 
 

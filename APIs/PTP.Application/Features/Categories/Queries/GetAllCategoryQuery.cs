@@ -1,17 +1,23 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using PTP.Application.Commons;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Categories;
 using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Categories.Queries;
 
-public class GetAllCategoryQuery:IRequest<IEnumerable<CategoryViewModel>>
+public class GetAllCategoryQuery:IRequest<PaginatedList<CategoryViewModel>>
 {
-    public class QueryHandler : IRequestHandler<GetAllCategoryQuery, IEnumerable<CategoryViewModel>>
+
+    public Dictionary<string, string>? Filter { get; set; } = default!;
+    public int PageNumber{get;set;}
+    public int PageSize{get;set;}
+    public class QueryHandler : IRequestHandler<GetAllCategoryQuery, PaginatedList<CategoryViewModel>>
     {
 
         private readonly IUnitOfWork _unitOfWork;
@@ -27,18 +33,57 @@ public class GetAllCategoryQuery:IRequest<IEnumerable<CategoryViewModel>>
             this.logger = logger;
         }
 
-        public async Task<IEnumerable<CategoryViewModel>> Handle(GetAllCategoryQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedList<CategoryViewModel>> Handle(GetAllCategoryQuery request, CancellationToken cancellationToken)
         {
+            request.Filter!.Remove("pageSize");
+            request.Filter!.Remove("pageNumber");
+
+            var cacheResult= await GetCache(request);
+            if(cacheResult is not null) return cacheResult;
+
+            var cates = await _unitOfWork.CategoryRepository.GetAllAsync();
+            if (cates.Count == 0) throw new NotFoundException("There are no category in DB!");
+            await _cacheService.SetByPrefixAsync<Category>(CacheKey.CATE, cates);
+            var viewModels= _mapper.Map<IEnumerable<CategoryViewModel>>(cates);
+            var filterResult = request.Filter.Count > 0 ? new List<CategoryViewModel>() : viewModels;
+
+            if(request.Filter!.Count>0)
+            {
+                foreach(var filter in request.Filter) 
+                {
+                    filterResult=filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
+                }
+            }
+            
+            return PaginatedList<CategoryViewModel>.Create(
+                    source:filterResult.AsQueryable(),
+                    pageIndex:request.PageNumber,
+                    pageSize:request.PageSize
+            );
+        }
+        public async Task<PaginatedList<CategoryViewModel>?> GetCache(GetAllCategoryQuery request)
+        {
+            
             if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             var cacheResult = await _cacheService.GetByPrefixAsync<Category>(CacheKey.CATE);
             if (cacheResult!.Count > 0)
             {
-                return _mapper.Map<IEnumerable<CategoryViewModel>>(cacheResult);
+                var cacheViewModels= _mapper.Map<IEnumerable<CategoryViewModel>>(cacheResult);
+                var filterRe= request.Filter!.Count > 0 ? new List<CategoryViewModel>(): cacheViewModels;
+                if(request.Filter!.Count>0)
+                {
+                    foreach(var filter in request.Filter) 
+                    {
+                        filterRe=filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
+                    }
+                }               
+                return PaginatedList<CategoryViewModel>.Create(
+                        source: filterRe.AsQueryable(),
+                        pageIndex:request.PageNumber,
+                        pageSize:request.PageSize
+                );
             }
-            var cates = await _unitOfWork.CategoryRepository.GetAllAsync();
-            if (cates.Count == 0) throw new NotFoundException("There are no category in DB!");
-            await _cacheService.SetByPrefixAsync<Category>(CacheKey.CATE, cates);
-            return _mapper.Map<IEnumerable<CategoryViewModel>>(cates);
+            return null;
         }
     }
 }

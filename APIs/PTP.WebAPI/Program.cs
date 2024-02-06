@@ -14,14 +14,13 @@ builder.AddWebAPIServices();
 
 
 var app = builder.Build();
-// Add Hangfire
-app.MapHangfireDashboard("/HangfireDashBoard");
+app.UseHangfireDashboard("/hangfire", new DashboardOptions { IgnoreAntiforgeryToken = true, Authorization = new [] { new DashboardAuthorizationFilter()}}, null);
 RecurringJob.AddOrUpdate<IBusRouteService>("check-routes", interService => interService.CheckNewCreatedRoute(), Cron.Monthly());
 // Configure the HTTP request pipeline.
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 
 app.UseHttpsRedirection();

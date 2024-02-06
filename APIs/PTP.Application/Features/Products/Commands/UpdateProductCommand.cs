@@ -52,7 +52,7 @@ public class UpdateProductCommand:IRequest<bool>
         {
             //Remove From Cache
             if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            await _cacheService.RemoveAsync(CacheKey.PRODUCT+request.UpdateModel.Id);
+            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
 
             var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.UpdateModel.Id);
             if(product is null ) throw new NotFoundException($"product with Id-{request.UpdateModel.Id} is not exist!");

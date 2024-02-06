@@ -56,7 +56,7 @@ public class UpdateCategoryCommand:IRequest<bool>
             var result= await _unitOfWork.SaveChangesAsync();
             if(result){
                 if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                await _cacheService.RemoveAsync(CacheKey.CATE+request.UpdateModel.Id);
+                await _cacheService.RemoveByPrefixAsync(CacheKey.CATE);
             }
             return result;
         }

@@ -67,7 +67,7 @@ public class UpdateMenuCommand:IRequest<bool>
             var result= await _unitOfWork.SaveChangesAsync();
             if(result){
                 if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                await _cacheService.RemoveAsync(CacheKey.MENU+request.UpdateModel.Id);
+                await _cacheService.RemoveByPrefixAsync(CacheKey.MENU);
             }
             return result;
         }

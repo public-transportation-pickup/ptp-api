@@ -121,6 +121,7 @@ namespace PTP.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDistance = table.Column<bool>(type: "bit", nullable: false),
                     RouteVarId = table.Column<int>(type: "int", nullable: false),
                     RouteVarName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RouteVarShortName = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -650,10 +651,10 @@ namespace PTP.Infrastructure.Migrations
                 columns: new[] { "Id", "CreatedBy", "CreationDate", "IsDeleted", "ModificatedBy", "ModificationDate", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("0c635260-3530-4350-b1f4-b239a0fb4002"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 2, 1, 52, 18, 870, DateTimeKind.Local).AddTicks(4839), false, null, null, "Admin" },
-                    { new Guid("58b0c766-f9f5-4bc6-b676-72889284ee1f"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 2, 1, 52, 18, 870, DateTimeKind.Local).AddTicks(4836), false, null, null, "Customer" },
-                    { new Guid("59248067-6960-44ef-8470-001b0986c2d6"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 2, 1, 52, 18, 870, DateTimeKind.Local).AddTicks(4842), false, null, null, "TransportationEmployee" },
-                    { new Guid("e6a8ff5b-120f-41e6-ab0b-2910c4b7b2a1"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 2, 1, 52, 18, 870, DateTimeKind.Local).AddTicks(4813), false, null, null, "StoreManager" }
+                    { new Guid("5f0e282c-cff6-48b7-bca6-95ff40106590"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2201), false, null, null, "Admin" },
+                    { new Guid("870e33a9-e5de-40ca-91e3-3f234fa43338"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2170), false, null, null, "StoreManager" },
+                    { new Guid("a87a471d-3beb-4567-b31b-57ab734db62a"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2189), false, null, null, "Customer" },
+                    { new Guid("f3bdb0cb-79fe-437b-8560-52f8d1b37227"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2204), false, null, null, "TransportationEmployee" }
                 });
 
             migrationBuilder.CreateIndex(
