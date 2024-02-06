@@ -50,13 +50,13 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
         public async Task<MenuViewModel> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create Menu:\n");
-            TimeSpan.TryParseExact(request.CreateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan startTime);
-            TimeSpan.TryParseExact(request.CreateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan endTime);
-            if (startTime>=endTime) throw new BadRequestException("Start Time must higher than End Time");
 
-            if(!await CheckTime(request.CreateModel.StoreId,startTime,endTime)) throw new BadRequestException("Time is not valid!");
             var menu= _mapper.Map<Menu>(request.CreateModel);
-            
+            menu.StartTime= TimeSpan.ParseExact(request.CreateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture);
+            menu.EndTime=TimeSpan.ParseExact(request.CreateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture);
+            if (menu.StartTime>=menu.EndTime) throw new BadRequestException("Start Time must higher than End Time");
+            if(!await CheckTime(menu)) throw new BadRequestException("Time is not valid!");
+
 
             await _unitOfWork.MenuRepository.AddAsync(menu);
             if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
@@ -64,19 +64,17 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
             return _mapper.Map<MenuViewModel>(menu);
         }
 
-        private async Task<bool> CheckTime(Guid storeId,TimeSpan sTime, TimeSpan eTime) 
+        private async Task<bool> CheckTime(Menu menu) 
         {
             var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
-                                 x.StoreId == storeId);
+                                 x.StoreId == menu.StoreId);
             
             if(menus.Count==0) return true;
 
             foreach (var item in menus)
             {
-                TimeSpan.TryParseExact(item.StartTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan startTime);
-                TimeSpan.TryParseExact(item.EndTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan endTime);
-                if (startTime <= sTime && endTime > sTime) throw new BadRequestException($"Start time is duplicate with menu-{item.Id}" );
-                if (startTime < eTime && endTime >= eTime) throw new BadRequestException($"End time is duplicate with menu-{item.Id}" );
+                if (item.StartTime <= menu.StartTime && item.EndTime > menu.StartTime) throw new BadRequestException($"Start time is duplicate with menu-{item.Id}" );
+                if (item.StartTime < menu.EndTime && item.EndTime >= menu.EndTime) throw new BadRequestException($"End time is duplicate with menu-{item.Id}" );
             }
             return true;
         }

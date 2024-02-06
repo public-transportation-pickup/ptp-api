@@ -57,12 +57,18 @@ public class UsersController : BaseController
     /// Lấy order theo UserId
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="filter"></param>
     /// <returns></returns>
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{id}/orders")]
-    public async Task<IActionResult> GetOrderByUserId(Guid id)
-    => Ok(await _mediator.Send(new GetOrdersByUserIdQuery { UserId = id }));
+    public async Task<IActionResult> GetOrderByUserId([FromQuery]Guid id,
+                                                    [FromQuery] int pageNumber = 0,
+                                                    [FromQuery] int pageSize = 10,
+                                                    [FromQuery] Dictionary<string, string> filter = default!)
+    => Ok(await _mediator.Send(new GetOrdersByUserIdQuery { UserId = id,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
     #endregion
     #region WRITE
 

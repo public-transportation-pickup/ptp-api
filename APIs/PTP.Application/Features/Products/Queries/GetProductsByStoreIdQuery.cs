@@ -2,18 +2,25 @@ using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using PTP.Application.Commons;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Products;
 using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Products.Queries;
 
-public class GetProductsByStoreIdQuery:IRequest<IEnumerable<ProductViewModel>>
+public class GetProductsByStoreIdQuery:IRequest<PaginatedList<ProductViewModel>>
 {
     public Guid StoreId { get; set; } = default!;
-    public Guid CategoryId{get;set;}=default!;
+    //public Guid CategoryId{get;set;}=default!;
+
+    public Dictionary<string, string>? Filter { get; set; } = default!;
+    public int PageNumber{get;set;}
+    public int PageSize{get;set;}
+
 
    public class QueryValidation : AbstractValidator<GetProductsByStoreIdQuery>
    {
@@ -22,7 +29,7 @@ public class GetProductsByStoreIdQuery:IRequest<IEnumerable<ProductViewModel>>
            RuleFor(x => x.StoreId).NotNull().NotEmpty().WithMessage("Id must not null or empty");
        }
    }
-   public class QueryHandler : IRequestHandler<GetProductsByStoreIdQuery, IEnumerable<ProductViewModel>>
+   public class QueryHandler : IRequestHandler<GetProductsByStoreIdQuery, PaginatedList<ProductViewModel>>
    {
        private readonly IUnitOfWork _unitOfWork;
        private readonly IMapper _mapper;
@@ -36,21 +43,65 @@ public class GetProductsByStoreIdQuery:IRequest<IEnumerable<ProductViewModel>>
            _cacheService = cacheService;
            _logger = logger;
        }
-       public async Task<IEnumerable<ProductViewModel>> Handle(GetProductsByStoreIdQuery request, CancellationToken cancellationToken)
+       public async Task<PaginatedList<ProductViewModel>> Handle(GetProductsByStoreIdQuery request, CancellationToken cancellationToken)
        {
-           if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-           var cacheResult = await _cacheService.GetByPrefixAsync<Product>(CacheKey.PRODUCT);
-           if (cacheResult!.Count>0)
-           {
-               return request.CategoryId == Guid.Empty 
-                    ? _mapper.Map<IEnumerable<ProductViewModel>>(cacheResult.Where(x=>x.StoreId==request.StoreId))
-                    : _mapper.Map<IEnumerable<ProductViewModel>>(cacheResult.Where(x => x.StoreId == request.StoreId&&x.CategoryId==request.CategoryId));
-           }
-           var product = await _unitOfWork.ProductRepository.WhereAsync(x=>x.StoreId==request.StoreId,x=>x.Store,x=>x.Category);
-           if (product is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any products!");
-           await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, product);
-           var result= _mapper.Map<IEnumerable<ProductViewModel>>(product);
-           return request.CategoryId==Guid.Empty? result: result.Where(x=>x.CategoryId==request.CategoryId);
+            request.Filter!.Remove("pageSize");
+            request.Filter!.Remove("pageNumber");
+
+            var cacheResult= await GetCache(request);
+            if(cacheResult is not null) return cacheResult;
+
+            var product = await _unitOfWork.ProductRepository.WhereAsync(x=>x.StoreId==request.StoreId,x=>x.Store,x=>x.Category);
+            if (product is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any products!");
+            await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, product);
+        //    var result= _mapper.Map<IEnumerable<ProductViewModel>>(product);
+        //    var viewModels= request.CategoryId==Guid.Empty? result: result.Where(x=>x.CategoryId==request.CategoryId);
+            var viewModels= _mapper.Map<IEnumerable<ProductViewModel>>(product);
+            
+            var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels;
+
+            if(request.Filter!.Count>0)
+            {
+                foreach(var filter in request.Filter) 
+                {
+                    filterResult=filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
+                }
+            }
+            
+            return PaginatedList<ProductViewModel>.Create(
+                        source:filterResult.AsQueryable(),
+                        pageIndex:request.PageNumber,
+                        pageSize:request.PageSize
+                );
        }
+
+       public async Task<PaginatedList<ProductViewModel>?> GetCache(GetProductsByStoreIdQuery request)
+        {
+            
+            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+
+            var cacheResult = await _cacheService.GetByPrefixAsync<Product>(CacheKey.PRODUCT);
+            if (cacheResult!.Count > 0)
+            {
+                var result =cacheResult.Where(x=>x.StoreId==request.StoreId);
+                if(result==null) return null;
+
+                var cacheViewModels= _mapper.Map<IEnumerable<ProductViewModel>>(result);   
+                var filterRe= request.Filter!.Count > 0 ? new List<ProductViewModel>(): cacheViewModels;
+                if(request.Filter!.Count>0)
+                {
+                    foreach(var filter in request.Filter) 
+                    {
+                        filterRe=filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
+                    }
+                }               
+                return PaginatedList<ProductViewModel>.Create(
+                        source: filterRe.AsQueryable(),
+                        pageIndex:request.PageNumber,
+                        pageSize:request.PageSize
+                );
+            }
+            return null;
+        }
    }
 }

@@ -20,7 +20,10 @@ public class ProductsController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> Get() => Ok(await _mediator.Send(new GetAllProductQuery()));
+    public async Task<IActionResult> Get([FromQuery] int pageNumber = 0,
+                                        [FromQuery] int pageSize = 10, 
+                                        [FromQuery] Dictionary<string, string> filter = default!) 
+    => Ok(await _mediator.Send(new GetAllProductQuery{PageNumber=pageNumber,PageSize=pageSize,Filter=filter}));
 
 
 

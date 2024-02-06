@@ -80,10 +80,8 @@ namespace PTP.Application.Features.Menus.Queries
             {
                 foreach (var item in menus)
                 {
-                    TimeSpan.TryParseExact(item.StartTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan startTime);
-                    TimeSpan.TryParseExact(item.EndTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan endTime);
                     TimeSpan.TryParseExact(arrivalTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan aTime);
-                    if (startTime < aTime && endTime > aTime) return item;
+                    if (item.StartTime < aTime && item.EndTime > aTime) return item;
                 }
 
                 throw new BadRequestException($"No menu ready for arrival time {arrivalTime}");

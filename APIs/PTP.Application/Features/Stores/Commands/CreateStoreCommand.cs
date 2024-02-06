@@ -39,7 +39,12 @@ namespace PTP.Application.Features.Stores.Commands
                     .WithMessage("OpenedTime must not null or empty");
                 RuleFor(x => x.CreateModel.ClosedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                     .WithMessage("ClosedTime must not null or empty");
-                RuleFor(x => x.CreateModel.Address).NotNull().NotEmpty().WithMessage("Address must not null or empty");
+                RuleFor(x => x.CreateModel.AddressNo).NotNull().NotEmpty().WithMessage("AddressNo must not null or empty");
+                RuleFor(x => x.CreateModel.Street).NotNull().NotEmpty().WithMessage("Street must not null or empty");
+                RuleFor(x => x.CreateModel.Ward).NotNull().NotEmpty().WithMessage("Ward must not null or empty");
+                RuleFor(x => x.CreateModel.Zone).NotNull().NotEmpty().WithMessage("Zone must not null or empty");
+                RuleFor(x => x.CreateModel.Latitude).NotNull().NotEmpty().WithMessage("Latitude must not null or empty");
+                RuleFor(x => x.CreateModel.Longitude).NotNull().NotEmpty().WithMessage("Longitude must not null or empty");
                 RuleFor(x => x.CreateModel.File).NotNull().NotEmpty().WithMessage("File must not null or empty");
             }
         }
@@ -75,35 +80,60 @@ namespace PTP.Application.Features.Stores.Commands
             public async Task<StoreViewModel> Handle(CreateStoreCommand request, CancellationToken cancellationToken)
             {
                 _logger.LogInformation("Create Store:\n");
-                TimeSpan.TryParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture,  out TimeSpan openTime);
-                TimeSpan.TryParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture,  out TimeSpan closedTime);
-                if(openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
+
                 var store= _mapper.Map<Store>(request.CreateModel);
+                
+                #region CHECCK TIME
+                // Check Valid Time opentime < closetime
+
+                store.OpenedTime=TimeSpan.ParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
+                store.ClosedTime= TimeSpan.ParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
+
+                if(store.OpenedTime>=store.ClosedTime) throw new BadRequestException("Close Time must higher than Open Time");
+                #endregion
 
                 var isDup = await _unitOfWork.UserRepository.WhereAsync(x => x.PhoneNumber!.ToLower() == request.CreateModel.PhoneNumber!.ToLower());
                 if (isDup.Count() > 0)
                     throw new Exception($"Error: {nameof(CreateStoreCommand)}_ phone is duplicate!");
 
                 store.UserId = await CreateUser(store);
-                        
+
+                #region Get Lat, Long by Address - Now not use
                 //Get Lat, Lng from address
-                var location = await _locationService.GetGeometry(request.CreateModel.Address);
+                var addressStr = $"{request.CreateModel.AddressNo},{request.CreateModel.Street},{request.CreateModel.Ward},{request.CreateModel.Zone}";
+                var location = await _locationService.GetGeometry(addressStr);
                 store.Latitude = location.Lat;
                 store.Longitude = location.Lng;
-
+                #endregion
+                
+                #region Add image
                 //Add Image to FireBase
                 var image = await request.CreateModel.File!.UploadFileAsync(FolderKey.STORE, _appSettings);
                 store.ImageName = image.FileName;
                 store.ImageURL = image.URL;
-
+                #endregion
+                
                 //Config RelationShip
                 store.WalletId=await CreateWallet(store.Id);
                 
+                if(request.CreateModel.StationIds!= null){
+                    await AddStationsToStore(request.CreateModel.StationIds,store.Id);
+                }
 
                 await _unitOfWork.StoreRepository.AddAsync(store);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
                 await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
                 return _mapper.Map<StoreViewModel>(store);
+            }
+            
+            private async Task AddStationsToStore(List<Guid> StationIds,Guid storeId){
+                var stations= await _unitOfWork.StationRepository.WhereAsync(x=> StationIds.Contains(x.Id));
+                if(stations.Count == 0) throw new BadRequestException("No Station found!");
+                for (int i = 0; i < stations.Count; i++)
+                {
+                    stations[i].StoreId=storeId;
+                }
+                _unitOfWork.StationRepository.UpdateRange(stations);
             }
 
             private async Task<Guid> CreateWallet(Guid storeId)

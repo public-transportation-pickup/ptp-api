@@ -38,7 +38,7 @@ public class GetAllMenuQuery:IRequest<IEnumerable<MenuViewModel>>
             var menus = await _unitOfWork.MenuRepository.GetAllAsync(x=>x.Store);
             if (menus.Count == 0) throw new NotFoundException("There are no menu in DB!");
             await _cacheService.SetByPrefixAsync<Menu>(CacheKey.MENU, menus);
-            return _mapper.Map<IEnumerable<MenuViewModel>>(menus);
+            return  (_mapper.Map<IEnumerable<MenuViewModel>>(menus)).OrderBy(x=>x.StartTime);
         }
     }
 }

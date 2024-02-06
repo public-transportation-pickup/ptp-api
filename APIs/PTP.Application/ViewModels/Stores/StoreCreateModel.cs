@@ -13,10 +13,20 @@ namespace PTP.Application.ViewModels.Stores
         public string Name { get; set; } = default!;
         public string Description { get; set; } = default!;
         public string PhoneNumber { get; set; } = default!;
-        public String OpenedTime { get; set; } = default!;
-        public String ClosedTime { get; set; } = default!;
-        public string Address { get; set; } = default!;
+        public string OpenedTime { get; set; } = default!;
+        public string ClosedTime { get; set; } = default!;
+        [Precision(18, 10)]
+        public decimal Latitude { get; set; } = default!;
+        [Precision(18, 10)]
+        public decimal Longitude { get; set; } = default!;
+        public string Zone { get; set; } = default!;
+        public string Ward { get; set; } = default!;
+        public string AddressNo { get; set; } = default!;
+        public string Street { get; set; } = default!;
         public IFormFile? File { get; set; } = default!;
         public DateTime? ActivationDate { get; set; } = null;
+
+        public List<Guid>? StationIds{get;set;}
+
     }
 }

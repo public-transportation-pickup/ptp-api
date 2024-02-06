@@ -31,7 +31,12 @@ public class UpdateStoreCommand:IRequest<bool>
                 .WithMessage("OpenedTime must not null or empty");
             RuleFor(x => x.StoreUpdate.ClosedTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                 .WithMessage("ClosedTime must not null or empty");
-            RuleFor(x => x.StoreUpdate.Address).NotNull().NotEmpty().WithMessage("Address must not null or empty");
+            RuleFor(x => x.StoreUpdate.AddressNo).NotNull().NotEmpty().WithMessage("AddressNo must not null or empty");
+            RuleFor(x => x.StoreUpdate.Street).NotNull().NotEmpty().WithMessage("Street must not null or empty");
+            RuleFor(x => x.StoreUpdate.Ward).NotNull().NotEmpty().WithMessage("Ward must not null or empty");
+            RuleFor(x => x.StoreUpdate.Zone).NotNull().NotEmpty().WithMessage("Zone must not null or empty");
+            RuleFor(x => x.StoreUpdate.Latitude).NotNull().NotEmpty().WithMessage("Latitude must not null or empty");
+            RuleFor(x => x.StoreUpdate.Longitude).NotNull().NotEmpty().WithMessage("Longitude must not null or empty");
             RuleFor(x => x.StoreUpdate.ActivationDate).NotNull().NotEmpty()
                 .GreaterThanOrEqualTo(DateTime.Now.AddDays(3))
                 .LessThanOrEqualTo(DateTime.Now.AddYears(2))
@@ -65,33 +70,42 @@ public class UpdateStoreCommand:IRequest<bool>
         public async Task<bool> Handle(UpdateStoreCommand request, CancellationToken cancellationToken)
         {
             //Remove From Cache
-
-            TimeSpan.TryParseExact(request.StoreUpdate.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan openTime);
-            TimeSpan.TryParseExact(request.StoreUpdate.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan closedTime);
-            if (openTime>=closedTime) throw new BadRequestException("Close Time must higher than Open Time");
-            
-            
+           
             if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            await _cacheService.RemoveAsync(CacheKey.STORE+request.StoreUpdate.Id);
+            await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
 
             var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.StoreUpdate.Id);
             if(store is null ) throw new NotFoundException($"Store with Id-{request.StoreUpdate.Id} is not exist!");
             store = _mapper.Map(request.StoreUpdate,store);
 
-        
+            #region CHECCK TIME
+            // Check Valid Time opentime < closetime
+
+            store.OpenedTime=TimeSpan.ParseExact(request.StoreUpdate.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
+            store.ClosedTime= TimeSpan.ParseExact(request.StoreUpdate.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
+
+            if(store.OpenedTime>=store.ClosedTime) throw new BadRequestException("Close Time must higher than Open Time");
+            #endregion
+
+            
             if (request.StoreUpdate.File is not null){
                 await store.ImageName.RemoveFileAsync(FolderKey.STORE, appSettings: _appSettings);
                 var image = await request.StoreUpdate.File!.UploadFileAsync(FolderKey.STORE,_appSettings);
                 store.ImageName=image.FileName;
                 store.ImageURL=image.URL;
             }
+            #region Get Lat, Long by Address - Now not use
 
-            if(!request.StoreUpdate.Address.Equals(store.Address)){
-                var location= await _locationService.GetGeometry(request.StoreUpdate.Address);
+            if(!request.StoreUpdate.AddressNo.Equals(store.AddressNo)|| !request.StoreUpdate.Street.Equals(store.Street) ||
+                    !request.StoreUpdate.Zone.Equals(store.Zone)|| !request.StoreUpdate.Ward.Equals(store.Ward))
+            {
+                var addressStr = $"{request.StoreUpdate.AddressNo},{request.StoreUpdate.Street},{request.StoreUpdate.Ward},{request.StoreUpdate.Zone}";
+                var location = await _locationService.GetGeometry(addressStr);
                 store.Latitude=location.Lat;
                 store.Longitude=location.Lng;
             }
-
+            #endregion
+            
             _unitOfWork.StoreRepository.Update(store);
             return await _unitOfWork.SaveChangesAsync();
         }

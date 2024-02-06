@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PTP.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class V0_InitAgain : Migration
+    public partial class V1_01_InitialAgain : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,6 +20,7 @@ namespace PTP.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -58,6 +59,7 @@ namespace PTP.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Distance = table.Column<double>(type: "float", nullable: false),
+                    AverageVelocity = table.Column<double>(type: "float(18)", precision: 18, scale: 2, nullable: false),
                     RouteType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TimeOfTrip = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     HeadWay = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -82,35 +84,6 @@ namespace PTP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Station",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StopId = table.Column<int>(type: "int", nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StopType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Zone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AddressNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SupportDisability = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Latitude = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Longitude = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModificatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Station", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Store",
                 columns: table => new
                 {
@@ -119,15 +92,19 @@ namespace PTP.Infrastructure.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OpenedTime = table.Column<byte>(type: "tinyint", nullable: false),
-                    ClosedTime = table.Column<byte>(type: "tinyint", nullable: false),
-                    Latitude = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Longitude = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OpenedTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    ClosedTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Latitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
+                    Longitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
+                    Zone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ActivationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CommisionRate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ImageName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -140,40 +117,11 @@ namespace PTP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Latitude = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Longitude = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModificatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_User_Role_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Role",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RouteVars",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDistance = table.Column<bool>(type: "bit", nullable: false),
                     RouteVarId = table.Column<int>(type: "int", nullable: false),
                     RouteVarName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RouteVarShortName = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -181,8 +129,9 @@ namespace PTP.Infrastructure.Migrations
                     EndStop = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OutBound = table.Column<bool>(type: "bit", nullable: false),
                     RunningTime = table.Column<int>(type: "int", nullable: false),
+                    Distance = table.Column<double>(type: "float", nullable: false),
+                    AverageVelocity = table.Column<double>(type: "float(18)", precision: 18, scale: 2, nullable: false),
                     RouteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TimeTableId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -201,50 +150,14 @@ namespace PTP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RouteStation",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Index = table.Column<byte>(type: "tinyint", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DistanceFromStart = table.Column<double>(type: "float", nullable: false),
-                    DistanceToNext = table.Column<double>(type: "float", nullable: false),
-                    DurationToNext = table.Column<double>(type: "float", nullable: false),
-                    DurationFromStart = table.Column<double>(type: "float", nullable: false),
-                    RouteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModificatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RouteStation", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RouteStation_Route_RouteId",
-                        column: x => x.RouteId,
-                        principalTable: "Route",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RouteStation_Station_StationId",
-                        column: x => x.StationId,
-                        principalTable: "Station",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Menu",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartTime = table.Column<int>(type: "int", nullable: false),
-                    EndTime = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     DateFilter = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -273,6 +186,11 @@ namespace PTP.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ManufacturingDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PreparationTime = table.Column<int>(type: "int", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -299,14 +217,24 @@ namespace PTP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StoreStation",
+                name: "Station",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Distance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    RegistrationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StopId = table.Column<int>(type: "int", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StopType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Zone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddressNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SupportDisability = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Latitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
+                    Longitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
+                    StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -315,29 +243,30 @@ namespace PTP.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StoreStation", x => x.Id);
+                    table.PrimaryKey("PK_Station", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StoreStation_Station_StationId",
-                        column: x => x.StationId,
-                        principalTable: "Station",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_StoreStation_Store_StoreId",
+                        name: "FK_Station_Store_StoreId",
                         column: x => x.StoreId,
                         principalTable: "Store",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Wallet",
+                name: "User",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FCMToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Latitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
+                    Longitude = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -346,13 +275,18 @@ namespace PTP.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Wallet", x => x.Id);
+                    table.PrimaryKey("PK_User", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Wallet_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
+                        name: "FK_User_Role_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Role",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User_Store_StoreId",
+                        column: x => x.StoreId,
+                        principalTable: "Store",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -364,6 +298,7 @@ namespace PTP.Infrastructure.Migrations
                     IsCurrent = table.Column<bool>(type: "bit", nullable: false),
                     ApplyDates = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RouteVarId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RouteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -379,31 +314,11 @@ namespace PTP.Infrastructure.Migrations
                         principalTable: "RouteVars",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductImage",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ImageName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModificatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductImage", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProductImage_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_TimeTables_Route_RouteId",
+                        column: x => x.RouteId,
+                        principalTable: "Route",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -415,6 +330,7 @@ namespace PTP.Infrastructure.Migrations
                     ActualPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     MenuId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    QuantityInDay = table.Column<int>(type: "int", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -438,16 +354,61 @@ namespace PTP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RouteStation",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Index = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DistanceFromStart = table.Column<double>(type: "float", nullable: false),
+                    DistanceToNext = table.Column<double>(type: "float", nullable: false),
+                    DurationToNext = table.Column<double>(type: "float", nullable: false),
+                    DurationFromStart = table.Column<double>(type: "float", nullable: false),
+                    RouteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RouteVarId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModificatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RouteStation", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RouteStation_RouteVars_RouteVarId",
+                        column: x => x.RouteVarId,
+                        principalTable: "RouteVars",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RouteStation_Route_RouteId",
+                        column: x => x.RouteId,
+                        principalTable: "Route",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RouteStation_Station_StationId",
+                        column: x => x.StationId,
+                        principalTable: "Station",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Order",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Total = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    PickUpTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CanceledReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CommissionRate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StoreStationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", precision: 18, scale: 2, nullable: false),
+                    StationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -459,9 +420,15 @@ namespace PTP.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Order", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Order_StoreStation_StoreStationId",
-                        column: x => x.StoreStationId,
-                        principalTable: "StoreStation",
+                        name: "FK_Order_Station_StationId",
+                        column: x => x.StationId,
+                        principalTable: "Station",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Order_Store_StoreId",
+                        column: x => x.StoreId,
+                        principalTable: "Store",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -473,14 +440,15 @@ namespace PTP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "WalletLog",
+                name: "Wallet",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WalletType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -489,13 +457,17 @@ namespace PTP.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WalletLog", x => x.Id);
+                    table.PrimaryKey("PK_Wallet", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WalletLog_Wallet_WalletId",
-                        column: x => x.WalletId,
-                        principalTable: "Wallet",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Wallet_Store_StoreId",
+                        column: x => x.StoreId,
+                        principalTable: "Store",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Wallet_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -533,7 +505,8 @@ namespace PTP.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ActualPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    ProductInMenuId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductMenuId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -551,8 +524,8 @@ namespace PTP.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderDetails_ProductInMenu_ProductInMenuId",
-                        column: x => x.ProductInMenuId,
+                        name: "FK_OrderDetails_ProductInMenu_ProductMenuId",
+                        column: x => x.ProductMenuId,
                         principalTable: "ProductInMenu",
                         principalColumn: "Id");
                 });
@@ -562,7 +535,8 @@ namespace PTP.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Total = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    PaymentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -578,6 +552,32 @@ namespace PTP.Infrastructure.Migrations
                         name: "FK_Payment_Order_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Order",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WalletLog",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModificatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WalletLog", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WalletLog_Wallet_WalletId",
+                        column: x => x.WalletId,
+                        principalTable: "Wallet",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -620,7 +620,7 @@ namespace PTP.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,10)", precision: 18, scale: 10, nullable: false),
                     TransactionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -651,10 +651,10 @@ namespace PTP.Infrastructure.Migrations
                 columns: new[] { "Id", "CreatedBy", "CreationDate", "IsDeleted", "ModificatedBy", "ModificationDate", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("7103171b-18bc-46c6-8f96-f4919c089160"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 0, 40, 59, 198, DateTimeKind.Local).AddTicks(9975), false, null, null, "Admin" },
-                    { new Guid("752741b7-2677-400e-9f86-80a1a29c1349"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 0, 40, 59, 198, DateTimeKind.Local).AddTicks(9977), false, null, null, "TransportationEmployee" },
-                    { new Guid("d2573e3a-3488-4d7e-90cf-b644b06e60bb"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 0, 40, 59, 198, DateTimeKind.Local).AddTicks(9972), false, null, null, "Customer" },
-                    { new Guid("ddf1d991-5ead-4dfa-848a-6580ba77d859"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 1, 7, 0, 40, 59, 198, DateTimeKind.Local).AddTicks(9955), false, null, null, "StoreManager" }
+                    { new Guid("5f0e282c-cff6-48b7-bca6-95ff40106590"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2201), false, null, null, "Admin" },
+                    { new Guid("870e33a9-e5de-40ca-91e3-3f234fa43338"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2170), false, null, null, "StoreManager" },
+                    { new Guid("a87a471d-3beb-4567-b31b-57ab734db62a"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2189), false, null, null, "Customer" },
+                    { new Guid("f3bdb0cb-79fe-437b-8560-52f8d1b37227"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2204), false, null, null, "TransportationEmployee" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -663,9 +663,14 @@ namespace PTP.Infrastructure.Migrations
                 column: "StoreId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order_StoreStationId",
+                name: "IX_Order_StationId",
                 table: "Order",
-                column: "StoreStationId");
+                column: "StationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Order_StoreId",
+                table: "Order",
+                column: "StoreId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order_UserId",
@@ -678,9 +683,9 @@ namespace PTP.Infrastructure.Migrations
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderDetails_ProductInMenuId",
+                name: "IX_OrderDetails_ProductMenuId",
                 table: "OrderDetails",
-                column: "ProductInMenuId");
+                column: "ProductMenuId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payment_OrderId",
@@ -699,11 +704,6 @@ namespace PTP.Infrastructure.Migrations
                 column: "StoreId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductImage_ProductId",
-                table: "ProductImage",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ProductInMenu_MenuId",
                 table: "ProductInMenu",
                 column: "MenuId");
@@ -717,6 +717,11 @@ namespace PTP.Infrastructure.Migrations
                 name: "IX_RouteStation_RouteId",
                 table: "RouteStation",
                 column: "RouteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RouteStation_RouteVarId",
+                table: "RouteStation",
+                column: "RouteVarId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RouteStation_StationId",
@@ -739,20 +744,19 @@ namespace PTP.Infrastructure.Migrations
                 column: "TripId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StoreStation_StationId",
-                table: "StoreStation",
-                column: "StationId");
+                name: "IX_Station_StoreId",
+                table: "Station",
+                column: "StoreId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StoreStation_StoreId",
-                table: "StoreStation",
-                column: "StoreId");
+                name: "IX_TimeTables_RouteId",
+                table: "TimeTables",
+                column: "RouteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TimeTables_RouteVarId",
                 table: "TimeTables",
-                column: "RouteVarId",
-                unique: true);
+                column: "RouteVarId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transaction_PaymentId",
@@ -775,10 +779,25 @@ namespace PTP.Infrastructure.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_User_StoreId",
+                table: "User",
+                column: "StoreId",
+                unique: true,
+                filter: "[StoreId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wallet_StoreId",
+                table: "Wallet",
+                column: "StoreId",
+                unique: true,
+                filter: "[StoreId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Wallet_UserId",
                 table: "Wallet",
                 column: "UserId",
-                unique: true);
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WalletLog_WalletId",
@@ -791,9 +810,6 @@ namespace PTP.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "OrderDetails");
-
-            migrationBuilder.DropTable(
-                name: "ProductImage");
 
             migrationBuilder.DropTable(
                 name: "RouteStation");
@@ -838,7 +854,7 @@ namespace PTP.Infrastructure.Migrations
                 name: "RouteVars");
 
             migrationBuilder.DropTable(
-                name: "StoreStation");
+                name: "Station");
 
             migrationBuilder.DropTable(
                 name: "User");
@@ -847,13 +863,10 @@ namespace PTP.Infrastructure.Migrations
                 name: "Route");
 
             migrationBuilder.DropTable(
-                name: "Station");
+                name: "Role");
 
             migrationBuilder.DropTable(
                 name: "Store");
-
-            migrationBuilder.DropTable(
-                name: "Role");
         }
     }
 }
