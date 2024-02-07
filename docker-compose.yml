@@ -33,3 +33,8 @@ services:
     - CONNECTIONSTRINGS_REDISCONNECTION=Server=redis;password:eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     ports:
     - "5000:80"
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - 9443:9443
+    restart: unless-stopped
