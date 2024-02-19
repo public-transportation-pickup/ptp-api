@@ -16,6 +16,9 @@ public static class DependencyInjection
 	public static WebApplicationBuilder AddWebAPIServices(this WebApplicationBuilder builder)
 	{
 		builder.Services.AddHttpContextAccessor();
+		builder.Services.AddCors(options
+		=> options.AddDefaultPolicy(policy
+		=> policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 		builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 		builder.Services.AddHttpClient();
 		builder.Services.AddEndpointsApiExplorer();
