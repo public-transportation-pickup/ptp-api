@@ -26,11 +26,12 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet]
-		public async Task<IActionResult> Get([FromQuery] int pageNumber = 0,
-											 [FromQuery] int pageSize = 10, 
-											 [FromQuery] Dictionary<string, string> filter = default!)
-		=> Ok( await _mediator.Send(new GetAllStoreQuery{Filter=filter,PageNumber=pageNumber,PageSize=pageSize}));
-		
+		public async Task<IActionResult> Get(
+											[FromQuery] Dictionary<string, string> filter,
+											[FromQuery] int pageNumber = 0,
+											[FromQuery] int pageSize = 10)
+		=> Ok(await _mediator.Send(new GetAllStoreQuery { Filter = filter, PageNumber = pageNumber, PageSize = pageSize }));
+
 
 
 		[ProducesResponseType((int)HttpStatusCode.OK)]
@@ -44,28 +45,28 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet("{id}/menus")]
-		public async Task<IActionResult> GetMenusByStoreId([FromRoute] Guid id,string? arrivalTime,
+		public async Task<IActionResult> GetMenusByStoreId([FromRoute] Guid id, string? arrivalTime,
 															[FromQuery] int pageNumber = 0,
 															[FromQuery] int pageSize = 10,
 															[FromQuery] Dictionary<string, string> filter = default!)
 		{
-			if (arrivalTime.IsNullOrEmpty()) return Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
+			if (arrivalTime.IsNullOrEmpty()) return Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
 
-            return Ok(await _mediator.Send(new GetMenuDetailByStoreId { StoreId = id,ArrivalTime=arrivalTime! }));
-        }
-		
+			return Ok(await _mediator.Send(new GetMenuDetailByStoreId { StoreId = id, ArrivalTime = arrivalTime! }));
+		}
+
 
 		[ProducesResponseType((int)HttpStatusCode.OK)]
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet("{id}/products")]
-		public async Task<IActionResult> GetProductsByStoreId([FromRoute] Guid id, 
-															//   [FromQuery] Guid categoryId = default,
+		public async Task<IActionResult> GetProductsByStoreId([FromRoute] Guid id,
+															  //   [FromQuery] Guid categoryId = default,
 															  [FromQuery] int pageNumber = 0,
 															  [FromQuery] int pageSize = 10,
 															  [FromQuery] Dictionary<string, string> filter = default!)
 		// => Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, CategoryId = categoryId,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
-		=> Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
+		=> Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
 
 		[ProducesResponseType((int)HttpStatusCode.OK)]
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -89,7 +90,7 @@ namespace PTP.WebAPI.Controllers
 															[FromQuery] int pageNumber = 0,
 															[FromQuery] int pageSize = 10,
 															[FromQuery] Dictionary<string, string> filter = default!)
-		=> Ok(await _mediator.Send(new GetOrdersByStoreIdQuery { StoreId = id,PageSize=pageSize,PageNumber=pageNumber,Filter=filter }));
+		=> Ok(await _mediator.Send(new GetOrdersByStoreIdQuery { StoreId = id, PageSize = pageSize, PageNumber = pageNumber, Filter = filter }));
 		#endregion
 
 		#region COMMANDS

@@ -8,7 +8,7 @@ using PTP.Application.ViewModels.Stations;
 namespace PTP.Application.Features.Stations.Queries;
 public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
 {
-    public Dictionary<string, string> Filter { get; set; } = default!;
+    public Dictionary<string, string> Filter { get; set; } = new();
     public int PageNumber { get; set; } = 0;
     public class QueryHandler : IRequestHandler<GetAllStationQuery, PaginatedList<StationViewModel>>
     {

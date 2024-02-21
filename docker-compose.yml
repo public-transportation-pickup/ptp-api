@@ -2,7 +2,34 @@ version: '3.5'
 networks:
   web:
     external: true
+  elastic: 
+    driver: bridge
+volumes:
+  elasticsearch-data:
 services:
+  elasticsearch:
+    container_name: els
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
+    ports:
+      - 9200:9200
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    networks:
+      - elastic
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:8.7.1
+    ports:
+      - '5601:5601'
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://els:9200
+    networks:
+      - elastic
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
     environment:
@@ -33,4 +60,6 @@ services:
     - CONNECTIONSTRINGS_REDISCONNECTION=Server=redis;password:eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     ports:
     - "5000:80"
+
+
 

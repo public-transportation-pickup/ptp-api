@@ -23,7 +23,8 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] int pageNumber = 0, [FromQuery] Dictionary<string, string> filter = default!)
+    public async Task<IActionResult> Get([FromQuery] Dictionary<string, string> filter,
+        [FromQuery] int pageNumber = 0)
     => Ok(await _mediator.Send(new GetAllUserQuery
     {
         Filter = filter,
@@ -64,11 +65,11 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{id}/orders")]
-    public async Task<IActionResult> GetOrderByUserId([FromQuery]Guid id,
+    public async Task<IActionResult> GetOrderByUserId([FromQuery] Guid id,
                                                     [FromQuery] int pageNumber = 0,
                                                     [FromQuery] int pageSize = 10,
                                                     [FromQuery] Dictionary<string, string> filter = default!)
-    => Ok(await _mediator.Send(new GetOrdersByUserIdQuery { UserId = id,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
+    => Ok(await _mediator.Send(new GetOrdersByUserIdQuery { UserId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
     #endregion
     #region WRITE
 

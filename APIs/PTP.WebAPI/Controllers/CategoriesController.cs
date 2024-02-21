@@ -25,9 +25,10 @@ public class CategoriesController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] int pageNumber = 0,
-                                        [FromQuery] int pageSize = 10, 
-                                        [FromQuery] Dictionary<string, string> filter = default!) 
+    public async Task<IActionResult> Get(
+                                        [FromQuery] Dictionary<string, string> filter,
+                                        [FromQuery] int pageNumber = 0,
+                                        [FromQuery] int pageSize = 10) 
     => Ok(await _mediator.Send(new GetAllCategoryQuery{PageNumber=pageNumber,PageSize=pageSize,Filter=filter}));
 
 

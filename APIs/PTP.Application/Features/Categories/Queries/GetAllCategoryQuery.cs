@@ -14,7 +14,7 @@ namespace PTP.Application.Features.Categories.Queries;
 public class GetAllCategoryQuery:IRequest<PaginatedList<CategoryViewModel>>
 {
 
-    public Dictionary<string, string>? Filter { get; set; } = default!;
+    public Dictionary<string, string>? Filter { get; set; } = new();
     public int PageNumber{get;set;}
     public int PageSize{get;set;}
     public class QueryHandler : IRequestHandler<GetAllCategoryQuery, PaginatedList<CategoryViewModel>>

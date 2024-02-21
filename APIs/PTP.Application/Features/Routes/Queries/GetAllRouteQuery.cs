@@ -13,9 +13,9 @@ using PTP.Domain.Entities;
 namespace PTP.Application.Features.Routes.Queries;
 public class GetAllRouteQueryModel
 {
-	public Dictionary<string, string> Filter { get; set; } = default!;
+	public Dictionary<string, string> Filter { get; set; } = new();
 
-	public int PageNumber { get; set; } = default!;
+	public int PageNumber { get; set; } = 0;
 }
 public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<RouteViewModel>>
 {
@@ -72,6 +72,7 @@ public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<Ro
 				else throw new Exception("Result is null");
 			}
 			List<RouteViewModel> returnResult = new();
+			if(request.Filter.TryGetValue("pageNumber", out var value))
 			request.Filter.Remove("pageNumber");
 			if (request.Filter?.Count > 0)
 			{

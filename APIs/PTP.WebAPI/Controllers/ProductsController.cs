@@ -6,13 +6,13 @@ using PTP.Application.Features.Products.Queries;
 using PTP.Application.ViewModels.Products;
 
 namespace PTP.WebAPI.Controllers;
-public class ProductsController:BaseController
+public class ProductsController : BaseController
 {
     public readonly IMediator _mediator;
 
     public ProductsController(IMediator mediator)
     {
-        _mediator=mediator;
+        _mediator = mediator;
     }
 
     #region Queries
@@ -20,10 +20,11 @@ public class ProductsController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] int pageNumber = 0,
-                                        [FromQuery] int pageSize = 10, 
-                                        [FromQuery] Dictionary<string, string> filter = default!) 
-    => Ok(await _mediator.Send(new GetAllProductQuery{PageNumber=pageNumber,PageSize=pageSize,Filter=filter}));
+    public async Task<IActionResult> Get(
+                                        [FromQuery] Dictionary<string, string> filter,
+                                        [FromQuery] int pageNumber = 0,
+                                        [FromQuery] int pageSize = 10)
+    => Ok(await _mediator.Send(new GetAllProductQuery { PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
 
 
 
@@ -41,24 +42,28 @@ public class ProductsController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm]ProductCreateModel model){
-        var result=  await _mediator.Send(new CreateProductCommand { CreateModel=model });
-        if(result is null){
+    public async Task<IActionResult> Create([FromForm] ProductCreateModel model)
+    {
+        var result = await _mediator.Send(new CreateProductCommand { CreateModel = model });
+        if (result is null)
+        {
             return BadRequest("Create Fail!");
         }
-        return CreatedAtAction(nameof(GetById),new {Id=result.Id},result);
+        return CreatedAtAction(nameof(GetById), new { Id = result.Id }, result);
     }
- 
+
 
 
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id,[FromForm]ProductUpdateModel model){
-        if(id!=model.Id) return BadRequest("Id is not match!");
-        var result=  await _mediator.Send(new UpdateProductCommand { UpdateModel=model});
-        if(!result){
+    public async Task<IActionResult> Update(Guid id, [FromForm] ProductUpdateModel model)
+    {
+        if (id != model.Id) return BadRequest("Id is not match!");
+        var result = await _mediator.Send(new UpdateProductCommand { UpdateModel = model });
+        if (!result)
+        {
             return BadRequest("Update Fail!");
         }
         return NoContent();
@@ -68,9 +73,11 @@ public class ProductsController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id){
-        var result=  await _mediator.Send(new DeleteProductCommand { Id=id});
-        if(!result){
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteProductCommand { Id = id });
+        if (!result)
+        {
             return BadRequest("Delete Fail!");
         }
         return NoContent();

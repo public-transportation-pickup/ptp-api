@@ -8,13 +8,13 @@ using PTP.Application.ViewModels.Menus;
 
 namespace PTP.WebAPI.Controllers;
 
-public class MenusController:BaseController
+public class MenusController : BaseController
 {
     public readonly IMediator _mediator;
 
     public MenusController(IMediator mediator)
     {
-        _mediator=mediator;
+        _mediator = mediator;
     }
 
     #region Queries
@@ -39,10 +39,11 @@ public class MenusController:BaseController
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{menuid}/products-menu")]
     public async Task<IActionResult> GetProductMenuByMenuId([FromRoute] Guid menuid,
+                                                            [FromQuery] Dictionary<string, string> filter,
                                                             [FromQuery] int pageNumber = 0,
-                                                            [FromQuery] int pageSize = 10, 
-                                                            [FromQuery] Dictionary<string, string> filter = default!)
-    => Ok(await _mediator.Send(new GetProductInMenuByMenuIdQuery { MenuId = menuid,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
+                                                            [FromQuery] int pageSize = 10)
+
+    => Ok(await _mediator.Send(new GetProductInMenuByMenuIdQuery { MenuId = menuid, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
 
     #endregion 
 
@@ -51,24 +52,28 @@ public class MenusController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost]
-    public async Task<IActionResult> Create(MenuCreateModel model){
-        var result=  await _mediator.Send(new CreateMenuCommand { CreateModel=model });
-        if(result is null){
+    public async Task<IActionResult> Create(MenuCreateModel model)
+    {
+        var result = await _mediator.Send(new CreateMenuCommand { CreateModel = model });
+        if (result is null)
+        {
             return BadRequest("Create Fail!");
         }
-        return CreatedAtAction(nameof(GetById),new {Id=result.Id},result);
+        return CreatedAtAction(nameof(GetById), new { Id = result.Id }, result);
     }
- 
+
 
 
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id,MenuUpdateModel model){
-        if(id!=model.Id) return BadRequest("Id is not match!");
-        var result=  await _mediator.Send(new UpdateMenuCommand { UpdateModel=model});
-        if(!result){
+    public async Task<IActionResult> Update(Guid id, MenuUpdateModel model)
+    {
+        if (id != model.Id) return BadRequest("Id is not match!");
+        var result = await _mediator.Send(new UpdateMenuCommand { UpdateModel = model });
+        if (!result)
+        {
             return BadRequest("Update Fail!");
         }
         return NoContent();
@@ -78,9 +83,11 @@ public class MenusController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id){
-        var result=  await _mediator.Send(new DeleteMenuCommand { Id=id});
-        if(!result){
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteMenuCommand { Id = id });
+        if (!result)
+        {
             return BadRequest("Delete Fail!");
         }
         return NoContent();
