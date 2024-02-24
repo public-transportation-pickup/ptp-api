@@ -13,6 +13,8 @@ public static class FirebaseUtility
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey:appSettings.FirebaseSettings.ApiKeY));
                 
                 var a = await auth.SignInWithEmailAndPasswordAsync(email:appSettings.FirebaseSettings.AuthEmail, password:appSettings.FirebaseSettings.AuthPassword);
+                Console.Write(a.FirebaseToken);
+            
                 var cancellation = new FirebaseStorage(
                     appSettings.FirebaseSettings.Bucket,
                     new FirebaseStorageOptions
