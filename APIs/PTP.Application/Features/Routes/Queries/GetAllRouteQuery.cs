@@ -15,7 +15,7 @@ public class GetAllRouteQueryModel
 {
 	public Dictionary<string, string> Filter { get; set; } = new();
 
-	public int PageNumber { get; set; } = 0;
+	public int PageNumber { get; set; } = -1;
 }
 public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<RouteViewModel>>
 {
@@ -90,10 +90,11 @@ public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<Ro
 				
 			}
 			else returnResult = result.ToList();
+			logger.LogInformation($"Result: {result?.Count()}");
 			return PaginatedList<RouteViewModel>.Create(
 							source: returnResult.AsQueryable(),
-							pageIndex: request.PageNumber,
-							pageSize: 10);
+							pageIndex: request.PageNumber == -1 ? 0 : request.PageNumber,
+							pageSize: request.PageNumber == -1 ? returnResult.Count : 10);
 
 		}
 	}

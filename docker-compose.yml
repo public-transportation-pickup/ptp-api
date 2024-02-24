@@ -27,6 +27,7 @@ services:
     depends_on:
       - elasticsearch
     environment:
+      - ELASTICSEARCH_URL=http://els:9200
       - ELASTICSEARCH_HOSTS=http://els:9200
     networks:
       - elastic

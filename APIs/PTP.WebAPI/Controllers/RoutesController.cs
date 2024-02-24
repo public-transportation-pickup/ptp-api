@@ -26,7 +26,7 @@ public class RoutesController : BaseController
 	[HttpGet]
 	public async Task<IActionResult> Get(
 		[FromQuery] Dictionary<string, string> filter,
-		[FromQuery] int pageNumber = 0) 
+		[FromQuery] int pageNumber = -1) 
 			=> Ok(await _mediator.Send(new GetAllRouteQuery 
 			{
 				Filter = filter,
