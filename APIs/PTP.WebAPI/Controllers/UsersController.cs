@@ -35,8 +35,8 @@ public class UsersController : BaseController
     /// </summary>
     /// <returns></returns>
     [HttpGet("details")]
-    public async Task<IActionResult> GetUserByToken()
-    => Ok(await _mediator.Send());
+    public async Task<IActionResult> GetUserByToken(GetUserByTokenQuery query)
+    => Ok(await _mediator.Send(query));
 
     
 
