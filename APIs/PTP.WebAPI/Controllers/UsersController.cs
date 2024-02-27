@@ -66,14 +66,13 @@ public class UsersController : BaseController
     /// <summary>
     /// Lấy order theo UserId
     /// </summary>
-    /// <param name="id"></param>
     /// <param name="pageNumber"></param>
     /// <param name="pageSize"></param>
     /// <param name="filter"></param>
     /// <returns></returns>
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-    [HttpGet("{id}/orders")]
+    [HttpGet("orders")]
     public async Task<IActionResult> GetOrderByUserId(
                                                     [FromQuery] int pageNumber = -1,
                                                     [FromQuery] int pageSize = 100,
