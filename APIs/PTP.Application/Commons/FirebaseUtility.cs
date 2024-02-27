@@ -4,64 +4,64 @@ using Microsoft.AspNetCore.Http;
 
 namespace PTP.Application.Commons;
 public static class FirebaseUtility
-    {
-        public static async Task<FileUploadModel> UploadFileAsync(this IFormFile fileUpload,string folder,AppSettings appSettings)
-        {
-            if (fileUpload.Length > 0)
-            {
-                var fs = fileUpload.OpenReadStream();
-                var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey:appSettings.FirebaseSettings.ApiKeY));
-                
-                var a = await auth.SignInWithEmailAndPasswordAsync(email:appSettings.FirebaseSettings.AuthEmail, password:appSettings.FirebaseSettings.AuthPassword);
-                Console.Write(a.FirebaseToken);
-            
-                var cancellation = new FirebaseStorage(
-                    appSettings.FirebaseSettings.Bucket,
-                    new FirebaseStorageOptions
-                    {
-                        AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
-                        ThrowOnCancel = true
+{
+	public static async Task<FileUploadModel> UploadFileAsync(this IFormFile fileUpload, string folder, AppSettings appSettings)
+	{
+		if (fileUpload.Length > 0)
+		{
+			var fs = fileUpload.OpenReadStream();
+			var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey: appSettings.FirebaseSettings.ApiKeY));
 
-                    }
-                    ).Child("assets/"+folder).Child(fileUpload.FileName)
-                    .PutAsync(fs, CancellationToken.None);
-                try
-                {
-                    var result = await cancellation;
+			var a = await auth.SignInWithEmailAndPasswordAsync(email: appSettings.FirebaseSettings.AuthEmail, password: appSettings.FirebaseSettings.AuthPassword);
+			Console.Write(a.FirebaseToken);
 
-                    return new FileUploadModel
-                    {
-                        FileName = fileUpload.FileName,
-                        URL = result
-                    };
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.Message);
+			var cancellation = new FirebaseStorage(
+				appSettings.FirebaseSettings.Bucket,
+				new FirebaseStorageOptions
+				{
+					AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
+					ThrowOnCancel = true
 
-                }
+				}
+				).Child("assets/" + folder).Child(fileUpload.FileName)
+				.PutAsync(fs, CancellationToken.None);
+			try
+			{
+				var result = await cancellation;
 
-            }
-            else throw new Exception("File is not existed!");
-        }
+				return new FileUploadModel
+				{
+					FileName = fileUpload.FileName,
+					URL = result
+				};
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
 
-        public static async Task<bool> RemoveFileAsync(this string fileName,string folder,AppSettings appSettings)
-        {
-            var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey:appSettings.FirebaseSettings.ApiKeY));
-            var loginInfo = await auth.SignInWithEmailAndPasswordAsync(email:appSettings.FirebaseSettings.AuthEmail, password:appSettings.FirebaseSettings.AuthPassword);
-            var storage = new FirebaseStorage(appSettings.FirebaseSettings.Bucket, new FirebaseStorageOptions
-            {
-                AuthTokenAsyncFactory = () => Task.FromResult(loginInfo.FirebaseToken),
-                ThrowOnCancel = true
-            });
-            await storage.Child("assets/"+folder).Child(fileName).DeleteAsync();
-            return true;
+			}
 
-        }
-    }
+		}
+		else throw new Exception("File is not existed!");
+	}
 
-      public class FileUploadModel
-    {
-        public string URL { get; set; } = default!;
-        public string FileName { get; set; } = default!;
-    }
+	public static async Task<bool> RemoveFileAsync(this string fileName, string folder, AppSettings appSettings)
+	{
+		var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey: appSettings.FirebaseSettings.ApiKeY));
+		var loginInfo = await auth.SignInWithEmailAndPasswordAsync(email: appSettings.FirebaseSettings.AuthEmail, password: appSettings.FirebaseSettings.AuthPassword);
+		var storage = new FirebaseStorage(appSettings.FirebaseSettings.Bucket, new FirebaseStorageOptions
+		{
+			AuthTokenAsyncFactory = () => Task.FromResult(loginInfo.FirebaseToken),
+			ThrowOnCancel = true
+		});
+		await storage.Child("assets/" + folder).Child(fileName).DeleteAsync();
+		return true;
+
+	}
+}
+
+public class FileUploadModel
+{
+	public string URL { get; set; } = default!;
+	public string FileName { get; set; } = default!;
+}

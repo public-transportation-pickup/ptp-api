@@ -30,6 +30,15 @@ public class UsersController : BaseController
         Filter = filter,
         PageNumber = pageNumber
     }));
+    /// <summary>
+    /// Lấy user từ claims
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("details")]
+    public async Task<IActionResult> GetUserByToken()
+    => Ok(await _mediator.Send());
+
+    
 
     /// <summary>
     /// Lấy User theo Id
