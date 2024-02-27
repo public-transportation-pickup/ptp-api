@@ -17,4 +17,24 @@ jobs :
               run: dotnet restore
             - name: Build a[[]]
               run: dotnet build -c Release --no-restore
-           
+    deploy :
+        runs-on : ubuntu-20.04
+        steps: 
+          - name: pull-and-run
+            uses: appleboy/ssh-action@v0.1.5
+            env:
+              APPTOKEN: ${{secrets.GITHUB_TOKEN}}
+              USERNAME: ${{secrets.SRV_USR}}
+            with:
+              host: ${{secrets.SRV_IP}}
+              username: ${{secrets.SRV_USR}}
+              key: ${{secrets.SRV_PASSWORD}}
+              port: 22
+              script: |
+                cd ptp-api/ptp-api/
+                git pull origin main
+                sudo docker-compose build 
+                sudo docker-compose up
+
+            
+            
