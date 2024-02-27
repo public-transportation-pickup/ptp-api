@@ -74,11 +74,11 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{id}/orders")]
-    public async Task<IActionResult> GetOrderByUserId([FromRoute] Guid id,
-                                                    [FromQuery] int pageNumber = 0,
-                                                    [FromQuery] int pageSize = 10,
+    public async Task<IActionResult> GetOrderByUserId(
+                                                    [FromQuery] int pageNumber = -1,
+                                                    [FromQuery] int pageSize = 100,
                                                     [FromQuery] Dictionary<string, string> filter = default!)
-    => Ok(await _mediator.Send(new GetOrdersByUserIdQuery { UserId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
+    => Ok(await _mediator.Send(new GetOrdersByUserIdQuery { PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
     #endregion
     #region WRITE
 

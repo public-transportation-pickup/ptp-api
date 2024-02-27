@@ -10,17 +10,17 @@ using PTP.Application.ViewModels.Orders;
 
 namespace PTP.Application.Features.Orders.Queries;
 
-public class GetOrdersByUserIdQuery:IRequest<PaginatedList<OrderViewModel>>
+public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
 {
-    public Guid UserId{get;set;}
+    public Guid UserId { get; set; }
     public Dictionary<string, string>? Filter { get; set; } = default!;
-    public int PageNumber{get;set;}
-    public int PageSize{get;set;}
+    public int PageNumber { get; set; } = -1;
+    public int PageSize { get; set; } = 1000;
     public class QueryValidation : AbstractValidator<GetOrdersByUserIdQuery>
     {
         public QueryValidation()
         {
-            RuleFor(x => x.UserId).NotNull().NotEmpty().WithMessage("Id must not null or empty");
+            
         }
     }
 
@@ -28,11 +28,13 @@ public class GetOrdersByUserIdQuery:IRequest<PaginatedList<OrderViewModel>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IClaimsService claimsService;
         private readonly ICacheService _cacheService;
         private ILogger<QueryHandler> _logger;
 
-        public QueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService, ILogger<QueryHandler> logger)
+        public QueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService, ILogger<QueryHandler> logger, IClaimsService claimsService)
         {
+            this.claimsService = claimsService;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cacheService = cacheService;
@@ -48,27 +50,27 @@ public class GetOrdersByUserIdQuery:IRequest<PaginatedList<OrderViewModel>>
             // }
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
-            var orders= await _unitOfWork.OrderRepository.WhereAsync(x=>
-                        x.UserId==request.UserId,
-                        x=>x.Store,x=>x.Station,x=>x.Payment);
-            if(orders.Count==0) throw new NotFoundException("There are no order existed!");
-            var viewModels= _mapper.Map<IEnumerable<OrderViewModel>>(orders);
-            
+            var orders = await _unitOfWork.OrderRepository.WhereAsync(x =>
+                        x.UserId == claimsService.GetCurrentUser,
+                        x => x.Store, x => x.Station, x => x.Payment);
+            if (orders.Count == 0) throw new NotFoundException("There are no order existed!");
+            var viewModels = _mapper.Map<IEnumerable<OrderViewModel>>(orders);
+
             var filterResult = request.Filter.Count > 0 ? new List<OrderViewModel>() : viewModels;
 
-            if(request.Filter!.Count>0)
+            if (request.Filter!.Count > 0)
             {
-                foreach(var filter in request.Filter) 
+                foreach (var filter in request.Filter)
                 {
-                    filterResult=filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
+                    filterResult = filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
                 }
             }
-            filterResult= filterResult.OrderBy(o => Math.Abs((o.PickUpTime - DateTime.Now).TotalSeconds)).ToList();
+            filterResult = filterResult.OrderBy(o => Math.Abs((o.PickUpTime - DateTime.Now).TotalSeconds)).ToList();
 
             return PaginatedList<OrderViewModel>.Create(
-                        source:filterResult.AsQueryable(),
-                        pageIndex:request.PageNumber,
-                        pageSize:request.PageSize
+                        source: filterResult.AsQueryable(),
+                        pageIndex: request.PageNumber >= 0  ? request.PageNumber: 0,
+                        pageSize: request.PageNumber >= 0  ? request.PageSize : filterResult.Count()
                 );
         }
     }

@@ -1,40 +1,38 @@
-name : Countinous Intergration and Deployment
+name: Countinous Intergration and Deployment
 
-on : 
-    push: 
-        branches :
-            - main
-jobs : 
-    build : 
-        runs-on : ubuntu-20.04
-        steps:
-            - uses: actions/checkout@v2
-            - name: Setup .Net
-              uses: actions/setup-dotnet@v1
-              with: 
-                dotnet-version: '7.x'
-            - name: Restore Dependencies 
-              run: dotnet restore
-            - name: Build a[[]]
-              run: dotnet build -c Release --no-restore
-    deploy :
-        runs-on : ubuntu-20.04
-        steps: 
-          - name: pull-and-run
-            uses: appleboy/ssh-action@v0.1.5
-            env:
-              APPTOKEN: ${{secrets.GITHUB_TOKEN}}
-              USERNAME: ${{secrets.SRV_USR}}
-            with:
-              host: ${{secrets.SRV_IP}}
-              username: ${{secrets.SRV_USR}}
-              key: ${{secrets.SRV_PASSWORD}}
-              port: 22
-              script: |
-                cd ptp-api/ptp-api/
-                git pull origin main
-                sudo docker-compose build 
-                sudo docker-compose up
-
-            
-            
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .Net
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "7.x"
+      - name: Restore Dependencies
+        run: dotnet restore
+      - name: Build a[[]]
+        run: dotnet build -c Release --no-restore
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: pull-and-run
+        uses: appleboy/ssh-action@v0.1.5
+        env:
+          APPTOKEN: ${{secrets.GITHUB_TOKEN}}
+          USERNAME: ${{secrets.DEPLOY_USERNAME}}
+        with:
+          host: ${{secrets.DEPLOY_HOST}}
+          username: ${{secrets.DEPLOY_USERNAME}}
+          key: ${{secrets.DEPLOY_KEY}}
+          port: 22
+          envs: APPTOKEN,USERNAME
+          script: |
+            cd ptp-api/ptp-api/
+            git pull origin main
+            sudo docker-compose build 
+            sudo docker-compose up
