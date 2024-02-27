@@ -65,7 +65,7 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{id}/orders")]
-    public async Task<IActionResult> GetOrderByUserId([FromQuery] Guid id,
+    public async Task<IActionResult> GetOrderByUserId([FromRoute] Guid id,
                                                     [FromQuery] int pageNumber = 0,
                                                     [FromQuery] int pageSize = 10,
                                                     [FromQuery] Dictionary<string, string> filter = default!)
