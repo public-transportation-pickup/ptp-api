@@ -11,13 +11,13 @@ using PTP.Application.ViewModels.Menus;
 
 namespace PTP.WebAPI.Controllers;
 
-public class CategoriesController:BaseController
+public class CategoriesController : BaseController
 {
     public readonly IMediator _mediator;
 
     public CategoriesController(IMediator mediator)
     {
-        _mediator=mediator;
+        _mediator = mediator;
     }
 
     #region Queries
@@ -28,8 +28,8 @@ public class CategoriesController:BaseController
     public async Task<IActionResult> Get(
                                         [FromQuery] Dictionary<string, string> filter,
                                         [FromQuery] int pageNumber = 0,
-                                        [FromQuery] int pageSize = 10) 
-    => Ok(await _mediator.Send(new GetAllCategoryQuery{PageNumber=pageNumber,PageSize=pageSize,Filter=filter}));
+                                        [FromQuery] int pageSize = 10)
+    => Ok(await _mediator.Send(new GetAllCategoryQuery { PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
 
 
 
@@ -47,9 +47,9 @@ public class CategoriesController:BaseController
     [HttpGet("{id}/products")]
     public async Task<IActionResult> GetProductsByCategoryId([FromRoute] Guid id,
                                                             [FromQuery] int pageNumber = 0,
-                                                            [FromQuery] int pageSize = 10, 
+                                                            [FromQuery] int pageSize = 10,
                                                             [FromQuery] Dictionary<string, string> filter = default!)
-    => Ok(await _mediator.Send(new GetProductsByCategoryIdQuery { CategoryId = id ,PageNumber=pageNumber,PageSize=pageSize,Filter=filter}));
+    => Ok(await _mediator.Send(new GetProductsByCategoryIdQuery { CategoryId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
     #endregion 
 
     #region Commands
@@ -57,24 +57,28 @@ public class CategoriesController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost]
-    public async Task<IActionResult> Create(CategoryCreateModel model){
-        var result=  await _mediator.Send(new CreateCategoryCommand { CreateModel=model });
-        if(result is null){
+    public async Task<IActionResult> Create([FromForm] CategoryCreateModel model)
+    {
+        var result = await _mediator.Send(new CreateCategoryCommand { CreateModel = model });
+        if (result is null)
+        {
             return BadRequest("Create Fail!");
         }
-        return CreatedAtAction(nameof(GetById),new {Id=result.Id},result);
+        return CreatedAtAction(nameof(GetById), new { Id = result.Id }, result);
     }
- 
+
 
 
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id,CategoryUpdateModel model){
-        if(id!=model.Id) return BadRequest("Id is not match!");
-        var result=  await _mediator.Send(new UpdateCategoryCommand { UpdateModel=model});
-        if(!result){
+    public async Task<IActionResult> Update(Guid id, [FromForm] CategoryUpdateModel model)
+    {
+        if (id != model.Id) return BadRequest("Id is not match!");
+        var result = await _mediator.Send(new UpdateCategoryCommand { UpdateModel = model });
+        if (!result)
+        {
             return BadRequest("Update Fail!");
         }
         return NoContent();
@@ -84,9 +88,11 @@ public class CategoriesController:BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id){
-        var result=  await _mediator.Send(new DeleteCategoryCommand { Id=id});
-        if(!result){
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteCategoryCommand { Id = id });
+        if (!result)
+        {
             return BadRequest("Delete Fail!");
         }
         return NoContent();
