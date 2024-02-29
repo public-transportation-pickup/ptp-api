@@ -15,11 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddWebAPIServices();
 
-if (!builder.Environment.IsDevelopment())
-{
-	ConfigureLogging();
-	builder.Host.UseSerilog();
-}
+
+	Log.Logger = new LoggerConfiguration()
+		.ReadFrom.Configuration(builder.Configuration)
+		.CreateLogger();
+		
+
+
 
 var app = builder.Build();
 app.UseCors();
@@ -55,25 +57,7 @@ void ApplyMigration()
 	}
 }
 
-void ConfigureLogging()
-{
-	var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-	var configuration = new ConfigurationBuilder()
-		.AddJsonFile("appsettings.json",
-			optional: false,
-			reloadOnChange: true)
-		.AddJsonFile($"appsettings.{env}.json",
-			optional: true)
-			.Build();
-	Log.Logger = new LoggerConfiguration()
-		.Enrich.FromLogContext()
-		.Enrich.WithExceptionDetails()
-		.WriteTo.Console()
-		.WriteTo.Elasticsearch(ConfigureElasticSink(configuration, env ?? throw new Exception()))
-		.Enrich.WithProperty("Environment", env)
-		.ReadFrom.Configuration(configuration)
-		.CreateLogger();
-}
+
 ElasticsearchSinkOptions ConfigureElasticSink(IConfigurationRoot configuration, string enviroment)
 {
 	return new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]!))

@@ -2,13 +2,9 @@
 using Newtonsoft.Json;
 using PTP.Application.Services.Interfaces;
 using PTP.Domain.Entities;
-using System;
+
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace PTP.Infrastructure.Caching
 {

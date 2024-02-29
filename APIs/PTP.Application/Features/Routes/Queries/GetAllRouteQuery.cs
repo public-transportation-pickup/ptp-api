@@ -39,18 +39,18 @@ public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<Ro
 
 			using var connection = _connection.GetDbConnection();
 			IEnumerable<RouteViewModel> result;
-			if (_cacheService.IsConnected())
+			if (!_cacheService.IsConnected())
 			{
 				logger.LogInformation("Have Cache");
 				var cacheResult = await _cacheService.GetAsync<IEnumerable<Route>>(CACHE_KEY);
 				if (cacheResult is null)
 				{
-					string query = @"SELECT * FROM [Route] ORDER BY RouteId WHERE IsDeleted = 0";
+					string query = @"SELECT * FROM [Route] WHERE IsDeleted = 0  ORDER BY RouteId ";
 					var resultInDb = await connection.QueryAsync<Route>(query);
 					if (resultInDb is not null && resultInDb.Count() > 0)
 					{
 						result = _mapper.Map<IEnumerable<RouteViewModel>>(resultInDb);
-						if (_cacheService.IsConnected())
+						if (!_cacheService.IsConnected())
 						{
 							await _cacheService.SetAsync(CACHE_KEY, resultInDb);
 						}
@@ -63,7 +63,7 @@ public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<Ro
 			else
 			{
 
-				string query = @"SELECT * FROM [Route] WHERE  IsDeleted = 0 ORDER BY CreationDate DESC";
+				string query = @"SELECT * FROM [Route] WHERE IsDeleted = 0 ORDER BY CreationDate DESC";
 				var resultInDb = await connection.QueryAsync<Route>(query);
 				if (resultInDb is not null && resultInDb.Any())
 				{
