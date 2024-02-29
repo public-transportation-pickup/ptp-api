@@ -8,6 +8,8 @@ public class CategoryViewModel
         public DateTime CreationDate { get; set; }
         public string Name { get; set; } = default!;
         public string Description { get; set; } = default!;
-        public string Status {  get; set; }=default!;
-        public IEnumerable<ProductViewModel>? Products{get;set;}
+        public string ImageName { get; set; } = default!;
+        public string ImageURL { get; set; } = default!;
+        public string Status { get; set; } = default!;
+        public IEnumerable<ProductViewModel>? Products { get; set; }
 }

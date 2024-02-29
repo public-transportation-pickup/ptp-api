@@ -10,5 +10,6 @@ namespace PTP.Domain.Globals
     {
         public static readonly string STORE = "StoreImages";
         public static readonly string PRODUCT = "ProductImages";
+        public static readonly string CATEGORY = "CategoryImages";
     }
 }
