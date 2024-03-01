@@ -25,15 +25,12 @@ public class GetTripByUserLocation : IRequest<TripViewModel>
         {
             var timeTable = (await unitOfWork.TimeTableRepository.WhereAsync(x => x.RouteVarId == request.RouteVarId && x.IsCurrent)
                 ?? throw new Exception("Not found timetable")).First();
-            var getRouteVarTask = unitOfWork.RouteVarRepository.GetByIdAsync(request.RouteVarId, x => x.Route);
-            var getRouteStationTask = routeStationBusinesses.GetRouteStationByRouteVarId(request.RouteVarId);
-            var tripTask = unitOfWork.TripRepository.WhereAsync(x => x.TimeTableId == timeTable.Id);
-            var currentCoordinate = new { request.Latitude, request.Longitude };
-            await Task.WhenAll(getRouteStationTask, tripTask, getRouteVarTask);
 
-            var routeStations = getRouteStationTask.Result;
-            var routeVar = getRouteVarTask.Result;
-            var trips = tripTask.Result;
+            var currentCoordinate = new { request.Latitude, request.Longitude };
+
+            var routeStations =  await routeStationBusinesses.GetRouteStationByRouteVarId(request.RouteVarId);
+            var routeVar = await unitOfWork.RouteVarRepository.GetByIdAsync(request.RouteVarId, x => x.Route);
+            var trips = await unitOfWork.TripRepository.WhereAsync(x => x.TimeTableId == timeTable.Id);
             var now = DateTime.Now;
             if(routeVar?.Route?.AverageVelocity <= 0)
             { 
