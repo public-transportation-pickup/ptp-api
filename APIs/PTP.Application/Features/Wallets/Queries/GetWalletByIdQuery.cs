@@ -7,11 +7,7 @@ using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Wallets;
 using PTP.Domain.Entities;
 using PTP.Domain.Globals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace PTP.Application.Features.Wallets.Queries
 {

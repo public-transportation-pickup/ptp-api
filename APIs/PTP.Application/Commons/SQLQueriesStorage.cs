@@ -41,6 +41,19 @@ public static class SqlQueriesStorage
                                         AND RouteVarId = @routeVarId
                                         AND rs.IsDeleted = 0
                                         ORDER BY [Index]";
+    /// <summary>
+    /// Get RouteStation By RouteVarId
+    /// </summary>
+    public const string GET_ROUTE_STATION_BY_ROUTEVAR_ID = @"SELECT rs.Id, rs.[Index], s.Latitude, s.Longitude, 
+                                        rs.DistanceFromStart, rs.DistanceToNext, rs.DurationFromStart, 
+                                        rs.DurationToNext, s.[Id] AS StationId, s.[Name] AS StationName
+                                        FROM RouteStation rs
+                                        JOIN Station s
+                                        ON s.Id = rs.StationId 
+                                        WHERE rs.IsDeleted = 0
+                                        AND RouteVarId = @routeVarId
+                                        AND rs.IsDeleted = 0
+                                        ORDER BY [Index]";
 
 	/// <summary>
 	/// Get All Trips by

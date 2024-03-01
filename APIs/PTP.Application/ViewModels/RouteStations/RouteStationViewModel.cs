@@ -13,5 +13,21 @@
 		public Guid StationId { get; set; } = default!;
 		public string StationName { get; set; } = default!;
 
+		public static decimal[,] To(List<RouteStationViewModel> sources)
+		{
+			ArgumentNullException.ThrowIfNull(sources);
+			var rows = sources.Count;
+			const int cols = 2;
+			decimal[,] result = new decimal[rows, cols];
+			foreach(var item in sources)
+			{
+				var count = 0;
+				result[count, 0] = item.Latitude;
+				result[count, 1] = item.Longitude;
+			}
+			return result;
+		}
 	}
+
+	
 }

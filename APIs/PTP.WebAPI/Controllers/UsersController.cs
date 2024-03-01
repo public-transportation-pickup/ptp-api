@@ -2,6 +2,7 @@ using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Orders.Queries;
+using PTP.Application.Features.Trips.Queries;
 using PTP.Application.Features.Users.Commands;
 using PTP.Application.Features.Users.Queries;
 using PTP.Application.Features.Wallets.Queries;
@@ -134,4 +135,18 @@ public class UsersController : BaseController
         return NoContent();
     }
     #endregion
+
+    /// <summary>
+    /// Dự đoán chuyến theo current location của user
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [HttpPost]
+    public async Task<IActionResult> GetTripByCoordinate(GetTripByUserLocation query) 
+    {
+        return Ok(await _mediator.Send(query));
+    }
 }
