@@ -23,7 +23,7 @@ public class GetTripByUserLocation : IRequest<TripViewModel>
         }
         public async Task<TripViewModel?> Handle(GetTripByUserLocation request, CancellationToken cancellationToken)
         {
-            var timeTable = (await unitOfWork.TimeTableRepository.WhereAsync(x => x.RouteVarId == request.RouteVarId)
+            var timeTable = (await unitOfWork.TimeTableRepository.WhereAsync(x => x.RouteVarId == request.RouteVarId && x.IsCurrent)
                 ?? throw new Exception("Not found timetable")).First();
             var getRouteVarTask = unitOfWork.RouteVarRepository.GetByIdAsync(request.RouteVarId, x => x.Route);
             var getRouteStationTask = routeStationBusinesses.GetRouteStationByRouteVarId(request.RouteVarId);
