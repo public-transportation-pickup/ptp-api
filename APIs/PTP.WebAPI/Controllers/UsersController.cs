@@ -144,7 +144,7 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-    [HttpPost]
+    [HttpPost("trips/coordinate")]
     public async Task<IActionResult> GetTripByCoordinate(GetTripByUserLocation query) 
     {
         return Ok(await _mediator.Send(query));
