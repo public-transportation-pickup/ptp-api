@@ -34,6 +34,8 @@ services:
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
     environment:
+      - "/etc/timezone:/etc/timezone:ro" 
+      - "/etc/localtime:/etc/localtime:ro"
       - ACCEPT_EULA=Y
       - MSSQL_PID=EXPRESS
       - SA_PASSWORD=z@123456!
@@ -58,6 +60,8 @@ services:
       context: .
       dockerfile: APIs/PTP.WebAPI/Dockerfile
     environment:
+    - "/etc/timezone:/etc/timezone:ro" 
+    - "/etc/localtime:/etc/localtime:ro"
     - CONNECTIONSTRINGS__DEFAULTCONNECTION=Server=sql-server;Database=[PTP.Database];Trusted_Connection=False;User Id=sa;Password=z@123456!;MultipleActiveResultSets=true;TrustServerCertificate=true
     - ConnectionStrings__RedisConnection=redis:6379
     ports:
