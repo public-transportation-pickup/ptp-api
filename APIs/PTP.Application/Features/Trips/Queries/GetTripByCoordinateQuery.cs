@@ -15,8 +15,11 @@ public class GetTripByUserLocation : IRequest<TripViewModel>
         private readonly IUnitOfWork unitOfWork;
         private readonly RouteStationBusinesses routeStationBusinesses;
         private readonly ILocationService locationService;
-        public QueryHandler(IUnitOfWork unitOfWork, ILocationService locationService)
+        private readonly IMediator mediator;
+        public QueryHandler(IUnitOfWork unitOfWork, ILocationService locationService,
+            IMediator mediator)
         {
+            this.mediator = mediator;
             this.locationService = locationService;
             this.routeStationBusinesses = new(unitOfWork);
             this.unitOfWork = unitOfWork;
@@ -52,7 +55,11 @@ public class GetTripByUserLocation : IRequest<TripViewModel>
                 var eta = DateTime.Now.AddMinutes(duration);
 
                 var currentEstimateTrip = trips.MinBy(x => Math.Abs((eta - DateTime.Parse(x.EndTime)).TotalMilliseconds));
-                return unitOfWork.Mapper.Map<TripViewModel>(currentEstimateTrip);
+                
+                return await mediator.Send(new GetTripByIdQuery{
+                    Id = currentEstimateTrip!.Id,
+                    IsSchedule = true
+                }, cancellationToken: cancellationToken);
 
             } else return null;
 
