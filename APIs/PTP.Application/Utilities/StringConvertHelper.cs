@@ -37,6 +37,11 @@ public static class StringConvertHelper
 		});
 		return result.Contains(DateTime.Now.DayOfWeek.ToString());
 	}
+	public static List<TimeSpan> ConvertToTimeSpanList(this string s)
+	{
+		ArgumentException.ThrowIfNullOrEmpty(s);
+		return s.Trim().Split("-").ToList().ConvertAll(TimeSpan.Parse).ToList();
+	}
 	public static double ConvertAverageTime(this string s)
 	{
 		if (s is null) return 0;

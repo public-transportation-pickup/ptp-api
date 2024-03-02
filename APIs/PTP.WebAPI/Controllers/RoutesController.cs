@@ -87,6 +87,10 @@ public class RoutesController : BaseController
 	[HttpPut("{id}")]
 	public async Task<IActionResult> Update(Guid id, [FromBody] RouteUpdateModel model)
 		=> await _mediator.Send(new UpdateRouteCommand { Id = id, Model = model }) ? NoContent() : BadRequest();
+	
+	[HttpPost]
+	public async Task<IActionResult> Create([FromBody] CreateRouteCommand command)
+		=> Ok(await _mediator.Send(command));
 	#endregion
 
 }

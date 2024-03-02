@@ -29,7 +29,7 @@ public class TimetablesController : BaseController
     public async Task<IActionResult> GetTimetableByParId(Guid routeId, Guid routeVarId)
     => Ok(await mediator.Send(new GetTimetableByParIdQuery { RouteId = routeId, RouteVarId = routeVarId }));
 
-    
+
 
 
 
@@ -82,7 +82,11 @@ public class TimetablesController : BaseController
         return NoContent();
     }
 
-
+    [HttpPost, Route("{id}/trips")]
+    public async Task<IActionResult> ApplyTrips(ApplyTripCommand command)
+    {
+        return Ok(await mediator.Send(command));
+    }
 
     #endregion
 }

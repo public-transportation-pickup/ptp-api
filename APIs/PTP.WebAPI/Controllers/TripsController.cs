@@ -84,7 +84,6 @@ public class TripsController : BaseController
         return result ? NoContent() : BadRequest();
     }
 
-
     [ProducesResponseType((int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
