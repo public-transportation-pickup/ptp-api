@@ -48,6 +48,8 @@ services:
   public-transportation-pickup-api:
     container_name: public-transportation-pickup-api
     tty: true
+    volumes:
+    - "/etc/localtime:/etc/localtime:ro"
     depends_on:
       - sql-server
       - redis
