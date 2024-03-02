@@ -34,7 +34,8 @@ public class GetTripByUserLocation : IRequest<TripViewModel>
             var routeStations =  await routeStationBusinesses.GetRouteStationByRouteVarId(request.RouteVarId);
             var routeVar = await unitOfWork.RouteVarRepository.GetByIdAsync(request.RouteVarId, x => x.Route);
             var trips = await unitOfWork.TripRepository.WhereAsync(x => x.TimeTableId == timeTable.Id);
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
+            System.Console.WriteLine(now);
             if(routeVar?.Route?.AverageVelocity <= 0)
             { 
                 throw new Exception($"RouteVaration: {routeVar.RouteVarName} chưa support tính duration! add endpoint 'distance-modification'");
