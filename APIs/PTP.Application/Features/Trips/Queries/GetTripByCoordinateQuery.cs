@@ -41,21 +41,17 @@ public class GetTripByUserLocation : IRequest<TripViewModel>
                 // ToDo
                 var points = RouteStationViewModel.To(routeStations);
                 var upperIndex = FindUpperBoundIndex(points, currentCoordinate.Latitude, currentCoordinate.Longitude);
-                var nextStation = routeStations.FirstOrDefault(x => x.Index == upperIndex) ??
-                    throw new NullReferenceException();
+                var lastStation = routeStations.MaxBy(x => x.Index);
                 var distance = await locationService.GetDistance(orgLat: currentCoordinate.Latitude, 
                     orgLng: currentCoordinate.Longitude,
-                    destLat: nextStation.Latitude,
-                    destLng: nextStation.Longitude);
+                    destLat: lastStation!.Latitude,
+                    destLng: lastStation!.Longitude);
                 var duration = distance / routeVar.Route.AverageVelocity;
                 
-                foreach(var rs in routeStations.Where(x => x.Index >= nextStation.Index))
-                {
-                    duration += rs.DurationToNext;
-                }
+                
                 var eta = DateTime.Now.AddMinutes(duration);
 
-                var currentEstimateTrip = trips.OrderBy(x => Math.Abs((eta - DateTime.Parse(x.EndTime)).TotalMilliseconds)).First();
+                var currentEstimateTrip = trips.MinBy(x => Math.Abs((eta - DateTime.Parse(x.EndTime)).TotalMilliseconds));
                 return unitOfWork.Mapper.Map<TripViewModel>(currentEstimateTrip);
 
             } else return null;

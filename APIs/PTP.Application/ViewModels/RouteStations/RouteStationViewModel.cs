@@ -19,11 +19,13 @@
 			var rows = sources.Count;
 			const int cols = 2;
 			decimal[,] result = new decimal[rows, cols];
+			int count = 0;
 			foreach(var item in sources)
 			{
-				var count = 0;
 				result[count, 0] = item.Latitude;
 				result[count, 1] = item.Longitude;
+				count++;
+				
 			}
 			return result;
 		}
