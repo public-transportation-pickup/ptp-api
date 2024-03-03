@@ -1,12 +1,15 @@
 using System.Net;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Orders.Queries;
+using PTP.Application.Features.Stores.Queries;
 using PTP.Application.Features.Trips.Queries;
 using PTP.Application.Features.Users.Commands;
 using PTP.Application.Features.Users.Queries;
 using PTP.Application.Features.Wallets.Queries;
 using PTP.Application.ViewModels.Users;
+using PTP.Domain.Enums;
 
 namespace PTP.WebAPI.Controllers;
 public class UsersController : BaseController
@@ -39,7 +42,7 @@ public class UsersController : BaseController
     public async Task<IActionResult> GetUserByToken(GetUserByTokenQuery query)
     => Ok(await _mediator.Send(query));
 
-    
+
 
     /// <summary>
     /// Lấy User theo Id
@@ -60,8 +63,20 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{id}/wallets")]
-    public async Task<IActionResult> GeWallettByUserId(Guid id)
+    public async Task<IActionResult> GetWallettByUserId(Guid id)
     => Ok(await _mediator.Send(new GetWalletByUserIdQuery { UserId = id }));
+
+    /// <summary>
+    /// Lấy Store theo UserId
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [Authorize(Roles = nameof(RoleEnum.StoreManager))]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [HttpGet("{id}/stores")]
+    public async Task<IActionResult> GetStoreByUserId(Guid id)
+    => Ok(await _mediator.Send(new GetStoreByUserIdQuery { UserId = id }));
 
 
     /// <summary>
@@ -145,7 +160,7 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost("trips/coordinate")]
-    public async Task<IActionResult> GetTripByCoordinate(GetTripByUserLocation query) 
+    public async Task<IActionResult> GetTripByCoordinate(GetTripByUserLocation query)
     {
         return Ok(await _mediator.Send(query));
     }

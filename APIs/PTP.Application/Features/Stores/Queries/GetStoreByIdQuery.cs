@@ -2,17 +2,11 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using PTP.Application.Features.Routes.Queries;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Stores;
 using PTP.Domain.Entities;
 using PTP.Domain.Globals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PTP.Application.Features.Stores.Queries
 {
@@ -46,12 +40,12 @@ namespace PTP.Application.Features.Stores.Queries
             public async Task<StoreViewModel> Handle(GetStoreByIdQuery request, CancellationToken cancellationToken)
             {
                 if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                var cacheResult = await _cacheService.GetAsync<Store>(CacheKey.STORE+request.Id);
+                var cacheResult = await _cacheService.GetAsync<Store>(CacheKey.STORE + request.Id);
                 if (cacheResult is not null)
                 {
                     return _mapper.Map<StoreViewModel>(cacheResult);
                 }
-                var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.Id,x=>x.User,x=>x.Wallet!);
+                var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.Id, x => x.User, x => x.Wallet!);
                 if (store is null) throw new BadRequestException($"Store with ID-{request.Id} is not exist!");
                 await _cacheService.SetAsync<Store>(CacheKey.STORE + request.Id, store);
                 return _mapper.Map<StoreViewModel>(store);
