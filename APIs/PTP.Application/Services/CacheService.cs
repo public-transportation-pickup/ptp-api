@@ -84,10 +84,19 @@ namespace PTP.Infrastructure.Caching
             await Task.WhenAll(tasks);
         }
 
-        public async Task SetAsync<T>(string key, T value, CancellationToken cancellationToken = default) where T : class
+        public async Task SetAsync<T>(string key,
+            T value,
+            CancellationToken cancellationToken = default,
+            double slidingExpiration = 15,
+            double absoluteExpiration = 30) where T : class
         {
             string cacheValue = JsonConvert.SerializeObject(value, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-            await _distributedCache.SetStringAsync(key, cacheValue, cancellationToken);
+            await _distributedCache.SetStringAsync(key, cacheValue, options: new DistributedCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(absoluteExpiration),
+                SlidingExpiration = TimeSpan.FromMinutes(slidingExpiration),
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(absoluteExpiration)
+            }, cancellationToken);
 
             CachKeys.TryAdd(key, false);
 
@@ -97,7 +106,7 @@ namespace PTP.Infrastructure.Caching
         {
             foreach (var item in values)
             {
-                var key = prefixKey+ item.Id;
+                var key = prefixKey + item.Id;
                 await SetAsync<T>(key, item, cancellationToken);
             }
         }

@@ -20,7 +20,7 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
     {
         public QueryValidation()
         {
-            
+
         }
     }
 
@@ -52,8 +52,7 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
             request.Filter!.Remove("pageNumber");
             var orders = await _unitOfWork.OrderRepository.WhereAsync(x =>
                         x.UserId == claimsService.GetCurrentUser,
-                        x => x.Store, x => x.Station, x => x.Payment);
-            if (orders.Count == 0) throw new NotFoundException("There are no order existed!");
+                        x => x.Store, x => x.Station, x => x.Payment, x => x.OrderDetails);
             var viewModels = _mapper.Map<IEnumerable<OrderViewModel>>(orders);
 
             var filterResult = request.Filter.Count > 0 ? new List<OrderViewModel>() : viewModels;
@@ -69,8 +68,8 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
 
             return PaginatedList<OrderViewModel>.Create(
                         source: filterResult.AsQueryable(),
-                        pageIndex: request.PageNumber >= 0  ? request.PageNumber: 0,
-                        pageSize: request.PageNumber >= 0  ? request.PageSize : filterResult.Count()
+                        pageIndex: request.PageNumber >= 0 ? request.PageNumber : 0,
+                        pageSize: request.PageNumber >= 0 ? request.PageSize : filterResult.Count()
                 );
         }
     }
