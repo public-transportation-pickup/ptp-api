@@ -42,7 +42,7 @@ namespace PTP.Application.Features.Wallets.Queries
                 var cacheResult = await _cacheService.GetByPrefixAsync<Wallet>(CacheKey.WALLET+request.Id);
                 if (cacheResult!.Count > 0)
                 {
-                    return _mapper.Map<WalletViewModel>(cacheResult);
+                    return _mapper.Map<WalletViewModel>(cacheResult.Where(x=>x.Id==request.Id));
                 }
                 var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x => x.Id == request.Id, x => x.Transactions, x => x.WalletLogs);
                 if (wallet is null) throw new BadRequestException($"WalletId-{request.Id} is not exist!");
