@@ -18,7 +18,11 @@ namespace PTP.Application.Services.Interfaces
 
         Task<List<T>?> GetByPrefixAsync<T>(string prefixKey, Func<Task<T>> factory, CancellationToken cancellationToken = default) where T : class;
 
-        Task SetAsync<T>(string key, T value, CancellationToken cancellationToken = default) where T : class;
+        Task SetAsync<T>(string key,
+            T value,
+            CancellationToken cancellationToken = default,
+            double slidingExpiration = 15,
+            double absoluteExpiration = 30) where T : class;
         Task SetByPrefixAsync<T>(string prefixKey, List<T> values, CancellationToken cancellationToken = default) where T : BaseEntity;
 
         Task RemoveAsync(string key, CancellationToken cancellationToken = default);

@@ -33,7 +33,7 @@ public class RouteVarsController : BaseController
         {
             return Ok(result);
         }
-        else return BadRequest();
+        else return Ok();
     }
 
     /// <summary>
@@ -97,6 +97,6 @@ public class RouteVarsController : BaseController
     [HttpPost]
     public async Task<IActionResult> Duplicate([FromRoute] Guid id, [FromBody] List<RouteStationDuplicateModel> models)
     {
-        return Ok(await _mediator.Send(new DuplicateRouteVarCommand {Id = id, Stations = models}));
+        return Ok(await _mediator.Send(new DuplicateRouteVarCommand { Id = id, Stations = models }));
     }
 }
