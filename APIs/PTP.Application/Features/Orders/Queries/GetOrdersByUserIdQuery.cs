@@ -6,6 +6,7 @@ using PTP.Application.Commons;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.Utilities;
+using PTP.Application.ViewModels.OrderDetails;
 using PTP.Application.ViewModels.Orders;
 
 namespace PTP.Application.Features.Orders.Queries;
@@ -54,7 +55,7 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
                         x.UserId == claimsService.GetCurrentUser,
                         x => x.Store, x => x.Station, x => x.Payment, x => x.OrderDetails);
             var viewModels = _mapper.Map<IEnumerable<OrderViewModel>>(orders);
-
+            viewModels = await GetOrderDetail(viewModels.ToList());
             var filterResult = request.Filter.Count > 0 ? new List<OrderViewModel>() : viewModels;
 
             if (request.Filter!.Count > 0)
@@ -85,6 +86,16 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
                         pageIndex: request.PageNumber >= 0 ? request.PageNumber : 0,
                         pageSize: request.PageNumber >= 0 ? request.PageSize : filterResult.Count()
                 );
+        }
+
+        private async Task<IEnumerable<OrderViewModel>> GetOrderDetail(List<OrderViewModel> orders)
+        {
+            for (var i = 0;i<orders.Count();i++)
+            {
+                var orderDetail= await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == orders[i].Id,x=>x.ProductInMenu.Product);
+                orders[i].OrderDetails= _mapper.Map<IEnumerable<OrderDetailViewModel>>(orderDetail);
+            }
+            return orders;
         }
     }
 }

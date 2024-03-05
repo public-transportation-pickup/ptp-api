@@ -15,14 +15,14 @@ public class PaginatedList<T> : List<T>
 		this.AddRange(items);
 	}
 
-	public bool HasPreviousPage => PageIndex > 1;
+	public bool HasPreviousPage => PageIndex > 0;
 
-	public bool HasNextPage => PageIndex < TotalPages;
+	public bool HasNextPage => PageIndex + 1 < TotalPages;
 
 	public static PaginatedList<T> Create(IQueryable<T> source, int pageIndex, int pageSize)
 	{
 		var count = source.Count();
-		var items = source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+		var items = source.Skip((pageIndex - 0) * pageSize).Take(pageSize).ToList();
 		return new PaginatedList<T>(items, count, pageIndex, pageSize);
 	}
 }
