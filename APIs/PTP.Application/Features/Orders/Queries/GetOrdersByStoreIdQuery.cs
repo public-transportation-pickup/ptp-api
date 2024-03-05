@@ -51,7 +51,6 @@ public class GetOrdersByStoreIdQuery:IRequest<PaginatedList<OrderViewModel>>
             var orders= await _unitOfWork.OrderRepository.WhereAsync(x=>
                         x.StoreId==request.StoreId,
                         x=>x.Store,x=>x.Station,x=>x.Payment);
-            if(orders.Count==0) throw new NotFoundException("There are no order existed!");
             var viewModels= _mapper.Map<IEnumerable<OrderViewModel>>(orders);
             var filterResult = request.Filter.Count > 0 ? new List<OrderViewModel>() : viewModels;
 

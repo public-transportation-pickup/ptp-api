@@ -65,6 +65,20 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
                 }
             }
             filterResult = filterResult.OrderBy(o => Math.Abs((o.PickUpTime - DateTime.Now).TotalSeconds)).ToList();
+            foreach (var item in filterResult)
+            {
+                if (item.OrderDetails?.Count() > 0)
+                {
+                    foreach (var orderItem in item.OrderDetails)
+                    {
+                        var productInMenu = await _unitOfWork.ProductInMenuRepository.GetByIdAsync(orderItem.ProductMenuId, x => x.Product) ?? new();
+                        orderItem.ProductName = productInMenu?.Product?.Name ?? string.Empty;
+                        orderItem.ImageURL = productInMenu?.Product?.ImageURL ?? string.Empty;
+                        orderItem.ProductPrice = productInMenu?.Product?.Price ?? 0;
+                        orderItem.Description = productInMenu?.Product?.Description ?? string.Empty;
+                    }
+                }
+            }
 
             return PaginatedList<OrderViewModel>.Create(
                         source: filterResult.AsQueryable(),
