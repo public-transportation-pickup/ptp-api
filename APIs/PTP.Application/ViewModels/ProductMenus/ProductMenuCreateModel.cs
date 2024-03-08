@@ -6,7 +6,7 @@ public class ProductMenuCreateModel
 {
     public Guid ProductId { get; set; }
     public Guid MenuId { get; set; }
-    public string Status { get; set; } =default!;
-	public decimal ActualPrice { get; set; } = 0;
-    public int QuantityInDay{get;set;}
+    public string Status { get; set; } = default!;
+    public decimal SalePrice { get; set; } = 0;
+    // public int QuantityInDay { get; set; }
 }

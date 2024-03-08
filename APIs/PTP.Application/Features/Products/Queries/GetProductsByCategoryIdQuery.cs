@@ -12,12 +12,12 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Products.Queries;
 
-public class GetProductsByCategoryIdQuery:IRequest<PaginatedList<ProductViewModel>>
+public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewModel>>
 {
     public Guid CategoryId { get; set; } = default!;
     public Dictionary<string, string>? Filter { get; set; } = default!;
-    public int PageNumber{get;set;}
-    public int PageSize{get;set;}
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
 
     public class QueryValidation : AbstractValidator<GetProductsByCategoryIdQuery>
     {
@@ -45,57 +45,57 @@ public class GetProductsByCategoryIdQuery:IRequest<PaginatedList<ProductViewMode
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
 
-            var cacheResult= await GetCache(request);
-            if(cacheResult is not null) return cacheResult;
+            var cacheResult = await GetCache(request);
+            if (cacheResult is not null) return cacheResult;
 
-            var product = await _unitOfWork.ProductRepository.WhereAsync(x=>x.CategoryId==request.CategoryId,x=>x.Store,x=>x.Category);
+            var product = await _unitOfWork.ProductRepository.WhereAsync(x => x.CategoryId == request.CategoryId, x => x.Store, x => x.Category);
             if (product is null) throw new BadRequestException($"Category with ID-{request.CategoryId} is not exist any products!");
-           
+
             await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, product);
 
-            var viewModels= _mapper.Map<IEnumerable<ProductViewModel>>(product);
+            var viewModels = _mapper.Map<IEnumerable<ProductViewModel>>(product);
 
             var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels;
 
-            if(request.Filter!.Count>0)
+            if (request.Filter!.Count > 0)
             {
-                foreach(var filter in request.Filter) 
+                foreach (var filter in request.Filter)
                 {
-                    filterResult=filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
+                    filterResult = filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
                 }
             }
-            
+
             return PaginatedList<ProductViewModel>.Create(
-                        source:filterResult.AsQueryable(),
-                        pageIndex:request.PageNumber,
-                        pageSize:request.PageSize
+                        source: filterResult.AsQueryable(),
+                        pageIndex: request.PageNumber,
+                        pageSize: request.PageSize
                 );
         }
 
         public async Task<PaginatedList<ProductViewModel>?> GetCache(GetProductsByCategoryIdQuery request)
         {
-            
-            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
 
             var cacheResult = await _cacheService.GetByPrefixAsync<Product>(CacheKey.PRODUCT);
             if (cacheResult!.Count > 0)
             {
-                var result =cacheResult.Where(x=>x.CategoryId==request.CategoryId);
-                if(result==null) return null;
+                var result = cacheResult.Where(x => x.CategoryId == request.CategoryId);
+                if (result == null) return null;
 
-                var cacheViewModels= _mapper.Map<IEnumerable<ProductViewModel>>(result);   
-                var filterRe= request.Filter!.Count > 0 ? new List<ProductViewModel>(): cacheViewModels;
-                if(request.Filter!.Count>0)
+                var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(result);
+                var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels;
+                if (request.Filter!.Count > 0)
                 {
-                    foreach(var filter in request.Filter) 
+                    foreach (var filter in request.Filter)
                     {
-                        filterRe=filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
+                        filterRe = filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
                     }
-                }               
+                }
                 return PaginatedList<ProductViewModel>.Create(
                         source: filterRe.AsQueryable(),
-                        pageIndex:request.PageNumber,
-                        pageSize:request.PageSize
+                        pageIndex: request.PageNumber,
+                        pageSize: request.PageSize
                 );
             }
             return null;

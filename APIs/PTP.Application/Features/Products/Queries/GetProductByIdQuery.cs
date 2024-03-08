@@ -10,7 +10,7 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Products.Queries;
 
-public class GetProductByQuery:IRequest<ProductViewModel>
+public class GetProductByQuery : IRequest<ProductViewModel>
 {
     public Guid Id { get; set; } = default!;
 
@@ -38,13 +38,13 @@ public class GetProductByQuery:IRequest<ProductViewModel>
         }
         public async Task<ProductViewModel> Handle(GetProductByQuery request, CancellationToken cancellationToken)
         {
-            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            var cacheResult = await _cacheService.GetAsync<Product>(CacheKey.PRODUCT+request.Id);
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            var cacheResult = await _cacheService.GetAsync<Product>(CacheKey.PRODUCT + request.Id);
             if (cacheResult is not null)
             {
                 return _mapper.Map<ProductViewModel>(cacheResult);
             }
-            var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id,x=>x.Store,x=>x.Category);
+            var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, x => x.Store, x => x.Category);
             if (product is null) throw new BadRequestException($"Product with ID-{request.Id} is not exist!");
             await _cacheService.SetAsync<Product>(CacheKey.PRODUCT + request.Id, product);
             return _mapper.Map<ProductViewModel>(product);

@@ -10,20 +10,20 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Categories.Queries;
 
-public class GetCategoryByIdQuery:IRequest<CategoryViewModel>
+public class GetCategoryByIdQuery : IRequest<CategoryViewModel>
 {
-        public Guid Id { get; set; } = default!;
+    public Guid Id { get; set; } = default!;
 
-        public class QueryValidation : AbstractValidator<GetCategoryByIdQuery>
+    public class QueryValidation : AbstractValidator<GetCategoryByIdQuery>
+    {
+        public QueryValidation()
         {
-            public QueryValidation()
-            {
-                RuleFor(x => x.Id).NotNull().NotEmpty().WithMessage("Id must not null or empty");
-            }
+            RuleFor(x => x.Id).NotNull().NotEmpty().WithMessage("Id must not null or empty");
         }
+    }
     public class QueryHandler : IRequestHandler<GetCategoryByIdQuery, CategoryViewModel>
     {
-         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICacheService _cacheService;
         private ILogger<QueryHandler> _logger;
@@ -37,8 +37,8 @@ public class GetCategoryByIdQuery:IRequest<CategoryViewModel>
         }
         public async Task<CategoryViewModel> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
         {
-            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            var cacheResult = await _cacheService.GetAsync<Category>(CacheKey.CATE+request.Id);
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            var cacheResult = await _cacheService.GetAsync<Category>(CacheKey.CATE + request.Id);
             if (cacheResult is not null)
             {
                 return _mapper.Map<CategoryViewModel>(cacheResult);

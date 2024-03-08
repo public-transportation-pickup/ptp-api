@@ -81,15 +81,15 @@ namespace PTP.Application.Features.Stores.Commands
             {
                 _logger.LogInformation("Create Store:\n");
 
-                var store= _mapper.Map<Store>(request.CreateModel);
-                
-                #region CHECCK TIME
+                var store = _mapper.Map<Store>(request.CreateModel);
+
+                #region CHECK TIME
                 // Check Valid Time opentime < closetime
 
-                store.OpenedTime=TimeSpan.ParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
-                store.ClosedTime= TimeSpan.ParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
+                store.OpenedTime = TimeSpan.ParseExact(request.CreateModel.OpenedTime, @"hh\:mm", CultureInfo.InvariantCulture);
+                store.ClosedTime = TimeSpan.ParseExact(request.CreateModel.ClosedTime, @"hh\:mm", CultureInfo.InvariantCulture);
 
-                if(store.OpenedTime>=store.ClosedTime) throw new BadRequestException("Close Time must higher than Open Time");
+                if (store.OpenedTime >= store.ClosedTime) throw new BadRequestException("Close Time must higher than Open Time");
                 #endregion
 
                 var isDup = await _unitOfWork.UserRepository.WhereAsync(x => x.PhoneNumber!.ToLower() == request.CreateModel.PhoneNumber!.ToLower());
@@ -105,19 +105,20 @@ namespace PTP.Application.Features.Stores.Commands
                 store.Latitude = location.Lat;
                 store.Longitude = location.Lng;
                 #endregion
-                
+
                 #region Add image
                 //Add Image to FireBase
                 var image = await request.CreateModel.File!.UploadFileAsync(FolderKey.STORE, _appSettings);
                 store.ImageName = image.FileName;
                 store.ImageURL = image.URL;
                 #endregion
-                
+
                 //Config RelationShip
-                store.WalletId=await CreateWallet(store.Id);
-                
-                if(request.CreateModel.StationIds!= null){
-                    await AddStationsToStore(request.CreateModel.StationIds,store.Id);
+                // store.WalletId=await CreateWallet(store.Id);
+
+                if (request.CreateModel.StationIds != null)
+                {
+                    await AddStationsToStore(request.CreateModel.StationIds, store.Id);
                 }
 
                 await _unitOfWork.StoreRepository.AddAsync(store);
@@ -125,20 +126,21 @@ namespace PTP.Application.Features.Stores.Commands
                 await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
                 return _mapper.Map<StoreViewModel>(store);
             }
-            
-            private async Task AddStationsToStore(List<Guid> StationIds,Guid storeId){
-                var stations= await _unitOfWork.StationRepository.WhereAsync(x=> StationIds.Contains(x.Id));
-                if(stations.Count == 0) throw new BadRequestException("No Station found!");
+
+            private async Task AddStationsToStore(List<Guid> StationIds, Guid storeId)
+            {
+                var stations = await _unitOfWork.StationRepository.WhereAsync(x => StationIds.Contains(x.Id));
+                if (stations.Count == 0) throw new BadRequestException("No Station found!");
                 for (int i = 0; i < stations.Count; i++)
                 {
-                    stations[i].StoreId=storeId;
+                    stations[i].StoreId = storeId;
                 }
                 _unitOfWork.StationRepository.UpdateRange(stations);
             }
 
-            private async Task<Guid> CreateWallet(Guid storeId)
+            private async Task<Guid> CreateWallet(Guid userId)
             {
-                var wallet = new Wallet { Name = "Store-Wallet", Amount = 0, WalletType = WalletTypeEnum.Store.ToString(), StoreId = storeId };
+                var wallet = new Wallet { Name = "Store-Wallet", Amount = 0, WalletType = WalletTypeEnum.Store.ToString(), UserId = userId };
                 await _unitOfWork.WalletRepository.AddAsync(wallet);
                 return wallet.Id;
             }
@@ -149,16 +151,19 @@ namespace PTP.Application.Features.Stores.Commands
                 ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
                 User user = new User
                 {
-                    FullName=store.Name,
-                    PhoneNumber=store.PhoneNumber,
-                    Password="@Abcaz12345",
-                    Email=$"Store{DateTime.Now.Hour+DateTime.Now.Minute+DateTime.Now.Second}@gmail.com",
-                    StoreId=store.Id,
-                    RoleId=role!.Id
+                    FullName = store.Name,
+                    PhoneNumber = store.PhoneNumber,
+                    Password = "@Abcaz12345",
+                    Email = $"Store{DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second}@gmail.com",
+                    StoreId = store.Id,
+                    RoleId = role!.Id
                 };
+                user.WalletId = await CreateWallet(user.Id);
+
                 await _unitOfWork.UserRepository.AddAsync(user);
-                if(!await CreateUserToFirebaseAsync(user.Email,user.Password)) throw new Exception($"Create Account to FireBase Fail!");
-                return user.Id;  
+
+                if (!await CreateUserToFirebaseAsync(user.Email, user.Password)) throw new Exception($"Create Account to FireBase Fail!");
+                return user.Id;
             }
 
             private async Task<bool> CreateUserToFirebaseAsync(string email, string password)

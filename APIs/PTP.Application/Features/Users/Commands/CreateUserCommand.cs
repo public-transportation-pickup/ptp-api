@@ -60,7 +60,7 @@ public class CreateUserCommand : IRequest<UserViewModel>
 						Amount = 0,
 						Name = $"Ví của {user.Email}",
 						WalletType = nameof(WalletTypeEnum.Customer),
-						Store = null,
+						// Store = null,
 						UserId = user.Id
 					};
 					await _unitOfWork.WalletRepository.AddAsync(wallet);

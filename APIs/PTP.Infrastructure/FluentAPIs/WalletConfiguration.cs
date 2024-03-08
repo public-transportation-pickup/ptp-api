@@ -10,7 +10,7 @@ public class WalletConfiguration : IEntityTypeConfiguration<Wallet>
         builder.HasKey(x => x.Id);
         builder.HasMany(x => x.WalletLogs).WithOne(x => x.Wallet).HasForeignKey(x => x.WalletId);
         builder.HasOne(x => x.User).WithOne(x => x.Wallet).HasForeignKey<Wallet>(x => x.UserId);
-        builder.HasOne(x => x.Store).WithOne(x => x.Wallet).HasForeignKey<Wallet>(x => x.StoreId);
+        // builder.HasOne(x => x.Store).WithOne(x => x.Wallet).HasForeignKey<Wallet>(x => x.StoreId);
         builder.HasMany(x => x.Transactions).WithOne(x => x.Wallet).HasForeignKey(x => x.WalletId);
     }
 }

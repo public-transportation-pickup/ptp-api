@@ -29,9 +29,9 @@ namespace PTP.Application.ViewModels.Stores
         public string ImageName { get; set; } = string.Empty;
         public string ImageURL { get; set; } = string.Empty;
         public Guid UserId { get; set; } = default!;
-        public string Email {  get; set; } = default!;
+        public string Email { get; set; } = default!;
         public string Password { get; set; } = default!;
-        public Guid WalletId { get; set; }
-        public decimal WalletAmount { get; set; } = default!;
+        // public Guid WalletId { get; set; }
+        // public decimal WalletAmount { get; set; } = default!;
     }
 }

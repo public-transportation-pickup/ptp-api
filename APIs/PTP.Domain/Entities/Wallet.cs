@@ -12,8 +12,8 @@ public class Wallet : BaseEntity
     #region Relationship
     public Guid? UserId { get; set; }
     public User? User { get; set; } = default!;
-    public Guid? StoreId { get; set; } = default!;
-    public Store? Store { get; set; } = default!;
+    // public Guid? StoreId { get; set; } = default!;
+    // public Store? Store { get; set; } = default!;
     //public ICollection<Store>? Stores { get; set; } = default!;
     public ICollection<Transaction> Transactions { get; set; } = default!;
     public ICollection<WalletLog> WalletLogs { get; set; } = default!;

@@ -10,7 +10,7 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Wallets.Queries;
 
-public class GetWalletByStoreIdQuery:IRequest<WalletViewModel>
+public class GetWalletByStoreIdQuery : IRequest<WalletViewModel>
 {
     public Guid StoreId { get; set; } = default!;
 
@@ -24,7 +24,7 @@ public class GetWalletByStoreIdQuery:IRequest<WalletViewModel>
 
     public class QueryHandler : IRequestHandler<GetWalletByStoreIdQuery, WalletViewModel>
     {
-         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICacheService _cacheService;
         private ILogger<QueryHandler> _logger;
@@ -38,16 +38,17 @@ public class GetWalletByStoreIdQuery:IRequest<WalletViewModel>
         }
         public async Task<WalletViewModel> Handle(GetWalletByStoreIdQuery request, CancellationToken cancellationToken)
         {
-            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            var cacheResult = await _cacheService.GetByPrefixAsync<Wallet>(CacheKey.WALLET);
-            if (cacheResult!.Count>0)
-            {
-                return _mapper.Map<WalletViewModel>(cacheResult.Where(x=>x.StoreId==request.StoreId));
-            }
-            var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x=>x.StoreId==request.StoreId,x=>x.Transactions,x=>x.WalletLogs);
-            if (wallet is null) throw new BadRequestException($"Store-{request.StoreId} is not exist any Wallet!");
-            await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
-            return _mapper.Map<WalletViewModel>(wallet);
+            // if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            // var cacheResult = await _cacheService.GetByPrefixAsync<Wallet>(CacheKey.WALLET);
+            // if (cacheResult!.Count>0)
+            // {
+            //     return _mapper.Map<WalletViewModel>(cacheResult.Where(x=>x.StoreId==request.StoreId));
+            // }
+            // var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x=>x.StoreId==request.StoreId,x=>x.Transactions,x=>x.WalletLogs);
+            // if (wallet is null) throw new BadRequestException($"Store-{request.StoreId} is not exist any Wallet!");
+            // await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
+            // return _mapper.Map<WalletViewModel>(wallet);
+            return new WalletViewModel();
         }
     }
 }

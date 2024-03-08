@@ -45,14 +45,11 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet("{id}/menus")]
-		public async Task<IActionResult> GetMenusByStoreId([FromRoute] Guid id, string? arrivalTime,
-															[FromQuery] int pageNumber = 0,
-															[FromQuery] int pageSize = 10,
-															[FromQuery] Dictionary<string, string> filter = default!)
+		public async Task<IActionResult> GetMenusByStoreId([FromRoute] Guid id, string? arrivalTime, DateTime? dateApply)
 		{
-			if (arrivalTime.IsNullOrEmpty()) return Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
+			if (arrivalTime.IsNullOrEmpty()) return Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id, DateApply = dateApply!.Value }));
 
-			return Ok(await _mediator.Send(new GetMenuDetailByStoreId { StoreId = id, ArrivalTime = arrivalTime! }));
+			return Ok(await _mediator.Send(new GetMenuDetailByStoreId { StoreId = id, ArrivalTime = arrivalTime!, DateApply = dateApply!.Value }));
 		}
 
 
@@ -68,19 +65,19 @@ namespace PTP.WebAPI.Controllers
 		// => Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, CategoryId = categoryId,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
 		=> Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
 
-		[ProducesResponseType((int)HttpStatusCode.OK)]
-		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
-		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-		[HttpGet("{id}/stations")]
-		public async Task<IActionResult> GetStationsStoreId([FromRoute] Guid id)
-		=> Ok("Comming soon!");
+		// [ProducesResponseType((int)HttpStatusCode.OK)]
+		// [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+		// [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+		// [HttpGet("{id}/stations")]
+		// public async Task<IActionResult> GetStationsStoreId([FromRoute] Guid id)
+		// => Ok("Comming soon!");
 
-		[ProducesResponseType((int)HttpStatusCode.OK)]
-		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
-		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-		[HttpGet("{id}/wallets")]
-		public async Task<IActionResult> GetWalletByStoreId([FromRoute] Guid id)
-		=> Ok(await _mediator.Send(new GetWalletByStoreIdQuery { StoreId = id }));
+		// [ProducesResponseType((int)HttpStatusCode.OK)]
+		// [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+		// [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+		// [HttpGet("{id}/wallets")]
+		// public async Task<IActionResult> GetWalletByStoreId([FromRoute] Guid id)
+		// => Ok(await _mediator.Send(new GetWalletByStoreIdQuery { StoreId = id }));
 
 		[ProducesResponseType((int)HttpStatusCode.OK)]
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]

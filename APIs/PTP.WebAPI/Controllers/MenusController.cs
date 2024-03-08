@@ -59,7 +59,7 @@ public class MenusController : BaseController
         {
             return BadRequest("Create Fail!");
         }
-        return CreatedAtAction(nameof(GetById), new { Id = result.Id }, result);
+        return StatusCode(201, result);
     }
 
 

@@ -52,7 +52,7 @@ namespace PTP.Application.Features.Stores.Queries
                 {
                     return _mapper.Map<StoreViewModel>(cacheResult);
                 }
-                var store = await _unitOfWork.StoreRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId, x => x.User, x => x.Wallet!);
+                var store = await _unitOfWork.StoreRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId, x => x.User);
                 if (store is null) throw new BadRequestException($"Store with UserID-{request.UserId} is not exist!");
                 await _cacheService.SetAsync<Store>(CacheKey.STORE + request.UserId, store);
                 return _mapper.Map<StoreViewModel>(store);

@@ -11,9 +11,9 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Menus.Commands;
 
-public class CreateMenuCommand:IRequest<MenuViewModel>
+public class CreateMenuCommand : IRequest<List<MenuViewModel>>
 {
-    public MenuCreateModel CreateModel{get;set;}=default!;
+    public MenuCreateModel CreateModel { get; set; } = default!;
 
     public class CommmandValidation : AbstractValidator<CreateMenuCommand>
     {
@@ -25,13 +25,13 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
                 .WithMessage("StartTime must not null or empty");
             RuleFor(x => x.CreateModel.EndTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                 .WithMessage("EndTime must not null or empty");
-            RuleFor(x => x.CreateModel.DateFilter).NotNull().NotEmpty().WithMessage("DateFilter must not null or empty");
+            RuleFor(x => x.CreateModel.DatesApply).NotNull().NotEmpty().WithMessage("Date Apply must not null or empty");
             RuleFor(x => x.CreateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
             RuleFor(x => x.CreateModel.StoreId).NotNull().NotEmpty().WithMessage("StoreId must not null or empty");
         }
     }
 
-    public class CommandHandler : IRequestHandler<CreateMenuCommand, MenuViewModel>
+    public class CommandHandler : IRequestHandler<CreateMenuCommand, List<MenuViewModel>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -43,38 +43,42 @@ public class CreateMenuCommand:IRequest<MenuViewModel>
                 ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
-            _mapper=mapper;
-            _logger=logger;
-            _cacheService=cacheService;
+            _mapper = mapper;
+            _logger = logger;
+            _cacheService = cacheService;
         }
-        public async Task<MenuViewModel> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
+        public async Task<List<MenuViewModel>> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create Menu:\n");
 
-            var menu= _mapper.Map<Menu>(request.CreateModel);
-            menu.StartTime= TimeSpan.ParseExact(request.CreateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture);
-            menu.EndTime=TimeSpan.ParseExact(request.CreateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture);
-            if (menu.StartTime>=menu.EndTime) throw new BadRequestException("Start Time must higher than End Time");
-            if(!await CheckTime(menu)) throw new BadRequestException("Time is not valid!");
-
-
-            await _unitOfWork.MenuRepository.AddAsync(menu);
-            if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
-                await _cacheService.RemoveByPrefixAsync(CacheKey.MENU);
-            return _mapper.Map<MenuViewModel>(menu);
+            var listMenu = new List<Menu>();
+            for (int i = 0; i < request.CreateModel.DatesApply.Count; i++)
+            {
+                var menu = _mapper.Map<Menu>(request.CreateModel);
+                menu.StartTime = TimeSpan.ParseExact(request.CreateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture);
+                menu.EndTime = TimeSpan.ParseExact(request.CreateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture);
+                if (menu.StartTime >= menu.EndTime) throw new BadRequestException("Start Time must higher than End Time");
+                menu.DateApply = request.CreateModel.DatesApply[i];
+                if (!await CheckTime(menu)) throw new BadRequestException("Time is not valid!");
+                listMenu.Add(menu);
+            }
+            await _unitOfWork.MenuRepository.AddRangeAsync(listMenu);
+            if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
+            await _cacheService.RemoveByPrefixAsync(CacheKey.MENU);
+            return _mapper.Map<List<MenuViewModel>>(listMenu);
         }
 
-        private async Task<bool> CheckTime(Menu menu) 
+        private async Task<bool> CheckTime(Menu menu)
         {
             var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
-                                 x.StoreId == menu.StoreId);
-            
-            if(menus.Count==0) return true;
+                                 x.StoreId == menu.StoreId && x.DateApply == menu.DateApply);
+
+            if (menus.Count == 0) return true;
 
             foreach (var item in menus)
             {
-                if (item.StartTime <= menu.StartTime && item.EndTime > menu.StartTime) throw new BadRequestException($"Start time is duplicate with menu-{item.Id}" );
-                if (item.StartTime < menu.EndTime && item.EndTime >= menu.EndTime) throw new BadRequestException($"End time is duplicate with menu-{item.Id}" );
+                if (item.StartTime <= menu.StartTime && item.EndTime > menu.StartTime) throw new BadRequestException($"Start time is duplicate with menu-{item.Id} in {item.DateApply} ");
+                if (item.StartTime < menu.EndTime && item.EndTime >= menu.EndTime) throw new BadRequestException($"End time is duplicate with menu-{item.Id}  in {item.DateApply}");
             }
             return true;
         }

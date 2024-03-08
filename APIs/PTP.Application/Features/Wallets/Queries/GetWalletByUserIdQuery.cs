@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace PTP.Application.Features.Wallets.Queries
 {
-    public class GetWalletByUserIdQuery:IRequest<WalletViewModel>
+    public class GetWalletByUserIdQuery : IRequest<WalletViewModel>
     {
         public Guid UserId { get; set; } = default!;
 
@@ -43,15 +43,15 @@ namespace PTP.Application.Features.Wallets.Queries
             }
             public async Task<WalletViewModel> Handle(GetWalletByUserIdQuery request, CancellationToken cancellationToken)
             {
-                if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                var cacheResult = await _cacheService.GetByPrefixAsync<Wallet>(CacheKey.WALLET);
-                if (cacheResult!.Count > 0)
-                {
-                    return _mapper.Map<WalletViewModel>(cacheResult.Where(x => x.UserId == request.UserId));
-                }
+                // if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+                // var cacheResult = await _cacheService.GetByPrefixAsync<Wallet>(CacheKey.WALLET);
+                // if (cacheResult!.Count > 0)
+                // {
+                //     return _mapper.Map<WalletViewModel>(cacheResult.FirstOrDefault(x => x.UserId == request.UserId));
+                // }
                 var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId, x => x.Transactions, x => x.WalletLogs);
                 if (wallet is null) throw new BadRequestException($"User-{request.UserId} is not exist any Wallet!");
-                await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
+                // await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
                 return _mapper.Map<WalletViewModel>(wallet);
             }
         }
