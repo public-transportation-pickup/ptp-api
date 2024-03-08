@@ -8,15 +8,15 @@ using PTP.Application.ViewModels.ProductMenus;
 using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.ProductMenus.Commands;
-public class UpdateProductMenuCommand:IRequest<bool>
+public class UpdateProductMenuCommand : IRequest<bool>
 {
-    public ProductMenuUpdateModel UpdateModel{get;set;}=default!;
+    public ProductMenuUpdateModel UpdateModel { get; set; } = default!;
     public class CommmandValidation : AbstractValidator<UpdateProductMenuCommand>
     {
         public CommmandValidation()
         {
             RuleFor(x => x.UpdateModel.Id).NotNull().NotEmpty().WithMessage("Id must not null or empty");
-            RuleFor(x => x.UpdateModel.ActualPrice).GreaterThan(0).NotNull().NotEmpty().WithMessage("Name must not null or empty");
+            RuleFor(x => x.UpdateModel.SalePrice).GreaterThan(0).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.UpdateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
         }
     }
@@ -33,28 +33,29 @@ public class UpdateProductMenuCommand:IRequest<bool>
                 IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _cacheService=cacheService;
-            _logger=logger;
-            _mapper=mapper;
+            _cacheService = cacheService;
+            _logger = logger;
+            _mapper = mapper;
         }
 
         public async Task<bool> Handle(UpdateProductMenuCommand request, CancellationToken cancellationToken)
         {
-             _logger.LogInformation("Update ProductMenu:\n");
+            _logger.LogInformation("Update ProductMenu:\n");
             //Remove From Cache       
-            
+
             var productMenu = await _unitOfWork.ProductInMenuRepository.GetByIdAsync(request.UpdateModel.Id);
-            if(productMenu is null ) throw new NotFoundException($"ProductMenu with Id-{request.UpdateModel.Id} is not exist!");
-            
-            productMenu= _mapper.Map(request.UpdateModel,productMenu);
+            if (productMenu is null) throw new NotFoundException($"ProductMenu with Id-{request.UpdateModel.Id} is not exist!");
+
+            productMenu = _mapper.Map(request.UpdateModel, productMenu);
 
             _unitOfWork.ProductInMenuRepository.Update(productMenu);
-            var result= await _unitOfWork.SaveChangesAsync();
-            if(result){
-                if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result)
+            {
+                if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
                 await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
             }
             return result;
         }
-    }    
+    }
 }

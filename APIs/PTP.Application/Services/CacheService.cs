@@ -65,7 +65,7 @@ namespace PTP.Infrastructure.Caching
             throw new NotImplementedException();
         }
 
-        public bool IsConnected() => _distributedCache == null ? true : false;
+        public bool IsConnected() => _distributedCache != null ? true : false;
 
 
         public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)

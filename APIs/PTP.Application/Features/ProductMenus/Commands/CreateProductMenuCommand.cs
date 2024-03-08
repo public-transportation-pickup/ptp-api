@@ -10,15 +10,15 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.ProductMenus.Commands;
 
-public class CreateProductMenuCommand:IRequest<ProductMenuViewModel>
+public class CreateProductMenuCommand : IRequest<ProductMenuViewModel>
 {
-    public ProductMenuCreateModel CreateModel{get;set;}=default!;
+    public ProductMenuCreateModel CreateModel { get; set; } = default!;
 
     public class CommmandValidation : AbstractValidator<CreateProductMenuCommand>
     {
         public CommmandValidation()
         {
-            RuleFor(x => x.CreateModel.ActualPrice).GreaterThan(0).NotNull().NotEmpty().WithMessage("ActualPrice must not null or empty");
+            RuleFor(x => x.CreateModel.SalePrice).GreaterThan(0).NotNull().NotEmpty().WithMessage("ActualPrice must not null or empty");
             RuleFor(x => x.CreateModel.ProductId).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.CreateModel.MenuId).NotNull().NotEmpty().WithMessage("Description must not null or empty");
             RuleFor(x => x.CreateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
@@ -36,18 +36,18 @@ public class CreateProductMenuCommand:IRequest<ProductMenuViewModel>
                 ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
-            _mapper=mapper;
-            _logger=logger;
-            _cacheService=cacheService;
+            _mapper = mapper;
+            _logger = logger;
+            _cacheService = cacheService;
         }
         public async Task<ProductMenuViewModel> Handle(CreateProductMenuCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create ProductMenu:\n");
-            var productMenu= _mapper.Map<ProductInMenu>(request.CreateModel);
+            var productMenu = _mapper.Map<ProductInMenu>(request.CreateModel);
 
             await _unitOfWork.ProductInMenuRepository.AddAsync(productMenu);
-            if( !await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
-                await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
+            if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
+            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
             return _mapper.Map<ProductMenuViewModel>(productMenu);
         }
     }

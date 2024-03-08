@@ -39,11 +39,12 @@ public class AddAccountBalanceCommand : AddAccountBalanceModel, IRequest<bool>
                 var walletLog = new
                 WalletLog
                 {
-                    Amount =  request.Amount,
+                    Amount = request.Amount,
                     Source = request.Source,
                     Type = nameof(WalletLogTypeEnum.Deposit),
                     WalletId = currentUser.Wallet.Id
                 };
+                unitOfWork.WalletRepository.Update(currentUser.Wallet);
                 await unitOfWork.WalletLogRepository.AddAsync(walletLog);
                 return await unitOfWork.SaveChangesAsync();
             }

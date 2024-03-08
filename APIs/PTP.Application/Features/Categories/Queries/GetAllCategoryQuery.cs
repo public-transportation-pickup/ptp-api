@@ -11,18 +11,18 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Categories.Queries;
 
-public class GetAllCategoryQuery:IRequest<PaginatedList<CategoryViewModel>>
+public class GetAllCategoryQuery : IRequest<PaginatedList<CategoryViewModel>>
 {
 
     public Dictionary<string, string>? Filter { get; set; } = new();
-    public int PageNumber{get;set;}
-    public int PageSize{get;set;}
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
     public class QueryHandler : IRequestHandler<GetAllCategoryQuery, PaginatedList<CategoryViewModel>>
     {
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ICacheService  _cacheService;
+        private readonly ICacheService _cacheService;
         private ILogger<QueryHandler> logger;
 
         public QueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService, ILogger<QueryHandler> logger)
@@ -38,49 +38,49 @@ public class GetAllCategoryQuery:IRequest<PaginatedList<CategoryViewModel>>
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
 
-            var cacheResult= await GetCache(request);
-            if(cacheResult is not null) return cacheResult;
+            var cacheResult = await GetCache(request);
+            if (cacheResult is not null) return cacheResult;
 
             var cates = await _unitOfWork.CategoryRepository.GetAllAsync();
             if (cates.Count == 0) throw new NotFoundException("There are no category in DB!");
             await _cacheService.SetByPrefixAsync<Category>(CacheKey.CATE, cates);
-            var viewModels= _mapper.Map<IEnumerable<CategoryViewModel>>(cates);
+            var viewModels = _mapper.Map<IEnumerable<CategoryViewModel>>(cates);
             var filterResult = request.Filter.Count > 0 ? new List<CategoryViewModel>() : viewModels;
 
-            if(request.Filter!.Count>0)
+            if (request.Filter!.Count > 0)
             {
-                foreach(var filter in request.Filter) 
+                foreach (var filter in request.Filter)
                 {
-                    filterResult=filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
+                    filterResult = filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
                 }
             }
-            
+
             return PaginatedList<CategoryViewModel>.Create(
-                    source:filterResult.AsQueryable(),
-                    pageIndex:request.PageNumber,
-                    pageSize:request.PageSize
+                    source: filterResult.AsQueryable(),
+                    pageIndex: request.PageNumber,
+                    pageSize: request.PageSize
             );
         }
         public async Task<PaginatedList<CategoryViewModel>?> GetCache(GetAllCategoryQuery request)
         {
-            
-            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             var cacheResult = await _cacheService.GetByPrefixAsync<Category>(CacheKey.CATE);
             if (cacheResult!.Count > 0)
             {
-                var cacheViewModels= _mapper.Map<IEnumerable<CategoryViewModel>>(cacheResult);
-                var filterRe= request.Filter!.Count > 0 ? new List<CategoryViewModel>(): cacheViewModels;
-                if(request.Filter!.Count>0)
+                var cacheViewModels = _mapper.Map<IEnumerable<CategoryViewModel>>(cacheResult);
+                var filterRe = request.Filter!.Count > 0 ? new List<CategoryViewModel>() : cacheViewModels;
+                if (request.Filter!.Count > 0)
                 {
-                    foreach(var filter in request.Filter) 
+                    foreach (var filter in request.Filter)
                     {
-                        filterRe=filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
+                        filterRe = filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
                     }
-                }               
+                }
                 return PaginatedList<CategoryViewModel>.Create(
                         source: filterRe.AsQueryable(),
-                        pageIndex:request.PageNumber,
-                        pageSize:request.PageSize
+                        pageIndex: request.PageNumber,
+                        pageSize: request.PageSize
                 );
             }
             return null;

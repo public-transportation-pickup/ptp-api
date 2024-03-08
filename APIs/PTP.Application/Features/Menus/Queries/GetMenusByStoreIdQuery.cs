@@ -12,12 +12,10 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Menus.Queries;
 
-public class GetMenusByStoreId:IRequest<PaginatedList<MenuViewModel>>
+public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
 {
     public Guid StoreId { get; set; } = default!;
-    public Dictionary<string, string>? Filter { get; set; } = default!;
-    public int PageNumber{get;set;}
-    public int PageSize{get;set;}
+    public DateTime DateApply { get; set; } = default!;
 
     public class QueryValidation : AbstractValidator<GetMenusByStoreId>
     {
@@ -27,7 +25,7 @@ public class GetMenusByStoreId:IRequest<PaginatedList<MenuViewModel>>
         }
     }
 
-     public class QueryHandler : IRequestHandler<GetMenusByStoreId, PaginatedList<MenuViewModel>>
+    public class QueryHandler : IRequestHandler<GetMenusByStoreId, IEnumerable<MenuViewModel>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -41,60 +39,34 @@ public class GetMenusByStoreId:IRequest<PaginatedList<MenuViewModel>>
             _cacheService = cacheService;
             _logger = logger;
         }
-        public async Task<PaginatedList<MenuViewModel>> Handle(GetMenusByStoreId request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MenuViewModel>> Handle(GetMenusByStoreId request, CancellationToken cancellationToken)
         {
-            request.Filter!.Remove("pageSize");
-            request.Filter!.Remove("pageNumber");
-            var cacheResult= await GetCache(request);
-            if(cacheResult is not null) return cacheResult;
+            var cacheResult = await GetCache(request);
+            if (cacheResult is not null) return cacheResult;
 
-            var menus = await _unitOfWork.MenuRepository.WhereAsync(x=>x.StoreId==request.StoreId,x=>x.Store);
+            var menus = await _unitOfWork.MenuRepository
+                    .WhereAsync(x => x.StoreId == request.StoreId && x.DateApply == request.DateApply);
             if (menus is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any menus!");
             await _cacheService.SetByPrefixAsync<Menu>(CacheKey.MENU, menus);
-            var viewModels= _mapper.Map<IEnumerable<MenuViewModel>>(menus);
-            var filterResult = request.Filter.Count > 0 ? new List<MenuViewModel>() : viewModels;
+            var viewModels = _mapper.Map<IEnumerable<MenuViewModel>>(menus);
+            return viewModels.OrderByDescending(x => x.StartTime);
 
-            if(request.Filter!.Count>0)
-            {
-                foreach(var filter in request.Filter) 
-                {
-                    filterResult=filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
-                }
-            }
-            
-            return PaginatedList<MenuViewModel>.Create(
-                        source:filterResult.AsQueryable(),
-                        pageIndex:request.PageNumber,
-                        pageSize:request.PageSize
-                );
         }
 
-        public async Task<PaginatedList<MenuViewModel>?> GetCache(GetMenusByStoreId request)
-            {
-                
-                if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+        public async Task<IEnumerable<MenuViewModel>?> GetCache(GetMenusByStoreId request)
+        {
 
-                var cacheResult = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
-                if (cacheResult!.Count > 0)
-                {
-                    var result = cacheResult.Where(x => x.StoreId == request.StoreId);
-                    if(result == null) return null;
-                    var cacheViewModels= _mapper.Map<IEnumerable<MenuViewModel>>(result);   
-                    var filterRe= request.Filter!.Count > 0 ? new List<MenuViewModel>(): cacheViewModels;
-                    if(request.Filter!.Count>0)
-                    {
-                        foreach(var filter in request.Filter) 
-                        {
-                            filterRe=filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
-                        }
-                    }               
-                    return PaginatedList<MenuViewModel>.Create(
-                            source: filterRe.AsQueryable(),
-                            pageIndex:request.PageNumber,
-                            pageSize:request.PageSize
-                    );
-                }
-                return null;
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+
+            var cacheResult = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
+            if (cacheResult!.Count > 0)
+            {
+                var result = cacheResult.Where(x => x.StoreId == request.StoreId && x.DateApply.ToShortDateString() == request.DateApply.ToString());
+                if (result == null) return null;
+                var cacheViewModels = _mapper.Map<IEnumerable<MenuViewModel>>(result);
+                return cacheViewModels;
             }
+            return null;
+        }
     }
 }
