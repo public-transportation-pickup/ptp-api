@@ -19,14 +19,16 @@ public class StationsController : BaseController
     /// </summary>
     /// <param name="pageNumber">Default 0</param>
     /// <param name="filter">"key" - "value"</param>
+    /// <param name="pageSize">Default 100</param>
     /// Case sensitive dành cho filter, Ex: "Name" : "Trời ơi"
     /// <returns></returns>
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> Get( [FromQuery] Dictionary<string, string> filter,[FromQuery] int pageNumber = 0)
-        => Ok(await mediator.Send(new GetAllStationQuery { Filter = filter, PageNumber = pageNumber }));
+    public async Task<IActionResult> Get([FromQuery] Dictionary<string, string> filter, [FromQuery] int pageNumber = 0,
+        [FromQuery] int pageSize = 100)
+        => Ok(await mediator.Send(new GetAllStationQuery { Filter = filter, PageNumber = pageNumber, PageSize = pageSize }));
 
     /// <summary>
     ///  Lấy thông tin một trạm theo Id
@@ -97,7 +99,7 @@ public class StationsController : BaseController
     [HttpGet("/api/route-vars/{routeVarId}/stations")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.InternalServerError )]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     public async Task<IActionResult> GetStationByRouteVarId(Guid routeVarId)
     {
         return Ok(await mediator.Send(new GetAllStationByRouteIdQuery { Id = routeVarId }));

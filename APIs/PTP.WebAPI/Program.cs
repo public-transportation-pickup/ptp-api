@@ -38,7 +38,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-ApplyMigration();
+//ApplyMigration();
 app.MapControllers();
 
 app.Run();
