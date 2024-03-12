@@ -96,6 +96,7 @@ public static class DependencyInjection
 						});
 					});
 
+
 		var key = Encoding.ASCII.GetBytes(configuration.JWTOptions.Secret);
 		builder.Services.AddAuthentication(x =>
 		{
