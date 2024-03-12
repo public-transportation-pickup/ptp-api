@@ -84,14 +84,17 @@ public static class SqlQueriesStorage
 	public const string GET_TRIP_BY_TIMETABLEID = @"SELECT t.Id,tt.ApplyDates, t.[Name], t.StartTime, t.EndTime, t.[Status] 
                                                     FROM TimeTables tt JOIN Trip t
                                                     ON t.TimeTableId = tt.Id
-                                                    WHERE tt.Id = @timeTableId AND t.IsDeleted = 0";
+                                                    WHERE tt.Id = @timeTableId AND t.IsDeleted = 0
+                                                    ORDER BY t.StartTime";
 
 	/// <summary>
 	/// Get Trip Schedule by TripId
 	/// </summary>
 	public const string GET_TRIP_SCHEDULE_BY_ID = @"SELECT rs.[Index] ,rs.DistanceFromStart, rs.DistanceToNext, rs.DurationFromStart, 
                                                     rs.DurationToNext, s.[Name] AS StationName,
-                                                    DATEADD(MINUTE, rs.DurationFromStart, PARSE(t.StartTime AS time)) AS ArrivalTime
+                                                    DATEADD(MINUTE, rs.DurationFromStart, PARSE(t.StartTime AS time)) AS ArrivalTime,
+                                                    rs.StationId AS StationId,
+                                                    s.StoreId AS StoreId
                                                     FROM RouteStation rs
                                                     JOIN Station s
                                                     ON s.Id = rs.StationId 

@@ -89,7 +89,7 @@ public class BusRouteService : IBusRouteService
 			foreach (var timeTable in timeTables)
 			{
 				var tripModels = await getTripModels(routeId, timeTable.TimeTableId);
-				var timeTablee = await _unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.TimeTableId == timeTable.TimeTableId) ?? throw new Exception($"Error At {timeTable.TimeTableId} || {timeTable.Id}");
+				var timeTablee = await _unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.Id == timeTable.Id) ?? throw new Exception($"Error At {timeTable.TimeTableId} || {timeTable.Id}");
 				var trips = tripModels.ConvertAll(x => new Trip
 				{
 					TimeTableId = timeTablee.Id,
