@@ -17,9 +17,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddWebAPIServices();
 
 
-Log.Logger = new LoggerConfiguration()
-	.ReadFrom.Configuration(builder.Configuration)
-	.CreateLogger();
+//Log.Logger = new LoggerConfiguration()
+//	.ReadFrom.Configuration(builder.Configuration)
+//	.CreateLogger();
 
 
 
