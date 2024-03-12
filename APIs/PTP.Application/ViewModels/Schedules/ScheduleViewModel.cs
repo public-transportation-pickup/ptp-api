@@ -10,5 +10,7 @@ public class ScheduleViewModel
     public decimal DurationToNext { get; set; } = default!;
     public string StationName { get; set; } = default!;
     public TimeSpan ArrivalTime { get; set; } = default!;
+    public Guid? StoreId { get; set; }
+    public Guid StationId { get; set; }
 
 }

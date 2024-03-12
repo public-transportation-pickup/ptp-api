@@ -9,7 +9,7 @@ namespace PTP.Application.Features.Stations.Queries;
 public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
 {
     public Dictionary<string, string> Filter { get; set; } = new();
-    public int PageNumber { get; set; } = 0;
+    public int PageNumber { get; set; } = -1;
     public int PageSize { get; set; } = 100;
     public class QueryHandler : IRequestHandler<GetAllStationQuery, PaginatedList<StationViewModel>>
     {
@@ -39,8 +39,8 @@ public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
 
             return PaginatedList<StationViewModel>.Create(
                 source: filterResult.AsQueryable(),
-                pageIndex: request.PageNumber,
-                pageSize: request.PageSize
+                pageIndex: request.PageNumber >= 0 ? 0 : request.PageNumber,
+                pageSize: request.PageNumber >= 0 ? request.PageSize : filterResult.Count()
             );
         }
     }

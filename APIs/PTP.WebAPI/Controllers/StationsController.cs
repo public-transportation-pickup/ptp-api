@@ -26,7 +26,7 @@ public class StationsController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] Dictionary<string, string> filter, [FromQuery] int pageNumber = 0,
+    public async Task<IActionResult> Get([FromQuery] Dictionary<string, string> filter, [FromQuery] int pageNumber = -1,
         [FromQuery] int pageSize = 100)
         => Ok(await mediator.Send(new GetAllStationQuery { Filter = filter, PageNumber = pageNumber, PageSize = pageSize }));
 

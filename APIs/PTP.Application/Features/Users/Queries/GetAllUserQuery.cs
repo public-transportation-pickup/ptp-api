@@ -9,7 +9,7 @@ namespace PTP.Application.Features.Users.Queries;
 public class GetAllUserQueryModel
 {
     public Dictionary<string, string> Filter { get; set; } = default!;
-    public int PageNumber { get; set; } = 0;
+    public int PageNumber { get; set; } = -1;
 }
 public class GetAllUserQuery : GetAllUserQueryModel, IRequest<PaginatedList<UserViewModel>?>
 {
@@ -44,8 +44,8 @@ public class GetAllUserQuery : GetAllUserQueryModel, IRequest<PaginatedList<User
             else returnResult = result.ToList();
             return PaginatedList<UserViewModel>.Create(
                 source: returnResult.AsQueryable(),
-                pageIndex: request.PageNumber,
-                pageSize: 10
+                pageIndex: request.PageNumber >= 0 ? request.PageNumber : 0,
+                pageSize: request.PageNumber >= 0 ? 100 : returnResult.Count
             );
         }
     }
