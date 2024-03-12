@@ -10,9 +10,9 @@ using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Products.Commands;
 
-public class UpdateProductCommand:IRequest<bool>
+public class UpdateProductCommand : IRequest<bool>
 {
-    public ProductUpdateModel UpdateModel{get;set;}=default!;
+    public ProductUpdateModel UpdateModel { get; set; } = default!;
 
     public class CommmandValidation : AbstractValidator<UpdateProductCommand>
     {
@@ -44,25 +44,26 @@ public class UpdateProductCommand:IRequest<bool>
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
-            _appSettings=appSettings;
-            _cacheService=cacheService;
+            _appSettings = appSettings;
+            _cacheService = cacheService;
         }
 
         public async Task<bool> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
             //Remove From Cache
-            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
 
             var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.UpdateModel.Id);
-            if(product is null ) throw new NotFoundException($"product with Id-{request.UpdateModel.Id} is not exist!");
-            product = _mapper.Map(request.UpdateModel,product);
+            if (product is null) throw new NotFoundException($"product with Id-{request.UpdateModel.Id} is not exist!");
+            product = _mapper.Map(request.UpdateModel, product);
 
-            if (request.UpdateModel.Image is not null){
+            if (request.UpdateModel.Image is not null)
+            {
                 await product.ImageName.RemoveFileAsync(FolderKey.PRODUCT, appSettings: _appSettings);
-                var image = await request.UpdateModel.Image!.UploadFileAsync(FolderKey.PRODUCT,_appSettings);
-                product.ImageName=image.FileName;
-                product.ImageURL=image.URL;
+                var image = await request.UpdateModel.Image!.UploadFileAsync(FolderKey.PRODUCT, _appSettings);
+                product.ImageName = image.FileName;
+                product.ImageURL = image.URL;
             }
 
 

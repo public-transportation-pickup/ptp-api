@@ -12,6 +12,7 @@ public class Order : BaseEntity
 	public string? CanceledReason { get; set; }
 	public string Status { get; set; } = nameof(OrderStatusEnum.Waiting)!;
 	[Precision(18, 2)]
+	public Guid MenuId { get; set; }
 
 	#region Relationship Configuration
 	public Guid UserId { get; set; }

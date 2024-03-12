@@ -77,6 +77,7 @@ public class ProductsController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpDelete("{id}")]
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _mediator.Send(new DeleteProductCommand { Id = id });

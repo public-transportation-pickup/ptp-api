@@ -124,6 +124,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         private void AutoApprove(Guid orderId, DateTime pickUpTime)
 
         {
+            var now = DateTime.Now;
             var timeGap = pickUpTime - DateTime.Now;
             if (timeGap.Minutes > 0 && timeGap.Minutes < 10)
             {
@@ -140,7 +141,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
 
         }
 
-        private async Task BackgroundJob(Guid orderId)
+        public async Task BackgroundJob(Guid orderId)
         {
             var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
             if (order == null) throw new BadRequestException($"Order- {orderId} is not found!");

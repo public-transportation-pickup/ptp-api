@@ -34,7 +34,7 @@ public class DeleteCategoryCommand:IRequest<bool>
         public async Task<bool> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
             //Remove From Cache
-            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             await _cacheService.RemoveAsync(CacheKey.CATE+request.Id);
             
             var cate = await _unitOfWork.CategoryRepository.GetByIdAsync(request.Id);

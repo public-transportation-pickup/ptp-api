@@ -37,7 +37,7 @@ public class DeleteStoreCommand:IRequest<bool>
         public async Task<bool> Handle(DeleteStoreCommand request, CancellationToken cancellationToken)
         {
             //Remove From Cache
-            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             await _cacheService.RemoveAsync(CacheKey.STORE+request.Id);
 
             var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.Id);

@@ -10,16 +10,16 @@ using PTP.Domain.Enums;
 
 namespace PTP.WebAPI.Controllers;
 
-public class OrderController:BaseController
+public class OrderController : BaseController
 {
     public readonly IMediator _mediator;
 
     public OrderController(IMediator mediator)
     {
-        _mediator=mediator;
+        _mediator = mediator;
     }
 
-     #region Queries
+    #region Queries
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
@@ -29,29 +29,34 @@ public class OrderController:BaseController
     #endregion
 
     #region Commands
-    [Authorize(Roles = nameof(RoleEnum.Customer))]    
     [ProducesResponseType((int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost]
-    public async Task<IActionResult> Create(OrderCreateModel model){
-        var result=  await _mediator.Send(new CreateOrderCommand { CreateModel=model });
-        if(result is null){
+    [Authorize(Roles = (nameof(RoleEnum.Customer)))]
+    public async Task<IActionResult> Create(OrderCreateModel model)
+    {
+        var result = await _mediator.Send(new CreateOrderCommand { CreateModel = model });
+        if (result is null)
+        {
             return BadRequest("Create Fail!");
         }
-        return CreatedAtAction(nameof(GetById),new {Id=result.Id},result);
+        return CreatedAtAction(nameof(GetById), new { Id = result.Id }, result);
     }
- 
+
 
 
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id,OrderUpdateModel model){
-        if(id!=model.Id) return BadRequest("Id is not match!");
-        var result=  await _mediator.Send(new UpdateOrderCommand { UpdateModel=model});
-        if(!result){
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
+    public async Task<IActionResult> Update(Guid id, OrderUpdateModel model)
+    {
+        if (id != model.Id) return BadRequest("Id is not match!");
+        var result = await _mediator.Send(new UpdateOrderCommand { UpdateModel = model });
+        if (!result)
+        {
             return BadRequest("Update Fail!");
         }
         return NoContent();

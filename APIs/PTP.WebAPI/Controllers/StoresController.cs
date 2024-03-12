@@ -117,6 +117,7 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpPut("{id}")]
+		[Authorize(Roles = (nameof(RoleEnum.Admin)))]
 		public async Task<IActionResult> Update(Guid id, [FromForm] StoreUpdateModel model)
 		{
 			if (id != model.Id) return BadRequest("Id is not match!");
@@ -132,6 +133,7 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpDelete("{id}")]
+		[Authorize(Roles = (nameof(RoleEnum.Admin)))]
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			var result = await _mediator.Send(new DeleteStoreCommand { Id = id });

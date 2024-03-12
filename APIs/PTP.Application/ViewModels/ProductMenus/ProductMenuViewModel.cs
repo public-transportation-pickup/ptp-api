@@ -5,8 +5,8 @@ public class ProductMenuViewModel
     public Guid Id { get; set; }
     public string Status { get; set; } = default!;
     public decimal SalePrice { get; set; } = 0;
-    // public int QuantityInDay { get; set; }
-    // public int QuantityUsed { get; set; } = 0;
+    public int QuantityInDay { get; set; }
+    public int QuantityUsed { get; set; }
 
     public DateTime CreationDate { get; set; }
     public Guid MenuId { get; set; }
