@@ -9,6 +9,8 @@ public class Menu : BaseEntity
 	public TimeSpan StartTime { get; set; } = default!;
 	public TimeSpan EndTime { get; set; } = default!;
 	public DateTime DateApply { get; set; } = default!;
+	public int NumOrderEstimated { get; set; }
+	public int NumOrderSold { get; set; } = 0;
 	public string Status { get; set; } = nameof(DefaultStatusEnum.Active);
 
 	#region Relationship Configuration

@@ -2,18 +2,11 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using PTP.Application.Features.Categories.Commands;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Orders;
 using PTP.Domain.Entities;
 using PTP.Domain.Enums;
-using PTP.Domain.Globals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PTP.Application.Features.Orders.Commands
 {
@@ -49,27 +42,69 @@ namespace PTP.Application.Features.Orders.Commands
             public async Task<bool> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
             {
                 _logger.LogInformation("Update Order:\n");
-                //Remove From Cache       
 
                 var order = await _unitOfWork.OrderRepository.GetByIdAsync(request.UpdateModel.Id);
                 if (order is null) throw new NotFoundException($"Order with Id-{request.UpdateModel.Id} is not exist!");
 
-                if (request.UpdateModel.Status.Equals(nameof(OrderStatusEnum.Canceled)))
+                var status = request.UpdateModel.Status;
+                switch (status)
                 {
-                    await CancelOrder(order);
+                    case nameof(OrderStatusEnum.Preparing):
+                        order = PreparingState(order);
+                        break;
+                    case nameof(OrderStatusEnum.Prepared):
+                        order = PreparedState(order);
+                        break;
+                    case nameof(OrderStatusEnum.Completed):
+                        order = CompletedState(order);
+                        break;
+                    case nameof(OrderStatusEnum.PickUpTimeOut):
+
+                        break;
+                    case nameof(OrderStatusEnum.StoreCanceled):
+
+                        break;
+                    case nameof(OrderStatusEnum.CustomerCanceled):
+                        order = await CustomerCancelOrder(order);
+                        break;
                 }
-                order = _mapper.Map(request.UpdateModel, order);
+
 
                 _unitOfWork.OrderRepository.Update(order);
                 var result = await _unitOfWork.SaveChangesAsync();
                 return result;
             }
-
-            private async Task CancelOrder(Order order)
+            private Order PreparingState(Order order)
             {
-                if (!order.Status.Equals("Payed") || !order.Status.Equals("Confirmed"))
-                    throw new BadRequestException("Order can be cancel when status is Payed or Confirmed");
+                if (!order.Status.Equals("Waiting"))
+                    throw new BadRequestException("Order can update to preparing when status is Preparing!");
+                order.Status = nameof(OrderStatusEnum.Preparing);
+                return order;
+            }
+
+            private Order PreparedState(Order order)
+            {
+                if (!order.Status.Equals("Preparing"))
+                    throw new BadRequestException("Order can update to preparing when status is Waiting!");
+                order.Status = nameof(OrderStatusEnum.Prepared);
+                return order;
+            }
+
+            private Order CompletedState(Order order)
+            {
+                if (!order.Status.Equals("Prepared"))
+                    throw new BadRequestException("Order can update to preparing when status is Prepared!");
+                order.Status = nameof(OrderStatusEnum.Completed);
+                return order;
+            }
+
+            private async Task<Order> CustomerCancelOrder(Order order)
+            {
+                if (!order.Status.Equals("Waiting"))
+                    throw new BadRequestException("Order can cancel when status is Waiting!");
+                order.Status = nameof(OrderStatusEnum.CustomerCanceled);
                 await CreateTransaction(order);
+                return order;
             }
             private async Task CreateTransaction(Order order)
             {

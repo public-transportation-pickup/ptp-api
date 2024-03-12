@@ -1,5 +1,15 @@
 {
+  
   "profiles": {
+    "Production": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "ASPNETCORE_APIURL": "http://ptp-application.com/"
+      }
+    },
     "http": {
       "commandName": "Project",
       "launchBrowser": true,

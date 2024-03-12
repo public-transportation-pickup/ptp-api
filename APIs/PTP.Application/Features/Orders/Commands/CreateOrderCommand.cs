@@ -1,5 +1,6 @@
 using AutoMapper;
 using FluentValidation;
+using Hangfire;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
@@ -38,13 +39,20 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
 
     public class CommandHandler : IRequestHandler<CreateOrderCommand, OrderViewModel>
     {
+        private readonly IBackgroundJobClient _backgroundJob;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private ILogger<CommandHandler> _logger;
         private readonly IClaimsService _claimsService;
         private readonly ICacheService _cacheService;
-        public CommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CommandHandler> logger, IClaimsService claimsService, ICacheService cacheService)
+        public CommandHandler(IUnitOfWork unitOfWork,
+                            IMapper mapper,
+                            ILogger<CommandHandler> logger,
+                            IClaimsService claimsService,
+                            ICacheService cacheService,
+                            IBackgroundJobClient backgroundJob)
         {
+            _backgroundJob = backgroundJob;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
@@ -57,23 +65,92 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         public async Task<OrderViewModel> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Create Order:\n");
-            //TimeSpan.TryParseExact(request.CreateModel.PickUpTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan pickUpTime);
-            //if (pickUpTime < DateTime.Now.TimeOfDay) throw new BadRequestException("PickUp time is invalid!");
+            await CheckMenu(request.CreateModel.MenuId);
+
+            var productInMenus = await CheckProductInStock(request.CreateModel.OrderDetails);
+
             var order = _mapper.Map<Order>(request.CreateModel);
             order.UserId = _claimsService.GetCurrentUser;
             await CreateOrderDetail(order.Id, request.CreateModel.OrderDetails);
             order.PaymentId = await CreatePayment(order.Id, request.CreateModel.Payment);
             await CreateTransaction(order);
             await _unitOfWork.OrderRepository.AddAsync(order);
+            _unitOfWork.ProductInMenuRepository.UpdateRange(productInMenus);
             if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
+            AutoApprove(order.Id, order.PickUpTime);
             return _mapper.Map<OrderViewModel>(order);
         }
 
-        // private async Task CheckProductInStock(List<OrderDetailCreateModel> models)
-        // {
-        //     var ids = models.Select(x => x.ProductMenuId);
-        //     var productInMenus = await _unitOfWork.ProductInMenuRepository.WhereAsync(x => ids.Contains(x.Id));
-        // }
+        private async Task CheckMenu(Guid menuId)
+        {
+            var menu = await _unitOfWork.MenuRepository.GetByIdAsync(menuId);
+            var quantityAfterCreate = menu!.NumOrderSold + 1;
+            if (quantityAfterCreate > menu.NumOrderEstimated)
+                throw new BadRequestException("The quantity allowed in the menu has been exceeded!");
+            else if (menu!.NumOrderEstimated == quantityAfterCreate)
+            {
+                menu.NumOrderSold = quantityAfterCreate;
+                menu.Status = MenuEnum.INACTIVE.ToString();
+            }
+            else
+            {
+                menu.NumOrderSold = quantityAfterCreate;
+            }
+            _unitOfWork.MenuRepository.Update(menu);
+        }
+
+        private async Task<List<ProductInMenu>> CheckProductInStock(List<OrderDetailCreateModel> models)
+        {
+            var ids = models.Select(x => x.ProductMenuId);
+            var productInMenus = await _unitOfWork.ProductInMenuRepository.WhereAsync(x => ids.Contains(x.Id), x => x.Product);
+            for (int i = 0; i < models.Count; i++)
+            {
+                if (models[i].Quantity > (productInMenus[i].QuantityInDay - productInMenus[i].QuantityUsed))
+                    throw new BadRequestException($"Product - {productInMenus[i].Product.Name} is not enough in stock!");
+
+                else if ((models[i].Quantity - (productInMenus[i].QuantityInDay - productInMenus[i].QuantityUsed)) == 0)
+                {
+                    productInMenus[i].QuantityUsed += models[i].Quantity;
+                    productInMenus[i].Status = ProductInMenuStatusEnum.INACTIVE.ToString();
+                }
+                else
+                {
+                    productInMenus[i].QuantityUsed += models[i].Quantity;
+                }
+            }
+            return productInMenus;
+        }
+
+        private void AutoApprove(Guid orderId, DateTime pickUpTime)
+
+        {
+            var timeGap = pickUpTime - DateTime.Now;
+            if (timeGap.Minutes > 0 && timeGap.Minutes < 10)
+            {
+                _backgroundJob.Schedule(() => BackgroundJob(orderId), TimeSpan.FromMinutes(2));
+            }
+            else if (timeGap.Minutes > 10 && timeGap.Minutes < 30)
+            {
+                _backgroundJob.Schedule(() => BackgroundJob(orderId), TimeSpan.FromMinutes(5));
+            }
+            else
+            {
+                _backgroundJob.Schedule(() => BackgroundJob(orderId), TimeSpan.FromMinutes(10));
+            }
+
+        }
+
+        private async Task BackgroundJob(Guid orderId)
+        {
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
+            if (order == null) throw new BadRequestException($"Order- {orderId} is not found!");
+            if (order.Status == nameof(OrderStatusEnum.Waiting))
+            {
+                order.Status = OrderStatusEnum.Preparing.ToString();
+                _unitOfWork.OrderRepository.Update(order);
+                if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
+            }
+        }
 
         private async Task CreateOrderDetail(Guid orderId, List<OrderDetailCreateModel> models)
         {

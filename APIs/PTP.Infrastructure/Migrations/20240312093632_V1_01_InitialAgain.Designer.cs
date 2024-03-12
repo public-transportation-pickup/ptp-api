@@ -12,8 +12,8 @@ using PTP.Infrastructure;
 namespace PTP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240308145733_V3_01_Update_Menu_StoreUser")]
-    partial class V3_01_Update_Menu_StoreUser
+    [Migration("20240312093632_V1_01_InitialAgain")]
+    partial class V1_01_InitialAgain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,6 +105,12 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NumOrderEstimated")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumOrderSold")
+                        .HasColumnType("int");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -373,6 +379,12 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("QuantityInDay")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityUsed")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("SalePrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -422,33 +434,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("dab012ba-9a4d-409e-8634-af869b8e0138"),
+                            Id = new Guid("0402bdbe-8342-4cdf-a207-2be4f5a84b37"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 3, 8, 21, 57, 33, 292, DateTimeKind.Local).AddTicks(4318),
+                            CreationDate = new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7031),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("4749a8a8-28a0-4a69-a484-88634e20b514"),
+                            Id = new Guid("334097d2-e8d0-42b0-894f-0621863f0ebc"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 3, 8, 21, 57, 33, 292, DateTimeKind.Local).AddTicks(4345),
+                            CreationDate = new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7066),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("2fa9de53-d895-4435-986f-0cdf8d099910"),
+                            Id = new Guid("2c59aea9-4733-4eba-bb49-62e2102e8943"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 3, 8, 21, 57, 33, 292, DateTimeKind.Local).AddTicks(4348),
+                            CreationDate = new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7070),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("ead1e5c0-8321-4b40-9d7b-19fc95711fc2"),
+                            Id = new Guid("7158ccbe-0543-4968-bc01-8c9add5a5fa5"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 3, 8, 21, 57, 33, 292, DateTimeKind.Local).AddTicks(4351),
+                            CreationDate = new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7072),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });

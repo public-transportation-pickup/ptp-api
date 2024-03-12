@@ -1,5 +1,6 @@
 
 using System.Linq.Expressions;
+using PTP.Application.Commons;
 using PTP.Domain.Entities;
 
 namespace PTP.Application.Repositories.Interfaces;
@@ -15,6 +16,8 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     void SoftRemove(TEntity entity);
     Task AddRangeAsync(List<TEntity> entities);
     void SoftRemoveRange(List<TEntity> entities);
+    Task<Pagination<TEntity>> ToPagination(int pageNumber = 0, int pageSize = 10);
+
 
 
 }

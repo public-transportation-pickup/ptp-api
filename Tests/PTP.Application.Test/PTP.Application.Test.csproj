@@ -22,4 +22,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\APIs\PTP.Application\PTP.Application.csproj" />
+    <ProjectReference Include="..\..\APIs\PTP.Infrastructure\PTP.Infrastructure.csproj" />
+    <ProjectReference Include="..\PTP.Domain.Test\PTP.Domain.Test.csproj" />
+  </ItemGroup>
+
 </Project>

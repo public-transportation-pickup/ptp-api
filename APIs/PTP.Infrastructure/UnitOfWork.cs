@@ -16,7 +16,8 @@ public class UnitOfWork : IUnitOfWork
     IScheduleRepository scheduleRepository, IStationRepository stationRepository, IStoreRepository storeRepository,
      ITransactionRepository transactionRepository, ITripRepository tripRepository,
     IUserRepository userRepository, IWalletRepository walletRepository, IWalletLogRepository walletLogRepository,
-    IRouteVarRepository routeVarRepository, ITimeTableRepository timeTableRepository, IMapper mapper, IConnectionConfiguration connectionConfiguration)
+    IRouteVarRepository routeVarRepository, ITimeTableRepository timeTableRepository, IMapper mapper, 
+    IConnectionConfiguration connectionConfiguration)
     {
         _dbContext = dbcontext;
         DirectionConnection = connectionConfiguration;

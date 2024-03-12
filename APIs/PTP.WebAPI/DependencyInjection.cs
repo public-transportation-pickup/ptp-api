@@ -6,9 +6,11 @@ using PTP.Application;
 using PTP.Application.GlobalExceptionHandling;
 using PTP.Infrastructure;
 using Scrutor;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using WebAPI.Middlewares;
 
 namespace PTP.WebAPI;
 public static class DependencyInjection
@@ -111,6 +113,10 @@ public static class DependencyInjection
 				ValidateAudience = true
 			};
 		});
+
+
+		builder.Services.AddSingleton<PerformanceMiddleware>();
+		builder.Services.AddSingleton<Stopwatch>();
 		return builder;
 	}
 }

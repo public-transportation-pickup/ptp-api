@@ -1,6 +1,13 @@
 namespace PTP.Domain.Enums;
-public enum ProductInMenuStatusEnum 
+public enum ProductInMenuStatusEnum
 {
-    InStock,
-    OutOfStock
+    ACTIVE,
+    INACTIVE
+}
+
+
+public enum MenuEnum
+{
+    ACTIVE,
+    INACTIVE
 }

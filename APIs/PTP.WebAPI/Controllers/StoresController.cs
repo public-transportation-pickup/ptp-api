@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PTP.Application.Features.Menus.Queries;
@@ -9,6 +10,7 @@ using PTP.Application.Features.Stores.Queries;
 using PTP.Application.Features.Wallets.Queries;
 using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Stores;
+using PTP.Domain.Enums;
 using System.Net;
 
 namespace PTP.WebAPI.Controllers
@@ -26,6 +28,7 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet]
+		[Authorize(Roles = (nameof(RoleEnum.Admin)))]
 		public async Task<IActionResult> Get(
 											[FromQuery] Dictionary<string, string> filter,
 											[FromQuery] int pageNumber = 0,
@@ -97,6 +100,7 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpPost]
+		[Authorize(Roles = (nameof(RoleEnum.Admin)))]
 		public async Task<IActionResult> Create([FromForm] StoreCreateModel model)
 		{
 			var result = await _mediator.Send(new CreateStoreCommand { CreateModel = model });

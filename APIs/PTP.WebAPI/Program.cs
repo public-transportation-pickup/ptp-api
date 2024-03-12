@@ -8,6 +8,7 @@ using PTP.WebAPI;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
+using WebAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddWebAPIServices();
 
 
-	Log.Logger = new LoggerConfiguration()
-		.ReadFrom.Configuration(builder.Configuration)
-		.CreateLogger();
-		
+Log.Logger = new LoggerConfiguration()
+	.ReadFrom.Configuration(builder.Configuration)
+	.CreateLogger();
+
 
 
 
@@ -29,7 +30,7 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions { IgnoreAntiforgeryTo
 RecurringJob.AddOrUpdate<IBusRouteService>("check-routes", interService => interService.CheckNewCreatedRoute(), Cron.Monthly());
 // Configure the HTTP request pipeline.
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
-
+app.UseMiddleware<PerformanceMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
