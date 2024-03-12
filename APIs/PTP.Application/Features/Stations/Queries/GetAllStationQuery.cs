@@ -10,6 +10,7 @@ public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
 {
     public Dictionary<string, string> Filter { get; set; } = new();
     public int PageNumber { get; set; } = 0;
+    public int PageSize { get; set; } = 100;
     public class QueryHandler : IRequestHandler<GetAllStationQuery, PaginatedList<StationViewModel>>
     {
         private readonly IConnectionConfiguration _connection;
@@ -19,7 +20,7 @@ public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
         }
         public async Task<PaginatedList<StationViewModel>> Handle(GetAllStationQuery request, CancellationToken cancellationToken)
         {
-            var query = "SELECT * FROM STATION";
+            var query = "SELECT * FROM STATION WHERE [IsDeleted] = 0 ORDER BY StopId";
             request.Filter.Remove("pageNumber");
             using var connection = _connection.GetDbConnection();
             var result = await connection.QueryAsync<StationViewModel>(
@@ -28,9 +29,9 @@ public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
                 commandType: System.Data.CommandType.Text
             );
             var filterResult = request.Filter.Count > 0 ? new List<StationViewModel>() : result;
-            if(request.Filter?.Count > 0)
+            if (request.Filter?.Count > 0)
             {
-                foreach(var filter in request.Filter) 
+                foreach (var filter in request.Filter)
                 {
                     filterResult = filterResult.Union(FilterUtilities.SelectItems(result, filter.Key, filter.Value));
                 }
@@ -39,7 +40,7 @@ public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
             return PaginatedList<StationViewModel>.Create(
                 source: filterResult.AsQueryable(),
                 pageIndex: request.PageNumber,
-                pageSize: 10
+                pageSize: request.PageSize
             );
         }
     }

@@ -13,7 +13,7 @@ public class GetAllTripByRouteIdQuery : IRequest<PaginatedList<TripViewModel>>
     public Dictionary<string, string> Filter { get; set; } = default!;
     public Guid RouteId { get; set; }
     public Guid RouteVarId { get; set; }
-    public int PageNumber { get; set; } = 0;
+    public int PageNumber { get; set; } = -1;
     public class QueryHandler : IRequestHandler<GetAllTripByRouteIdQuery, PaginatedList<TripViewModel>>
     {
         private readonly IConnectionConfiguration connectionConfiguration;
@@ -49,8 +49,8 @@ public class GetAllTripByRouteIdQuery : IRequest<PaginatedList<TripViewModel>>
 
             return PaginatedList<TripViewModel>.Create(
                 source: returnResult.AsQueryable(),
-                pageIndex: request.PageNumber,
-                pageSize: 10
+                pageIndex: request.PageNumber >= 0 ? 0 : request.PageNumber,
+                pageSize: request.PageNumber >=0 ? 20 : returnResult.Count
             );
 
 
