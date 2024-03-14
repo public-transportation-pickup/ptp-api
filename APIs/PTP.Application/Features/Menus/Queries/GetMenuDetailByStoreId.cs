@@ -45,9 +45,6 @@ namespace PTP.Application.Features.Menus.Queries
 
             public async Task<MenuViewModel> Handle(GetMenuDetailByStoreId request, CancellationToken cancellationToken)
             {
-                var Date = DateTime.Now.ToShortDateString();
-                _logger.LogCritical(request.DateApply.ToShortDateString());
-
                 var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
                                                  x.StoreId == request.StoreId &&
                                                  x.DateApply.Date == request.DateApply.Date
