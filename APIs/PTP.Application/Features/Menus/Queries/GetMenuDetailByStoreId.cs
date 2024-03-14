@@ -6,6 +6,7 @@ using PTP.Application.Features.ProductMenus.Queries;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Menus;
+using PTP.Application.ViewModels.ProductMenus;
 using PTP.Domain.Entities;
 using System.Globalization;
 
@@ -44,17 +45,33 @@ namespace PTP.Application.Features.Menus.Queries
 
             public async Task<MenuViewModel> Handle(GetMenuDetailByStoreId request, CancellationToken cancellationToken)
             {
-
+                var Date = DateTime.Now.ToShortDateString();
+                _logger.LogCritical(request.DateApply.ToShortDateString());
 
                 var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
-                                                 x.StoreId == request.StoreId && x.DateApply == request.DateApply, x => x.Store);
+                                                 x.StoreId == request.StoreId &&
+                                                 x.DateApply.Date == request.DateApply.Date
+                                                 , x => x.Store);
 
 
                 if (menus.Count == 0) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any menus!");
 
                 var result = _mapper.Map<MenuViewModel>(GetMenu(menus, request.ArrivalTime));
-                result.ProductInMenus = (await _mediator.Send(new GetProductInMenuByMenuIdQuery { MenuId = result.Id })).Items;
+                result.ProductInMenus = await GetProductsInMenu(result.Id);
                 return result;
+            }
+
+            private async Task<List<ProductMenuViewModel>> GetProductsInMenu(Guid menuId)
+            {
+                var productMenus = await _unitOfWork.ProductInMenuRepository
+                                .WhereAsync(x => x.MenuId == menuId,
+                                            x => x.Menu,
+                                            x => x.Product,
+                                            x => x.Product.Category);
+
+                if (productMenus.Count == 0) throw new NotFoundException($"There are no product for Menu-{menuId}!");
+                return _mapper.Map<List<ProductMenuViewModel>>(productMenus);
+
             }
 
             private Menu GetMenu(IEnumerable<Menu> menus, string arrivalTime)
