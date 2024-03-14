@@ -100,7 +100,7 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpPost]
-		[Authorize(Roles = (nameof(RoleEnum.Admin)))]
+		//[Authorize(Roles = (nameof(RoleEnum.Admin)))]
 		public async Task<IActionResult> Create([FromForm] StoreCreateModel model)
 		{
 			var result = await _mediator.Send(new CreateStoreCommand { CreateModel = model });
