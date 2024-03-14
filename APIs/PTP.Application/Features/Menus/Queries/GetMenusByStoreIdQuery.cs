@@ -41,13 +41,13 @@ public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
         }
         public async Task<IEnumerable<MenuViewModel>> Handle(GetMenusByStoreId request, CancellationToken cancellationToken)
         {
-            var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
+            //var cacheResult = await GetCache(request);
+            //if (cacheResult is not null) return cacheResult;
 
             var menus = await _unitOfWork.MenuRepository
                     .WhereAsync(x => x.StoreId == request.StoreId && x.DateApply == request.DateApply);
             if (menus is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any menus!");
-            await _cacheService.SetByPrefixAsync<Menu>(CacheKey.MENU, menus);
+            //await _cacheService.SetByPrefixAsync<Menu>(CacheKey.MENU, menus);
             var viewModels = _mapper.Map<IEnumerable<MenuViewModel>>(menus);
             return viewModels.OrderByDescending(x => x.StartTime);
 

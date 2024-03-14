@@ -17,25 +17,16 @@ public class GetStationByIdQuery : IRequest<StationViewModel?>
     }
     public class QueryHandler : IRequestHandler<GetStationByIdQuery, StationViewModel?>
     {
-        private readonly IConnectionConfiguration _connection;
+        private readonly IUnitOfWork unitOfWork;
         public QueryHandler(IUnitOfWork unitOfWork)
         {
-            _connection = unitOfWork.DirectionConnection;
+            this.unitOfWork = unitOfWork;
         }
-        public Task<StationViewModel?> Handle(GetStationByIdQuery request, CancellationToken cancellationToken)
+        public async Task<StationViewModel?> Handle(GetStationByIdQuery request, CancellationToken cancellationToken)
         {
-            var query = @"SELECT * FROM Station WHERE Id = @id";
-            var parameters = new DynamicParameters();
-            parameters.Add("@id", request.Id);
-            using var connection = _connection.GetDbConnection();
-            var result = connection.QueryFirstOrDefaultAsync<StationViewModel>(
-                sql: query,
-                param: parameters,
-                transaction: null,
-                commandTimeout: 30,
-                commandType: System.Data.CommandType.Text
-            );
-            return result ?? throw new Exception($"Error: {nameof(GetStationByIdQuery)}-no_data_found");
+            
+            var result = await unitOfWork.StationRepository.GetByIdAsync(request.Id);
+            return unitOfWork.Mapper.Map<StationViewModel>(result) ?? throw new Exception($"Error: {nameof(GetStationByIdQuery)}-no_data_found");
 
         }
     }
