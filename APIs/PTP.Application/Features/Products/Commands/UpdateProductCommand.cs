@@ -21,7 +21,6 @@ public class UpdateProductCommand : IRequest<bool>
             RuleFor(x => x.UpdateModel.Name).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.UpdateModel.Description).NotNull().NotEmpty().WithMessage("Description must not null or empty");
             RuleFor(x => x.UpdateModel.Price).GreaterThan(0).NotNull().NotEmpty().WithMessage("Price must not null or empty");
-            RuleFor(x => x.UpdateModel.PreparationTime).GreaterThan(0).NotNull().NotEmpty().WithMessage("PreparationTime must not null or empty");
             RuleFor(x => x.UpdateModel.CategoryId).NotNull().NotEmpty().WithMessage("CategoryId must not null or empty");
             RuleFor(x => x.UpdateModel.StoreId).NotNull().NotEmpty().WithMessage("StoreId must not null or empty");
         }

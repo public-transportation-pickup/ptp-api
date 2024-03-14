@@ -193,7 +193,6 @@ namespace PTP.Infrastructure.Migrations
                     ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ManufacturingDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PreparationTime = table.Column<int>(type: "int", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -330,9 +329,11 @@ namespace PTP.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NumProcessParallel = table.Column<int>(type: "int", nullable: false),
                     SalePrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     QuantityInDay = table.Column<int>(type: "int", nullable: false),
                     QuantityUsed = table.Column<int>(type: "int", nullable: false),
+                    PreparationTime = table.Column<int>(type: "int", nullable: false),
                     MenuId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -408,9 +409,11 @@ namespace PTP.Infrastructure.Migrations
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Total = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     PickUpTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TotalPreparationTime = table.Column<int>(type: "int", nullable: false),
                     CanceledReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", precision: 18, scale: 2, nullable: false),
+                    MenuId = table.Column<Guid>(type: "uniqueidentifier", precision: 18, scale: 2, nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -649,10 +652,10 @@ namespace PTP.Infrastructure.Migrations
                 columns: new[] { "Id", "CreatedBy", "CreationDate", "IsDeleted", "ModificatedBy", "ModificationDate", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("0402bdbe-8342-4cdf-a207-2be4f5a84b37"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7031), false, null, null, "StoreManager" },
-                    { new Guid("2c59aea9-4733-4eba-bb49-62e2102e8943"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7070), false, null, null, "Admin" },
-                    { new Guid("334097d2-e8d0-42b0-894f-0621863f0ebc"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7066), false, null, null, "Customer" },
-                    { new Guid("7158ccbe-0543-4968-bc01-8c9add5a5fa5"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7072), false, null, null, "TransportationEmployee" }
+                    { new Guid("225a2fca-e19c-4e69-b977-cbb785690932"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 14, 1, 38, 24, 946, DateTimeKind.Local).AddTicks(4423), false, null, null, "Admin" },
+                    { new Guid("3537630f-9b48-48dc-b20a-ad173ecf3e9a"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 14, 1, 38, 24, 946, DateTimeKind.Local).AddTicks(4420), false, null, null, "Customer" },
+                    { new Guid("461ad301-9d95-421c-b910-5b4b48123631"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 14, 1, 38, 24, 946, DateTimeKind.Local).AddTicks(4426), false, null, null, "TransportationEmployee" },
+                    { new Guid("cc1384ac-bf74-429d-a942-9bbda707ea0a"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 14, 1, 38, 24, 946, DateTimeKind.Local).AddTicks(4397), false, null, null, "StoreManager" }
                 });
 
             migrationBuilder.CreateIndex(

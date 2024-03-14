@@ -9,6 +9,7 @@ public class Order : BaseEntity
 	[Precision(18, 2)]
 	public decimal Total { get; set; } = 0;
 	public DateTime PickUpTime { get; set; } = default!;
+	public int TotalPreparationTime { get; set; }
 	public string? CanceledReason { get; set; }
 	public string Status { get; set; } = nameof(OrderStatusEnum.Waiting)!;
 	[Precision(18, 2)]

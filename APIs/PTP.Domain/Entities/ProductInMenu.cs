@@ -4,10 +4,12 @@ namespace PTP.Domain.Entities;
 public class ProductInMenu : BaseEntity
 {
 	public string Status { get; set; } = nameof(ProductInMenu);
+	public int NumProcessParallel { get; set; }
 	[Precision(18, 2)]
 	public decimal SalePrice { get; set; } = 0;
 	public int QuantityInDay { get; set; }
 	public int QuantityUsed { get; set; } = 0;
+	public int PreparationTime { get; set; }
 
 	#region Relationship Configuration 
 	public Guid MenuId { get; set; }

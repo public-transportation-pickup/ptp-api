@@ -12,8 +12,8 @@ using PTP.Infrastructure;
 namespace PTP.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240312093632_V1_01_InitialAgain")]
-    partial class V1_01_InitialAgain
+    [Migration("20240314003709_V1_02_Update_Menu")]
+    partial class V1_02_Update_Menu
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -96,6 +96,9 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int>("MaxNumOrderProcess")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("ModificatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -105,12 +108,6 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NumOrderEstimated")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NumOrderSold")
-                        .HasColumnType("int");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -147,6 +144,10 @@ namespace PTP.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("MenuId")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ModificatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -181,8 +182,10 @@ namespace PTP.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("TotalPreparationTime")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("UserId")
-                        .HasPrecision(18, 2)
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -333,9 +336,6 @@ namespace PTP.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PreparationTime")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -375,6 +375,12 @@ namespace PTP.Infrastructure.Migrations
 
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("NumProcessParallel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreparationTime")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -434,33 +440,33 @@ namespace PTP.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("0402bdbe-8342-4cdf-a207-2be4f5a84b37"),
+                            Id = new Guid("92215943-281d-455f-a378-16ae4c0b633d"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7031),
+                            CreationDate = new DateTime(2024, 3, 14, 7, 37, 9, 73, DateTimeKind.Local).AddTicks(8677),
                             IsDeleted = false,
                             Name = "StoreManager"
                         },
                         new
                         {
-                            Id = new Guid("334097d2-e8d0-42b0-894f-0621863f0ebc"),
+                            Id = new Guid("f2d9a408-c49b-4da1-9c48-0e3e3ce6a203"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7066),
+                            CreationDate = new DateTime(2024, 3, 14, 7, 37, 9, 73, DateTimeKind.Local).AddTicks(8701),
                             IsDeleted = false,
                             Name = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("2c59aea9-4733-4eba-bb49-62e2102e8943"),
+                            Id = new Guid("e5d3f0fb-6860-4a44-bded-02408a4bcc91"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7070),
+                            CreationDate = new DateTime(2024, 3, 14, 7, 37, 9, 73, DateTimeKind.Local).AddTicks(8703),
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("7158ccbe-0543-4968-bc01-8c9add5a5fa5"),
+                            Id = new Guid("127c6bbd-7222-47d2-b450-c567265c0076"),
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreationDate = new DateTime(2024, 3, 12, 16, 36, 31, 830, DateTimeKind.Local).AddTicks(7072),
+                            CreationDate = new DateTime(2024, 3, 14, 7, 37, 9, 73, DateTimeKind.Local).AddTicks(8705),
                             IsDeleted = false,
                             Name = "TransportationEmployee"
                         });

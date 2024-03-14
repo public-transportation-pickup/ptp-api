@@ -7,6 +7,7 @@ public class OrderCreateModel
     public string Name { get; set; } = default!;
     public string PhoneNumber { get; set; } = default!;
     public DateTime PickUpTime { get; set; } = default!;//This is a arrival time
+    // public int TotalPreparationTime { get; set; }
     public decimal Total { get; set; } = 0;
     public Guid MenuId { get; set; }
     public Guid StationId { get; set; } = default!;

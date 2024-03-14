@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FluentValidation;
+using Hangfire;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
@@ -24,6 +26,7 @@ namespace PTP.Application.Features.Orders.Commands
 
         public class CommandHandler : IRequestHandler<UpdateOrderCommand, bool>
         {
+            private readonly IBackgroundJobClient _backgroundJob;
             private readonly IUnitOfWork _unitOfWork;
             private readonly ICacheService _cacheService;
             private readonly IMapper _mapper;
@@ -31,12 +34,14 @@ namespace PTP.Application.Features.Orders.Commands
             public CommandHandler(IUnitOfWork unitOfWork,
                     ICacheService cacheService,
                     ILogger<CommandHandler> logger,
-                    IMapper mapper)
+                    IMapper mapper,
+                    IBackgroundJobClient backgroundJob)
             {
                 _unitOfWork = unitOfWork;
                 _cacheService = cacheService;
                 _logger = logger;
                 _mapper = mapper;
+                _backgroundJob = backgroundJob;
             }
 
             public async Task<bool> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
@@ -50,7 +55,7 @@ namespace PTP.Application.Features.Orders.Commands
                 switch (status)
                 {
                     case nameof(OrderStatusEnum.Preparing):
-                        order = PreparingState(order);
+                        order = await PreparingState(order);
                         break;
                     case nameof(OrderStatusEnum.Prepared):
                         order = PreparedState(order);
@@ -58,11 +63,8 @@ namespace PTP.Application.Features.Orders.Commands
                     case nameof(OrderStatusEnum.Completed):
                         order = CompletedState(order);
                         break;
-                    case nameof(OrderStatusEnum.PickUpTimeOut):
-
-                        break;
                     case nameof(OrderStatusEnum.StoreCanceled):
-
+                        if (order.Status == "Waiting" || order.Status == "Preparing") await StoreCancelOrder(order, request.UpdateModel.CanceledReason!);
                         break;
                     case nameof(OrderStatusEnum.CustomerCanceled):
                         order = await CustomerCancelOrder(order);
@@ -74,13 +76,17 @@ namespace PTP.Application.Features.Orders.Commands
                 var result = await _unitOfWork.SaveChangesAsync();
                 return result;
             }
-            private Order PreparingState(Order order)
+            private async Task<Order> PreparingState(Order order)
             {
                 if (!order.Status.Equals("Waiting"))
                     throw new BadRequestException("Order can update to preparing when status is Preparing!");
+                var orderCheck = await _unitOfWork.OrderRepository.WhereAsync(x => x.Status == nameof(OrderStatusEnum.Preparing));
+                var menu = await _unitOfWork.MenuRepository.GetByIdAsync(order!.MenuId);
+                if (orderCheck.Count < menu!.MaxNumOrderProcess) throw new BadRequestException("Số lượng đơn hàng đã vượt quá giới hạn!");
                 order.Status = nameof(OrderStatusEnum.Preparing);
                 return order;
             }
+
 
             private Order PreparedState(Order order)
             {
@@ -95,6 +101,16 @@ namespace PTP.Application.Features.Orders.Commands
                 if (!order.Status.Equals("Prepared"))
                     throw new BadRequestException("Order can update to preparing when status is Prepared!");
                 order.Status = nameof(OrderStatusEnum.Completed);
+                return order;
+            }
+
+            private async Task<Order> StoreCancelOrder(Order order, string reason)
+            {
+                if (!order.Status.Equals("Waiting") && !order.Status.Equals("Preparing"))
+                    throw new BadRequestException("Order can cancel when status is Waiting or Preparing!");
+                order.Status = nameof(OrderStatusEnum.StoreCanceled);
+                order.CanceledReason = reason;
+                await CreateTransaction(order);
                 return order;
             }
 
@@ -114,8 +130,8 @@ namespace PTP.Application.Features.Orders.Commands
                 if (storeUser is null) throw new BadRequestException($"Wallet have Store Id-{order.StoreId} does not exist!");
 
                 var transactions = new List<Transaction>{
-                    new Transaction{Name=nameof(TransactionTypeEnum.Receive),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Transfer),WalletId=userWallet.Id,PaymentId=order.PaymentId},
-                    new Transaction{Name=nameof(TransactionTypeEnum.Transfer),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Receive),WalletId=storeUser.WalletId,PaymentId=order.PaymentId}
+                    new Transaction{Name=nameof(TransactionTypeEnum.Receive),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Receive),WalletId=userWallet.Id,PaymentId=order.PaymentId},
+                    new Transaction{Name=nameof(TransactionTypeEnum.Transfer),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Transfer),WalletId=storeUser.WalletId,PaymentId=order.PaymentId}
                 };
                 await _unitOfWork.TransactionRepository.AddRangeAsync(transactions);
                 userWallet.Amount += order.Total;

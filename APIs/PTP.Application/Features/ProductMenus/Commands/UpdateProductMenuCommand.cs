@@ -18,6 +18,8 @@ public class UpdateProductMenuCommand : IRequest<bool>
             RuleFor(x => x.UpdateModel.Id).NotNull().NotEmpty().WithMessage("Id must not null or empty");
             RuleFor(x => x.UpdateModel.SalePrice).GreaterThan(0).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.UpdateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
+            RuleFor(x => x.UpdateModel.PreparationTime).GreaterThan(0).NotNull().NotEmpty().WithMessage("PreparationTime must not null or empty");
+            RuleFor(x => x.UpdateModel.NumProcessParallel).GreaterThan(0).NotNull().NotEmpty().WithMessage("NumProcessParallel must not null or empty");
         }
     }
 
