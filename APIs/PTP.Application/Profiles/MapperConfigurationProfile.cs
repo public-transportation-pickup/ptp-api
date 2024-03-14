@@ -131,7 +131,6 @@ public class MapperConfigurationProfile : Profile
 		.ForMember(x => x.ProductDescription, opt => opt.MapFrom(x => x.Product.Description))
 		.ForMember(x => x.ImageName, opt => opt.MapFrom(x => x.Product.ImageName))
 		.ForMember(x => x.ImageURL, opt => opt.MapFrom(x => x.Product.ImageURL))
-		.ForMember(x => x.PreparationTime, opt => opt.MapFrom(x => x.Product.PreparationTime))
 		.ForMember(x => x.CategoryName, opt => opt.MapFrom(x => x.Product.Category.Name))
 		.ForMember(x => x.CategoryId, opt => opt.MapFrom(x => x.Product.Category.Id))
 		.ForMember(x => x.StoreId, opt => opt.MapFrom(x => x.Product.StoreId))

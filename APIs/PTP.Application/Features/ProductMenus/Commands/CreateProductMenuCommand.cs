@@ -22,6 +22,9 @@ public class CreateProductMenuCommand : IRequest<ProductMenuViewModel>
             RuleFor(x => x.CreateModel.ProductId).NotNull().NotEmpty().WithMessage("Name must not null or empty");
             RuleFor(x => x.CreateModel.MenuId).NotNull().NotEmpty().WithMessage("Description must not null or empty");
             RuleFor(x => x.CreateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
+            RuleFor(x => x.CreateModel.PreparationTime).GreaterThan(0).NotNull().NotEmpty().WithMessage("PreparationTime must not null or empty");
+            RuleFor(x => x.CreateModel.NumProcessParallel).GreaterThan(0).NotNull().NotEmpty().WithMessage("NumProcessParallel must not null or empty");
+            RuleFor(x => x.CreateModel.QuantityInDay).NotNull().NotEmpty().WithMessage("Status must not null or empty");
         }
     }
     public class CommandHandler : IRequestHandler<CreateProductMenuCommand, ProductMenuViewModel>

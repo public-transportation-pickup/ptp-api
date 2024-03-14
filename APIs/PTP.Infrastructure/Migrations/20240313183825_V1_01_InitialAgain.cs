@@ -20,6 +20,8 @@ namespace PTP.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -103,7 +105,6 @@ namespace PTP.Infrastructure.Migrations
                     ActivationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ImageName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -158,7 +159,9 @@ namespace PTP.Infrastructure.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    DateFilter = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateApply = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NumOrderEstimated = table.Column<int>(type: "int", nullable: false),
+                    NumOrderSold = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -190,7 +193,6 @@ namespace PTP.Infrastructure.Migrations
                     ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ManufacturingDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PreparationTime = table.Column<int>(type: "int", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -327,10 +329,13 @@ namespace PTP.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ActualPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    NumProcessParallel = table.Column<int>(type: "int", nullable: false),
+                    SalePrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    QuantityInDay = table.Column<int>(type: "int", nullable: false),
+                    QuantityUsed = table.Column<int>(type: "int", nullable: false),
+                    PreparationTime = table.Column<int>(type: "int", nullable: false),
                     MenuId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    QuantityInDay = table.Column<int>(type: "int", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -404,9 +409,11 @@ namespace PTP.Infrastructure.Migrations
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Total = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     PickUpTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TotalPreparationTime = table.Column<int>(type: "int", nullable: false),
                     CanceledReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", precision: 18, scale: 2, nullable: false),
+                    MenuId = table.Column<Guid>(type: "uniqueidentifier", precision: 18, scale: 2, nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -448,7 +455,6 @@ namespace PTP.Infrastructure.Migrations
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     WalletType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    StoreId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -458,11 +464,6 @@ namespace PTP.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Wallet", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Wallet_Store_StoreId",
-                        column: x => x.StoreId,
-                        principalTable: "Store",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Wallet_User_UserId",
                         column: x => x.UserId,
@@ -651,10 +652,10 @@ namespace PTP.Infrastructure.Migrations
                 columns: new[] { "Id", "CreatedBy", "CreationDate", "IsDeleted", "ModificatedBy", "ModificationDate", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("5f0e282c-cff6-48b7-bca6-95ff40106590"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2201), false, null, null, "Admin" },
-                    { new Guid("870e33a9-e5de-40ca-91e3-3f234fa43338"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2170), false, null, null, "StoreManager" },
-                    { new Guid("a87a471d-3beb-4567-b31b-57ab734db62a"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2189), false, null, null, "Customer" },
-                    { new Guid("f3bdb0cb-79fe-437b-8560-52f8d1b37227"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 2, 5, 16, 12, 5, 702, DateTimeKind.Local).AddTicks(2204), false, null, null, "TransportationEmployee" }
+                    { new Guid("225a2fca-e19c-4e69-b977-cbb785690932"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 14, 1, 38, 24, 946, DateTimeKind.Local).AddTicks(4423), false, null, null, "Admin" },
+                    { new Guid("3537630f-9b48-48dc-b20a-ad173ecf3e9a"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 14, 1, 38, 24, 946, DateTimeKind.Local).AddTicks(4420), false, null, null, "Customer" },
+                    { new Guid("461ad301-9d95-421c-b910-5b4b48123631"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 14, 1, 38, 24, 946, DateTimeKind.Local).AddTicks(4426), false, null, null, "TransportationEmployee" },
+                    { new Guid("cc1384ac-bf74-429d-a942-9bbda707ea0a"), new Guid("00000000-0000-0000-0000-000000000000"), new DateTime(2024, 3, 14, 1, 38, 24, 946, DateTimeKind.Local).AddTicks(4397), false, null, null, "StoreManager" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -781,13 +782,6 @@ namespace PTP.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_User_StoreId",
                 table: "User",
-                column: "StoreId",
-                unique: true,
-                filter: "[StoreId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Wallet_StoreId",
-                table: "Wallet",
                 column: "StoreId",
                 unique: true,
                 filter: "[StoreId] IS NOT NULL");

@@ -1,10 +1,12 @@
 using System.Net;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Menus.Commands;
 using PTP.Application.Features.Menus.Queries;
 using PTP.Application.Features.ProductMenus.Queries;
 using PTP.Application.ViewModels.Menus;
+using PTP.Domain.Enums;
 
 namespace PTP.WebAPI.Controllers;
 
@@ -30,6 +32,7 @@ public class MenusController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin,StoreManager")]
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     => Ok(await _mediator.Send(new GetMenuByIdQuery { Id = id }));
 
@@ -38,6 +41,7 @@ public class MenusController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{menuid}/products-menu")]
+    [Authorize(Roles = "Admin,StoreManager")]
     public async Task<IActionResult> GetProductMenuByMenuId([FromRoute] Guid menuid,
                                                             [FromQuery] Dictionary<string, string> filter,
                                                             [FromQuery] int pageNumber = 0,
@@ -52,6 +56,7 @@ public class MenusController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost]
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
     public async Task<IActionResult> Create(MenuCreateModel model)
     {
         var result = await _mediator.Send(new CreateMenuCommand { CreateModel = model });
@@ -68,6 +73,7 @@ public class MenusController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPut("{id}")]
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
     public async Task<IActionResult> Update(Guid id, MenuUpdateModel model)
     {
         if (id != model.Id) return BadRequest("Id is not match!");
@@ -83,6 +89,7 @@ public class MenusController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpDelete("{id}")]
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _mediator.Send(new DeleteMenuCommand { Id = id });

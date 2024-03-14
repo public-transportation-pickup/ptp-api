@@ -1,21 +1,13 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PTP.Application.Features.ProductMenus.Queries;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
-using PTP.Application.IntergrationServices.Models;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Menus;
 using PTP.Domain.Entities;
-using PTP.Domain.Globals;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PTP.Application.Features.Menus.Queries
 {
