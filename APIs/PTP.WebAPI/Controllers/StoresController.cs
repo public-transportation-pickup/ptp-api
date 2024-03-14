@@ -60,6 +60,7 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet("{id}/products")]
+		[Authorize(Roles = "Admin,StoreManager")]
 		public async Task<IActionResult> GetProductsByStoreId([FromRoute] Guid id,
 															  //   [FromQuery] Guid categoryId = default,
 															  [FromQuery] int pageNumber = 0,
@@ -86,6 +87,7 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet("{id}/orders")]
+		[Authorize(Roles = "Admin,StoreManager")]
 		public async Task<IActionResult> GetOrdersByStoreId([FromRoute] Guid id,
 															[FromQuery] int pageNumber = 0,
 															[FromQuery] int pageSize = 10,
