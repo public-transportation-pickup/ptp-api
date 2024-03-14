@@ -110,21 +110,6 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbSet.UpdateRange(entities);
     }
 
-    public async Task<TEntity> FindByField(Expression<Func<TEntity, bool>> expression, params Expression<Func<TEntity, object>>[] includes)
-    => await includes
-       .Aggregate(_dbSet!.AsQueryable(),
-           (entity, property) => entity!.Include(property)).AsNoTracking()
-       .Where(expression!)
-        .FirstAsync(x => x.IsDeleted == false);
-
-    public async Task<List<TEntity>> FindListByField(Expression<Func<TEntity, bool>> expression, params Expression<Func<TEntity, object>>[] includes)
-    => await includes
-       .Aggregate(_dbSet!.AsQueryable(),
-           (entity, property) => entity.Include(property)).AsNoTracking()
-       .Where(expression!)
-       .Where(x => x.IsDeleted == false)
-        .OrderByDescending(x => x.CreationDate)
-        .ToListAsync();
 
     public async Task<List<TEntity>> WhereAsync(Expression<Func<TEntity, bool>> expression, params Expression<Func<TEntity, object>>[] includes)
       => await includes

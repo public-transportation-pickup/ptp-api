@@ -38,6 +38,7 @@ public class GetWalletByStoreIdQuery : IRequest<WalletViewModel>
         }
         public async Task<WalletViewModel> Handle(GetWalletByStoreIdQuery request, CancellationToken cancellationToken)
         {
+            await Task.Delay(1);
             // if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             // var cacheResult = await _cacheService.GetByPrefixAsync<Wallet>(CacheKey.WALLET);
             // if (cacheResult!.Count>0)

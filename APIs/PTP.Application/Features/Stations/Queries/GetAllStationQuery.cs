@@ -22,6 +22,7 @@ public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
         {
             var query = "SELECT * FROM STATION WHERE [IsDeleted] = 0 ORDER BY StopId";
             request.Filter.Remove("pageNumber");
+            request.Filter.Remove("pageSize");
             using var connection = _connection.GetDbConnection();
             var result = await connection.QueryAsync<StationViewModel>(
                 sql: query,

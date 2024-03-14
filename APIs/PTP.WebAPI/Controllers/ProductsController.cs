@@ -1,9 +1,11 @@
 using System.Net;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Products.Commands;
 using PTP.Application.Features.Products.Queries;
 using PTP.Application.ViewModels.Products;
+using PTP.Domain.Enums;
 
 namespace PTP.WebAPI.Controllers;
 public class ProductsController : BaseController
@@ -42,6 +44,7 @@ public class ProductsController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost]
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
     public async Task<IActionResult> Create([FromForm] ProductCreateModel model)
     {
         var result = await _mediator.Send(new CreateProductCommand { CreateModel = model });
@@ -58,6 +61,7 @@ public class ProductsController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPut("{id}")]
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
     public async Task<IActionResult> Update(Guid id, [FromForm] ProductUpdateModel model)
     {
         if (id != model.Id) return BadRequest("Id is not match!");
@@ -73,6 +77,7 @@ public class ProductsController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpDelete("{id}")]
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _mediator.Send(new DeleteProductCommand { Id = id });

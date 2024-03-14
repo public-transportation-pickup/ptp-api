@@ -1,5 +1,6 @@
 using System.Net;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Categories.Commands;
 using PTP.Application.Features.Categories.Queries;
@@ -8,6 +9,7 @@ using PTP.Application.Features.Menus.Queries;
 using PTP.Application.Features.Products.Queries;
 using PTP.Application.ViewModels.Categories;
 using PTP.Application.ViewModels.Menus;
+using PTP.Domain.Enums;
 
 namespace PTP.WebAPI.Controllers;
 
@@ -57,6 +59,7 @@ public class CategoriesController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost]
+    [Authorize(Roles = (nameof(RoleEnum.Admin)))]
     public async Task<IActionResult> Create([FromForm] CategoryCreateModel model)
     {
         var result = await _mediator.Send(new CreateCategoryCommand { CreateModel = model });
@@ -73,6 +76,7 @@ public class CategoriesController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPut("{id}")]
+    [Authorize(Roles = (nameof(RoleEnum.Admin)))]
     public async Task<IActionResult> Update(Guid id, [FromForm] CategoryUpdateModel model)
     {
         if (id != model.Id) return BadRequest("Id is not match!");
@@ -88,6 +92,7 @@ public class CategoriesController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpDelete("{id}")]
+    [Authorize(Roles = (nameof(RoleEnum.Admin)))]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _mediator.Send(new DeleteCategoryCommand { Id = id });

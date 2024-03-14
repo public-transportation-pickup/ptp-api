@@ -1,11 +1,11 @@
 namespace PTP.Domain.Enums;
 public enum OrderStatusEnum
 {
-    Payed,
-    Confirmed,
+    Waiting,
     Preparing,
     Prepared,
     Completed,
-    Canceled,
+    StoreCanceled,
+    CustomerCanceled,
     PickUpTimeOut
 }

@@ -1,4 +1,5 @@
 {
+
   "profiles": {
     "http": {
       "commandName": "Project",
@@ -37,6 +38,15 @@
       },
       "publishAllPorts": true,
       "useSSL": true
+    },
+    "Production": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "ASPNETCORE_APIURL": "http://ptp-aplication.azurewebsites.net/"
+      }
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",

@@ -16,5 +16,7 @@ namespace PTP.Application.ViewModels.WalletLogs
         public decimal Amount { get; set; } = default!;
         public string? Type { get; set; }
         public Guid WalletId { get; set; }
+        public DateTime CreationDate { get; set; } = DateTime.Now;
+
     }
 }
