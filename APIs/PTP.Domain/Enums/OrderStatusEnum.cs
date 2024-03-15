@@ -5,7 +5,6 @@ public enum OrderStatusEnum
     Preparing,
     Prepared,
     Completed,
-    StoreCanceled,
-    CustomerCanceled,
+    Canceled,
     PickUpTimeOut
 }

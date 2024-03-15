@@ -31,17 +31,20 @@ namespace PTP.Application.Features.Orders.Commands
             private readonly ICacheService _cacheService;
             private readonly IMapper _mapper;
             private ILogger<CommandHandler> _logger;
+            private readonly IClaimsService _claimService;
             public CommandHandler(IUnitOfWork unitOfWork,
                     ICacheService cacheService,
                     ILogger<CommandHandler> logger,
                     IMapper mapper,
-                    IBackgroundJobClient backgroundJob)
+                    IBackgroundJobClient backgroundJob,
+                    IClaimsService claimsService)
             {
                 _unitOfWork = unitOfWork;
                 _cacheService = cacheService;
                 _logger = logger;
                 _mapper = mapper;
                 _backgroundJob = backgroundJob;
+                _claimService = claimsService;
             }
 
             public async Task<bool> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
@@ -63,12 +66,10 @@ namespace PTP.Application.Features.Orders.Commands
                     case nameof(OrderStatusEnum.Completed):
                         order = CompletedState(order);
                         break;
-                    case nameof(OrderStatusEnum.StoreCanceled):
-                        if (order.Status == "Waiting" || order.Status == "Preparing") await StoreCancelOrder(order, request.UpdateModel.CanceledReason!);
+                    case nameof(OrderStatusEnum.Canceled):
+                        if (order.Status == "Waiting" || order.Status == "Preparing") await CancelOrder(order, request.UpdateModel.CanceledReason!);
                         break;
-                    case nameof(OrderStatusEnum.CustomerCanceled):
-                        order = await CustomerCancelOrder(order);
-                        break;
+
                 }
 
 
@@ -104,21 +105,12 @@ namespace PTP.Application.Features.Orders.Commands
                 return order;
             }
 
-            private async Task<Order> StoreCancelOrder(Order order, string reason)
+            private async Task<Order> CancelOrder(Order order, string reason)
             {
                 if (!order.Status.Equals("Waiting") && !order.Status.Equals("Preparing"))
                     throw new BadRequestException("Order can cancel when status is Waiting or Preparing!");
-                order.Status = nameof(OrderStatusEnum.StoreCanceled);
+                order.Status = nameof(OrderStatusEnum.Canceled);
                 order.CanceledReason = reason;
-                await CreateTransaction(order);
-                return order;
-            }
-
-            private async Task<Order> CustomerCancelOrder(Order order)
-            {
-                if (!order.Status.Equals("Waiting"))
-                    throw new BadRequestException("Order can cancel when status is Waiting!");
-                order.Status = nameof(OrderStatusEnum.CustomerCanceled);
                 await CreateTransaction(order);
                 return order;
             }
