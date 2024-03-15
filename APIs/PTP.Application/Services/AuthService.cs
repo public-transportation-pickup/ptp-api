@@ -1,6 +1,8 @@
 using Firebase.Auth;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Users;
+using PTP.Domain.Entities;
+using PTP.Domain.Enums;
 
 namespace PTP.Application.Services;
 public class AuthService : IAuthService
@@ -48,6 +50,15 @@ public class AuthService : IAuthService
 			await _unitOfWork.UserRepository.AddAsync(newUser);
 			if (await _unitOfWork.SaveChangesAsync())
 			{
+				var wallet = new Wallet 
+				{
+					Name = $"User {user.Email}'s Wallet",
+					Amount = 0,
+					WalletType = nameof(WalletTypeEnum.Customer),
+					UserId = newUser.Id
+				};
+				await _unitOfWork.WalletRepository.AddAsync(wallet);
+				await _unitOfWork.SaveChangesAsync();
 				return new LoginResponseModel
 				{
 					Token = _jwtTokenGenerator.GenerateToken(newUser, roleInDb.Name),
