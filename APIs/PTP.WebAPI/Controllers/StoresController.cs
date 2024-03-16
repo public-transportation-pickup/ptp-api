@@ -28,7 +28,6 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet]
-		[Authorize(Roles = (nameof(RoleEnum.Admin)))]
 		public async Task<IActionResult> Get(
 											[FromQuery] Dictionary<string, string> filter,
 											[FromQuery] int pageNumber = 0,
