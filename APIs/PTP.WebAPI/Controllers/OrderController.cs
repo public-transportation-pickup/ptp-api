@@ -50,7 +50,7 @@ public class OrderController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPut("{id}")]
-    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
+    [Authorize(Roles = "Customer,StoreManager")]
     public async Task<IActionResult> Update(Guid id, OrderUpdateModel model)
     {
         if (id != model.Id) return BadRequest("Id is not match!");

@@ -7,8 +7,6 @@ using PTP.Application.Features.Orders.Queries;
 using PTP.Application.Features.Products.Queries;
 using PTP.Application.Features.Stores.Commands;
 using PTP.Application.Features.Stores.Queries;
-using PTP.Application.Features.Wallets.Queries;
-using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Stores;
 using PTP.Domain.Enums;
 using System.Net;
@@ -90,8 +88,9 @@ namespace PTP.WebAPI.Controllers
 		public async Task<IActionResult> GetOrdersByStoreId([FromRoute] Guid id,
 															[FromQuery] int pageNumber = 0,
 															[FromQuery] int pageSize = 10,
-															[FromQuery] Dictionary<string, string> filter = default!)
-		=> Ok(await _mediator.Send(new GetOrdersByStoreIdQuery { StoreId = id, PageSize = pageSize, PageNumber = pageNumber, Filter = filter }));
+															[FromQuery] Dictionary<string, string> filter = default!,
+															[FromQuery] string roleName = default!)
+		=> Ok(await _mediator.Send(new GetOrdersByStoreIdQuery { StoreId = id, PageSize = pageSize, PageNumber = pageNumber, Filter = filter, RoleName = roleName }));
 		#endregion
 
 		#region COMMANDS

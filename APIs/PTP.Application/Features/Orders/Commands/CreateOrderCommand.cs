@@ -171,9 +171,9 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             if (order == null) throw new BadRequestException($"Order- {orderId} is not found!");
             if (order.Status == nameof(OrderStatusEnum.Waiting))
             {
-                order.Status = orderCheck.Count < menu!.MaxNumOrderProcess ? nameof(OrderStatusEnum.Preparing) : nameof(OrderStatusEnum.StoreCanceled);
+                order.Status = orderCheck.Count < menu!.MaxNumOrderProcess ? nameof(OrderStatusEnum.Preparing) : nameof(OrderStatusEnum.Canceled);
                 order.CanceledReason = orderCheck.Count < menu!.MaxNumOrderProcess ? null : "Số lượng đơn hàng đã vượt quá giới hạn!";
-                if (order.Status == nameof(OrderStatusEnum.StoreCanceled)) await RollBackTransaction(order);
+                if (order.Status == nameof(OrderStatusEnum.Canceled)) await RollBackTransaction(order);
                 _unitOfWork.OrderRepository.Update(order);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
             }
