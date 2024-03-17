@@ -45,7 +45,7 @@ public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<Ro
 				var cacheResult = await _cacheService.GetAsync<IEnumerable<Route>>(CACHE_KEY);
 				if (cacheResult is null)
 				{
-					string query = @"SELECT * FROM [Route] WHERE IsDeleted = 0  ORDER BY RouteId ";
+					string query = @"SELECT * FROM [Route] WHERE IsDeleted = 0  ORDER BY RouteNo ";
 					var resultInDb = await connection.QueryAsync<Route>(query);
 					if (resultInDb is not null && resultInDb.Count() > 0)
 					{

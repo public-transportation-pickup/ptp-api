@@ -1,6 +1,7 @@
 using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using PTP.Application.Features.Routes.Queries;
 using PTP.Application.Features.Stations.Commands;
 using PTP.Application.Features.Stations.Queries;
 using PTP.Application.ViewModels.Stations;
@@ -13,7 +14,23 @@ public class StationsController : BaseController
     {
         this.mediator = mediator;
     }
-
+    /// <summary>
+    /// Get Routes bằng stationName
+    /// </summary>
+    /// <param name="stationName"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
+    [HttpGet("routes")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    public async Task<IActionResult> GetRouteByStation([FromQuery] string stationName,
+        int? pageNumber,
+        int? pageSize)
+    {
+        return Ok(await mediator.Send(new GetRouteByStationQuery { StationName = stationName, PageNumber = pageNumber, PageSize = pageSize }));
+    }
     /// <summary>
     /// Lấy toàn bộ trạm
     /// </summary>

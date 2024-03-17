@@ -1,6 +1,15 @@
 namespace PTP.Application.Commons;
 public static class SqlQueriesStorage
 {
+    public const string GET_ROUTE_BY_STATION_NAME = @"
+        SELECT DISTINCT (r.Id), r.RouteId, r.Name,r.[Status], 
+            r.RouteNo, r.Distance, r.TimeOfTrip, r.HeadWay, r.OperationTime,
+            r.NumOfSeats, r.InBoundName, r.OutBoundName, r.TotalTrip, r.Orgs, r.Tickets 
+        FROM [Route] r 
+        LEFT JOIN RouteStation rs ON r.Id = rs.RouteId
+        INNER JOIN Station s ON s.Id = rs.StationId
+        WHERE s.Name LIKE @stationName
+        ORDER BY RouteNo";
     public const string GET_STATION_BY_ROUTEVARID = @"
                                             SELECT s.Id, s.[Name], rs.[Index], s.[Latitude], s.[Longitude]
                                             FROM RouteStation rs

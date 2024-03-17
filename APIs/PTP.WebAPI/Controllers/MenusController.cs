@@ -56,7 +56,7 @@ public class MenusController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpPost]
-    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
+    //[Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
     public async Task<IActionResult> Create(MenuCreateModel model)
     {
         var result = await _mediator.Send(new CreateMenuCommand { CreateModel = model });

@@ -193,6 +193,7 @@ public class MapperConfigurationProfile : Profile
 		#region Station
 		CreateMap<Station, StationViewModel>().ReverseMap();
 		CreateMap<Station, StationUpdateModel>().ReverseMap();
+		CreateMap<Route, RouteCreateModel>().ReverseMap();
 		#endregion
 	}
 }
