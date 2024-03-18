@@ -55,6 +55,7 @@ namespace PTP.Application.Features.Menus.Queries
 
                 var result = _mapper.Map<MenuViewModel>(GetMenu(menus, request.ArrivalTime));
                 result.ProductInMenus = await GetProductsInMenu(result.Id);
+                result.Categories = string.Join(",", result.ProductInMenus?.ToList().ConvertAll(x => x.CategoryName) ?? new());
                 return result;
             }
 
