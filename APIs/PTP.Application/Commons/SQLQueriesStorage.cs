@@ -11,7 +11,7 @@ public static class SqlQueriesStorage
         WHERE s.Name LIKE @stationName
         ORDER BY RouteNo";
     public const string GET_STATION_BY_ROUTEVARID = @"
-                                            SELECT s.Id, s.[Name], rs.[Index]
+                                            SELECT s.Id, s.[Name], rs.[Index], s.[Latitude], s.[Longitude]
                                             FROM RouteStation rs
                                             INNER JOIN Station s
                                             ON rs.StationId = s.Id
