@@ -36,7 +36,7 @@ public class AuthController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [HttpPost]
+    [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] string token)
     {
         var result = await _authService.RefreshTokenAsync(token);
