@@ -51,10 +51,19 @@ namespace PTP.Application.Features.Menus.Queries
                                                  , x => x.Store);
 
 
-                if (menus.Count == 0) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any menus!");
+                if (menus.Count == 0) return new();
 
                 var result = _mapper.Map<MenuViewModel>(GetMenu(menus, request.ArrivalTime));
                 result.ProductInMenus = await GetProductsInMenu(result.Id);
+                result.Categories = result.ProductInMenus?.ToList().ConvertAll<object>(x =>
+                {
+                    
+                    return new
+                    {
+                        x.CategoryId,
+                        x.CategoryName
+                    };
+                }).Distinct().ToList();
                 return result;
             }
 
@@ -79,7 +88,7 @@ namespace PTP.Application.Features.Menus.Queries
                     if (item.StartTime < aTime && item.EndTime > aTime) return item;
                 }
 
-                throw new BadRequestException($"No menu ready for arrival time {arrivalTime}");
+                return new();
             }
 
         }
