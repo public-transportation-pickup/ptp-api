@@ -133,32 +133,34 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             var orderId = order.Id;
             var timeGap = order.PickUpTime - DateTime.Now;
             var prepareTime = order.TotalPreparationTime;
+            var orderUpdate = new OrderUpdateModel { Id = orderId, Status = OrderStatusEnum.Prepared.ToString(), CanceledReason = "" };
             if (timeGap.Minutes > 0 && timeGap.Minutes < 10)
             {
                 _backgroundJob.Schedule(() => BackgroundJobForConfirm(orderId), TimeSpan.FromMinutes(2));
-                _backgroundJob.Schedule(() => BackgroundJob(orderId, OrderStatusEnum.Prepared.ToString(), nameof(OrderStatusEnum.Preparing)), TimeSpan.FromMinutes(2 + prepareTime));
+                _backgroundJob.Schedule(() => BackgroundJob(orderUpdate, nameof(OrderStatusEnum.Preparing)), TimeSpan.FromMinutes(2 + prepareTime));
             }
             else if (timeGap.Minutes > 10 && timeGap.Minutes < 30)
             {
                 _backgroundJob.Schedule(() => BackgroundJobForConfirm(orderId), TimeSpan.FromMinutes(5));
-                _backgroundJob.Schedule(() => BackgroundJob(orderId, OrderStatusEnum.Prepared.ToString(), nameof(OrderStatusEnum.Preparing)), TimeSpan.FromMinutes(5 + prepareTime));
+                _backgroundJob.Schedule(() => BackgroundJob(orderUpdate, nameof(OrderStatusEnum.Preparing)), TimeSpan.FromMinutes(5 + prepareTime));
 
             }
             else
             {
                 _backgroundJob.Schedule(() => BackgroundJobForConfirm(orderId), TimeSpan.FromMinutes(10));
-                _backgroundJob.Schedule(() => BackgroundJob(orderId, OrderStatusEnum.Prepared.ToString(), nameof(OrderStatusEnum.Preparing)), TimeSpan.FromMinutes(10 + prepareTime));
+                _backgroundJob.Schedule(() => BackgroundJob(orderUpdate, nameof(OrderStatusEnum.Preparing)), TimeSpan.FromMinutes(10 + prepareTime));
             }
-            _backgroundJob.Schedule(() => BackgroundJob(orderId, OrderStatusEnum.PickUpTimeOut.ToString(), nameof(OrderStatusEnum.Prepared)), TimeSpan.FromMinutes(timeGap.Minutes + 60));
+            orderUpdate = new OrderUpdateModel { Id = orderId, Status = OrderStatusEnum.Canceled.ToString(), CanceledReason = "Pick up time out!" };
+            _backgroundJob.Schedule(() => BackgroundJob(orderUpdate, nameof(OrderStatusEnum.Prepared)), TimeSpan.FromMinutes(timeGap.Minutes + 60));
         }
 
-        public async Task BackgroundJob(Guid orderId, string status, string statusCheck)
+        public async Task BackgroundJob(OrderUpdateModel model, string statusCheck)
         {
-            var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
-            if (order == null) throw new BadRequestException($"Order- {orderId} is not found!");
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id);
+            if (order == null) throw new BadRequestException($"Order- {model.Id} is not found!");
             if (order.Status == statusCheck)
             {
-                order.Status = status;
+                order = _mapper.Map(model, order);
                 _unitOfWork.OrderRepository.Update(order);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
             }
