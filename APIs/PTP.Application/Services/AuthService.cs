@@ -70,4 +70,20 @@ public class AuthService : IAuthService
 
 		}
 	}
+
+    public async Task<LoginResponseModel> RefreshTokenAsync(string token)
+    {
+        var user = (await _unitOfWork.UserRepository.WhereAsync(x => x.JWTToken == token, x => x.Role)).FirstOrDefault() ?? throw new Exception("Not have any user with provided token");
+		if(user is not null)
+		{
+			return new LoginResponseModel
+				{
+					Token = _jwtTokenGenerator.GenerateToken(user, user.Role.Name),
+					User = _unitOfWork.Mapper.Map<UserViewModel>(user)
+				};
+		} else 
+		{
+			return new();
+		}
+    }
 }

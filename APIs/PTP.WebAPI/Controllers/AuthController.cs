@@ -28,4 +28,18 @@ public class AuthController : BaseController
         if (result is not null) return Ok(result);
         else return BadRequest("Login Failed");
     }
+    /// <summary>
+    /// Endpoint Refresh lại token
+    /// </summary>
+    /// <param name="token">Old Token</param>
+    /// <returns></returns>
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [HttpPost]
+    public async Task<IActionResult> RefreshToken([FromBody] string token)
+    {
+        var result = await _authService.RefreshTokenAsync(token);
+        return Ok(result);
+    }
 }

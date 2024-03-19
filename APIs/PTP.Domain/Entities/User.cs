@@ -9,6 +9,7 @@ public class User : BaseEntity
 	public string? PhoneNumber { get; set; } = default!;
 	public DateTime? DateOfBirth { get; set; } = DateTime.Now!;
 	public string? FCMToken { get; set; } = default!;
+	public string? JWTToken { get; set; } = default!;
 
 	#region  Relationship Configuration
 	public Guid RoleId { get; set; } = default!;
