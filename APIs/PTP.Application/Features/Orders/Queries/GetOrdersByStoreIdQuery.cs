@@ -93,7 +93,7 @@ public class GetOrdersByStoreIdQuery : IRequest<PaginatedList<OrderViewModel>>
             {
                 orders = await _unitOfWork.OrderRepository.WhereAsync(x =>
                        x.StoreId == storeId,
-                       x => x.Store, x => x.Station, x => x.Payment);
+                       x => x.Store, x => x.Station, x => x.Payment, x => x.OrderDetails);
             }
             if (orders.Count == 0) throw new BadRequestException("No order for store is found!");
             return orders;
