@@ -23,6 +23,7 @@ public class OrderViewModel
     public string? PaymentStatus { get; set; }
     public Guid MenuId { get; set; }
     public string? CanceledReason { get; set; }
+    public decimal? ReturnAmount { get; set; } = null;
     public IEnumerable<OrderDetailViewModel>? OrderDetails { get; set; }
 
 }
