@@ -22,6 +22,7 @@ public class OrderViewModel
     public string PaymentType { get; set; } = default!;
     public string? PaymentStatus { get; set; }
     public Guid MenuId { get; set; }
+    public string? CanceledReason { get; set; }
     public IEnumerable<OrderDetailViewModel>? OrderDetails { get; set; }
 
 }

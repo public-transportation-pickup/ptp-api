@@ -10,8 +10,21 @@ public static class SqlQueriesStorage
         INNER JOIN Station s ON s.Id = rs.StationId
         WHERE s.Name LIKE @stationName
         ORDER BY RouteNo";
+    public const string GET_STORES_BY_ROUTEVARID = @"
+        SELECT *
+        FROM [Store] str 
+        WHERE str.Id IN 
+            (
+                SELECT s.StoreId
+                    FROM RouteStation rs
+                    INNER JOIN Station s
+                    ON rs.StationId = s.Id
+                    WHERE rs.RouteVarId = @routeVarId
+                    AND s.ISDELETED = 0
+            )";
     public const string GET_STATION_BY_ROUTEVARID = @"
-                                            SELECT s.Id, s.[Name], rs.[Index], s.[Latitude], s.[Longitude]
+                                            SELECT s.Id, s.[Name], rs.[Index], s.[Latitude], s.[Longitude],
+                                            s.Address, s.Code
                                             FROM RouteStation rs
                                             INNER JOIN Station s
                                             ON rs.StationId = s.Id
