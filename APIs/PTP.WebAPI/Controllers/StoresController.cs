@@ -47,7 +47,7 @@ namespace PTP.WebAPI.Controllers
 		[HttpGet("{id}/menus")]
 		public async Task<IActionResult> GetMenusByStoreId([FromRoute] Guid id, string? arrivalTime, DateTime? dateApply)
 		{
-			if (arrivalTime.IsNullOrEmpty()) return Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id, DateApply = dateApply!.Value }));
+			if (arrivalTime.IsNullOrEmpty()) return Ok(await _mediator.Send(new GetMenusByStoreId { StoreId = id }));
 
 			return Ok(await _mediator.Send(new GetMenuDetailByStoreId { StoreId = id, ArrivalTime = arrivalTime!, DateApply = dateApply!.Value }));
 		}

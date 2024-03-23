@@ -40,12 +40,19 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
             var cacheResult = await GetCache(request);
             if (cacheResult is not null) return cacheResult;
 
-            var products = await _unitOfWork.ProductRepository.GetAllAsync(x => x.Store, x => x.Category);
+            var products = await _unitOfWork.ProductRepository.GetAllAsync(x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (products.Count == 0) throw new NotFoundException("There are no product in DB!");
             await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, products);
-            var viewModels = _mapper.Map<IEnumerable<ProductViewModel>>(products);
+            var viewModels = _mapper.Map<List<ProductViewModel>>(products);
 
-            var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels;
+            for (int i = 0; i < products.Count; i++)
+            {
+                viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
+                viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
+                viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
+            }
+
+            var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels.AsEnumerable();
 
             if (request.Filter!.Count > 0)
             {

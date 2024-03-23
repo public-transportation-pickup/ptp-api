@@ -23,6 +23,10 @@ public class UpdateProductCommand : IRequest<bool>
             RuleFor(x => x.UpdateModel.Price).GreaterThan(0).NotNull().NotEmpty().WithMessage("Price must not null or empty");
             RuleFor(x => x.UpdateModel.CategoryId).NotNull().NotEmpty().WithMessage("CategoryId must not null or empty");
             RuleFor(x => x.UpdateModel.StoreId).NotNull().NotEmpty().WithMessage("StoreId must not null or empty");
+            RuleFor(x => x.UpdateModel.MenuId).NotNull().NotEmpty().WithMessage("MenuId must not null or empty");
+            RuleFor(x => x.UpdateModel.QuantityInDay).NotNull().NotEmpty().WithMessage("QuantityInDay must not null or empty");
+            RuleFor(x => x.UpdateModel.NumProcessParallel).NotNull().NotEmpty().WithMessage("NumProcessParallel must not null or empty");
+            RuleFor(x => x.UpdateModel.PreparationTime).NotNull().NotEmpty().WithMessage("NumProcessParallel must not null or empty");
         }
     }
 
@@ -65,9 +69,23 @@ public class UpdateProductCommand : IRequest<bool>
                 product.ImageURL = image.URL;
             }
 
-
+            await UpdateProductMenu(request.UpdateModel);
             _unitOfWork.ProductRepository.Update(product);
             return await _unitOfWork.SaveChangesAsync();
         }
+
+        private async Task UpdateProductMenu(ProductUpdateModel model)
+        {
+            var productMenu = await _unitOfWork.ProductInMenuRepository.GetByIdAsync(model.ProductMenuId);
+            if (productMenu == null) throw new BadRequestException("Not Found Product in Menu!");
+            productMenu.Status = model.Status;
+            productMenu.SalePrice = model.Price;
+            productMenu.QuantityInDay = model.QuantityInDay;
+            productMenu.NumProcessParallel = model.NumProcessParallel;
+            productMenu.PreparationTime = model.PreparationTime;
+
+            _unitOfWork.ProductInMenuRepository.Update(productMenu);
+        }
+
     }
 }

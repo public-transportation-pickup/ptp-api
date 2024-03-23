@@ -25,8 +25,8 @@ public class UpdateMenuCommand : IRequest<bool>
                 .WithMessage("StartTime must not null or empty");
             RuleFor(x => x.UpdateModel.EndTime).NotNull().NotEmpty().Matches(@"^\d{2}:\d{2}$")
                 .WithMessage("EndTime must not null or empty");
-            RuleFor(x => x.UpdateModel.DateApply).NotNull().NotEmpty()
-                           .GreaterThanOrEqualTo(DateTime.Now).LessThanOrEqualTo(DateTime.Now.AddDays(7)).WithMessage("DateFilter must not null or empty"); RuleFor(x => x.UpdateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
+            RuleFor(x => x.UpdateModel.DateApply).NotNull().NotEmpty().WithMessage("DateFilter must not null or empty");
+            RuleFor(x => x.UpdateModel.Status).NotNull().NotEmpty().WithMessage("Status must not null or empty");
             RuleFor(x => x.UpdateModel.StoreId).NotNull().NotEmpty().WithMessage("StoreId must not null or empty");
         }
     }
@@ -53,14 +53,14 @@ public class UpdateMenuCommand : IRequest<bool>
             _logger.LogInformation("Update Menu:\n");
             TimeSpan.TryParseExact(request.UpdateModel.StartTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan startTime);
             TimeSpan.TryParseExact(request.UpdateModel.EndTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan endTime);
-            if (startTime >= endTime) throw new BadRequestException("Start Time must higher than End Time");
+            // if (startTime >= endTime) throw new BadRequestException("Start Time must higher than End Time");
 
             //Remove From Cache       
 
             var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.UpdateModel.Id);
             if (menu is null) throw new NotFoundException($"Menu with Id-{request.UpdateModel.Id} is not exist!");
 
-            if (menu.StartTime != startTime || menu.EndTime != endTime || menu.DateApply != request.UpdateModel.DateApply) await CheckTime(menu.StoreId, menu.DateApply, startTime, endTime);
+            // if (menu.StartTime != startTime || menu.EndTime != endTime || menu.DateApply != request.UpdateModel.DateApply) await CheckTime(menu.StoreId, menu.DateApply, startTime, endTime);
             menu = _mapper.Map(request.UpdateModel, menu);
 
             _unitOfWork.MenuRepository.Update(menu);
@@ -73,19 +73,19 @@ public class UpdateMenuCommand : IRequest<bool>
             return result;
         }
 
-        private async Task<bool> CheckTime(Guid storeId, DateTime dateApply, TimeSpan sTime, TimeSpan eTime)
-        {
-            var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
-                                 x.StoreId == storeId && x.DateApply == dateApply);
+        // private async Task<bool> CheckTime(Guid storeId, DateTime dateApply, TimeSpan sTime, TimeSpan eTime)
+        // {
+        //     var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
+        //                          x.StoreId == storeId);
 
-            if (menus.Count == 0) return true;
+        //     if (menus.Count == 0) return true;
 
-            foreach (var item in menus)
-            {
-                if (item.StartTime <= sTime && item.EndTime > sTime) throw new BadRequestException($"Start time is duplicate with menu-{item.Id}");
-                if (item.StartTime < eTime && item.EndTime >= eTime) throw new BadRequestException($"End time is duplicate with menu-{item.Id}");
-            }
-            return true;
-        }
+        //     foreach (var item in menus)
+        //     {
+        //         if (item.StartTime <= sTime && item.EndTime > sTime) throw new BadRequestException($"Start time is duplicate with menu-{item.Id}");
+        //         if (item.StartTime < eTime && item.EndTime >= eTime) throw new BadRequestException($"End time is duplicate with menu-{item.Id}");
+        //     }
+        //     return true;
+        // }
     }
 }

@@ -15,7 +15,6 @@ namespace PTP.Application.Features.Menus.Queries;
 public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
 {
     public Guid StoreId { get; set; } = default!;
-    public DateTime DateApply { get; set; } = default!;
 
     public class QueryValidation : AbstractValidator<GetMenusByStoreId>
     {
@@ -45,7 +44,7 @@ public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
             //if (cacheResult is not null) return cacheResult;
 
             var menus = await _unitOfWork.MenuRepository
-                    .WhereAsync(x => x.StoreId == request.StoreId && x.DateApply == request.DateApply);
+                    .WhereAsync(x => x.StoreId == request.StoreId);
             if (menus is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any menus!");
             //await _cacheService.SetByPrefixAsync<Menu>(CacheKey.MENU, menus);
             var viewModels = _mapper.Map<IEnumerable<MenuViewModel>>(menus);
@@ -61,7 +60,7 @@ public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
             var cacheResult = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
             if (cacheResult!.Count > 0)
             {
-                var result = cacheResult.Where(x => x.StoreId == request.StoreId && x.DateApply.ToShortDateString() == request.DateApply.ToString());
+                var result = cacheResult.Where(x => x.StoreId == request.StoreId);
                 if (result == null) return null;
                 var cacheViewModels = _mapper.Map<IEnumerable<MenuViewModel>>(result);
                 return cacheViewModels;

@@ -168,14 +168,15 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         public async Task BackgroundJobForConfirm(Guid orderId)
         {
             var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
-            var orderCheck = await _unitOfWork.OrderRepository.WhereAsync(x => x.Status == nameof(OrderStatusEnum.Preparing));
-            var menu = await _unitOfWork.MenuRepository.GetByIdAsync(order!.MenuId);
+            // var orderCheck = await _unitOfWork.OrderRepository.WhereAsync(x => x.Status == nameof(OrderStatusEnum.Preparing));
+            // var menu = await _unitOfWork.MenuRepository.GetByIdAsync(order!.MenuId);
             if (order == null) throw new BadRequestException($"Order- {orderId} is not found!");
             if (order.Status == nameof(OrderStatusEnum.Waiting))
             {
-                order.Status = orderCheck.Count < menu!.MaxNumOrderProcess ? nameof(OrderStatusEnum.Preparing) : nameof(OrderStatusEnum.Canceled);
-                order.CanceledReason = orderCheck.Count < menu!.MaxNumOrderProcess ? null : "Số lượng đơn hàng đã vượt quá giới hạn!";
-                if (order.Status == nameof(OrderStatusEnum.Canceled)) await RollBackTransaction(order);
+                // order.Status = orderCheck.Count < menu!.MaxNumOrderProcess ? nameof(OrderStatusEnum.Preparing) : nameof(OrderStatusEnum.Canceled);
+                // order.CanceledReason = orderCheck.Count < menu!.MaxNumOrderProcess ? null : "Số lượng đơn hàng đã vượt quá giới hạn!";
+                // if (order.Status == nameof(OrderStatusEnum.Canceled)) await RollBackTransaction(order);
+                order.Status = nameof(OrderStatusEnum.Preparing);
                 _unitOfWork.OrderRepository.Update(order);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
             }

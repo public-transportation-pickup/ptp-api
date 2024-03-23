@@ -58,7 +58,7 @@ namespace PTP.Application.Features.Orders.Commands
                 switch (status)
                 {
                     case nameof(OrderStatusEnum.Preparing):
-                        order = await PreparingState(order);
+                        order = PreparingState(order);
                         break;
                     case nameof(OrderStatusEnum.Prepared):
                         order = PreparedState(order);
@@ -77,13 +77,13 @@ namespace PTP.Application.Features.Orders.Commands
                 var result = await _unitOfWork.SaveChangesAsync();
                 return result;
             }
-            private async Task<Order> PreparingState(Order order)
+            private Order PreparingState(Order order)
             {
                 if (!order.Status.Equals("Waiting"))
                     throw new BadRequestException("Order can update to preparing when status is Preparing!");
-                var orderCheck = await _unitOfWork.OrderRepository.WhereAsync(x => x.Status == nameof(OrderStatusEnum.Preparing));
-                var menu = await _unitOfWork.MenuRepository.GetByIdAsync(order!.MenuId);
-                if (orderCheck.Count < menu!.MaxNumOrderProcess) throw new BadRequestException("Số lượng đơn hàng đã vượt quá giới hạn!");
+                // var orderCheck = await _unitOfWork.OrderRepository.WhereAsync(x => x.Status == nameof(OrderStatusEnum.Preparing));
+                // var menu = await _unitOfWork.MenuRepository.GetByIdAsync(order!.MenuId);
+                // if (orderCheck.Count < menu!.MaxNumOrderProcess) throw new BadRequestException("Số lượng đơn hàng đã vượt quá giới hạn!");
                 order.Status = nameof(OrderStatusEnum.Preparing);
                 return order;
             }
@@ -107,10 +107,12 @@ namespace PTP.Application.Features.Orders.Commands
 
             private async Task<Order> CancelOrder(Order order, string reason)
             {
+                decimal percent = (decimal)0.7;
                 if (!order.Status.Equals("Waiting") && !order.Status.Equals("Preparing"))
                     throw new BadRequestException("Order can cancel when status is Waiting or Preparing!");
                 order.Status = nameof(OrderStatusEnum.Canceled);
                 order.CanceledReason = reason;
+                order.ReturnAmount = order.Status.Equals("Waiting") ? order.Total : order.Total * percent;
                 await CreateTransaction(order);
                 return order;
             }
@@ -122,12 +124,12 @@ namespace PTP.Application.Features.Orders.Commands
                 if (storeUser is null) throw new BadRequestException($"Wallet have Store Id-{order.StoreId} does not exist!");
 
                 var transactions = new List<Transaction>{
-                    new Transaction{Name=nameof(TransactionTypeEnum.Receive),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Receive),WalletId=userWallet.Id,PaymentId=order.PaymentId},
-                    new Transaction{Name=nameof(TransactionTypeEnum.Transfer),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Transfer),WalletId=storeUser.WalletId,PaymentId=order.PaymentId}
+                    new Transaction{Name=nameof(TransactionTypeEnum.Receive),Amount=order.ReturnAmount!.Value,TransactionType=nameof(TransactionTypeEnum.Receive),WalletId=userWallet.Id,PaymentId=order.PaymentId},
+                    new Transaction{Name=nameof(TransactionTypeEnum.Transfer),Amount=order.ReturnAmount!.Value,TransactionType=nameof(TransactionTypeEnum.Transfer),WalletId=storeUser.WalletId,PaymentId=order.PaymentId}
                 };
                 await _unitOfWork.TransactionRepository.AddRangeAsync(transactions);
-                userWallet.Amount += order.Total;
-                storeUser.Wallet.Amount -= order.Total;
+                userWallet.Amount += order.ReturnAmount!.Value;
+                storeUser.Wallet.Amount -= order.ReturnAmount.Value!;
                 _unitOfWork.WalletRepository.UpdateRange(new List<Wallet> { userWallet, storeUser.Wallet });
             }
         }

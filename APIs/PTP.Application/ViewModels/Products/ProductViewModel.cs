@@ -17,4 +17,8 @@ public class ProductViewModel
     public string StoreName { get; set; } = default!;
     public Guid CategoryId { get; set; } = default!;
     public string CategoryName { get; set; } = default!;
+    public string Status { get; set; } = default!;
+    public Guid ProductMenuId { get; set; }
+    public Guid MenuId { get; set; }
+    public int QuantityInDay { get; set; }
 }

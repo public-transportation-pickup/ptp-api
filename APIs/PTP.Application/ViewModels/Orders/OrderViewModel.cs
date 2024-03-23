@@ -9,6 +9,7 @@ public class OrderViewModel
     public string PhoneNumber { get; set; } = default!;
     public DateTime PickUpTime { get; set; } = default!;
     public int TotalPreparationTime { get; set; }
+    public string? CanceledReason { get; set; }
     public decimal Total { get; set; } = 0;
     public string Status { get; set; } = default!;
     public Guid UserId { get; set; }
@@ -20,9 +21,9 @@ public class OrderViewModel
     public string StorePhoneNumber { get; set; } = default!;
     public Guid PaymentId { get; set; }
     public string PaymentType { get; set; } = default!;
+    public DateTime CreationDate { get; set; }
     public string? PaymentStatus { get; set; }
-    public Guid MenuId { get; set; }
-    public string? CanceledReason { get; set; }
+    // public Guid MenuId { get; set; }
     public decimal? ReturnAmount { get; set; } = null;
     public IEnumerable<OrderDetailViewModel>? OrderDetails { get; set; }
 
