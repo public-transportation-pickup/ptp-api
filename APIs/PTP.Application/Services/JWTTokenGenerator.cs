@@ -30,7 +30,7 @@ public class JWTTokenGenerator : IJWTTokenGenerator
             Audience = appSettings.JWTOptions.Audience,
             Issuer = appSettings.JWTOptions.Issuer,
             Subject = new ClaimsIdentity(claimsList),
-            Expires = DateTime.UtcNow.AddDays(1),
+            Expires = DateTime.UtcNow.AddDays(1000),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);

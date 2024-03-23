@@ -9,6 +9,7 @@ public class OrderViewModel
     public string PhoneNumber { get; set; } = default!;
     public DateTime PickUpTime { get; set; } = default!;
     public int TotalPreparationTime { get; set; }
+    public string? CanceledReason { get; set; }
     public decimal Total { get; set; } = 0;
     public string Status { get; set; } = default!;
     public Guid UserId { get; set; }
