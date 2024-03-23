@@ -157,6 +157,7 @@ public class MapperConfigurationProfile : Profile
 		#region Order
 		CreateMap<Order, OrderViewModel>()
 			.ForMember(x => x.StationAddress, opt => opt.MapFrom(x => x.Station.Address))
+			.ForMember(x => x.CreationDate, opt => opt.MapFrom(x => x.CreationDate))
 			.ForMember(x => x.StationName, opt => opt.MapFrom(x => x.Station.Name))
 			.ForMember(x => x.StorePhoneNumber, opt => opt.MapFrom(x => x.Store.PhoneNumber))
 			.ForMember(x => x.StoreName, opt => opt.MapFrom(x => x.Store.Name))

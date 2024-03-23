@@ -36,8 +36,10 @@ public class DeleteProductCommand : IRequest<bool>
             await _cacheService.RemoveAsync(CacheKey.PRODUCT + request.Id);
 
             var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id);
+            var productMenu = await _unitOfWork.ProductInMenuRepository.WhereAsync(x => x.ProductId == request.Id);
             if (product is null) throw new NotFoundException($"Product with Id-{request.Id} is not exist!");
             _unitOfWork.ProductRepository.SoftRemove(product);
+            _unitOfWork.ProductInMenuRepository.SoftRemoveRange(productMenu);
             return await _unitOfWork.SaveChangesAsync();
         }
     }

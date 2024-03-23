@@ -65,21 +65,22 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
                     filterResult = filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
                 }
             }
-            filterResult = filterResult.OrderBy(o => Math.Abs((o.PickUpTime - DateTime.Now).TotalSeconds)).ToList();
-            foreach (var item in filterResult)
-            {
-                if (item.OrderDetails?.Count() > 0)
-                {
-                    foreach (var orderItem in item.OrderDetails)
-                    {
-                        var productInMenu = await _unitOfWork.ProductInMenuRepository.GetByIdAsync(orderItem.ProductMenuId, x => x.Product) ?? new();
-                        orderItem.ProductName = productInMenu?.Product?.Name ?? string.Empty;
-                        orderItem.ImageURL = productInMenu?.Product?.ImageURL ?? string.Empty;
-                        orderItem.ProductPrice = productInMenu?.Product?.Price ?? 0;
-                        orderItem.Description = productInMenu?.Product?.Description ?? string.Empty;
-                    }
-                }
-            }
+            // filterResult = filterResult.OrderBy(o => Math.Abs((o.PickUpTime - DateTime.Now).TotalSeconds)).ToList();
+            // foreach (var item in filterResult)
+            // {
+            //     if (item.OrderDetails?.Count() > 0)
+            //     {
+            //         foreach (var orderItem in item.OrderDetails)
+            //         {
+            //             var productInMenu = await _unitOfWork.ProductInMenuRepository.GetByIdAsync(orderItem.ProductMenuId, x => x.Product) ?? new();
+            //             orderItem.ProductName = productInMenu?.Product?.Name ?? string.Empty;
+            //             orderItem.ImageURL = productInMenu?.Product?.ImageURL ?? string.Empty;
+            //             orderItem.ProductPrice = productInMenu?.Product?.Price ?? 0;
+            //             orderItem.Description = productInMenu?.Product?.Description ?? string.Empty;
+            //         }
+            //     }
+            // }
+            filterResult.OrderByDescending(x => x.CreationDate);
 
             return PaginatedList<OrderViewModel>.Create(
                         source: filterResult.AsQueryable(),
@@ -90,10 +91,10 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
 
         private async Task<IEnumerable<OrderViewModel>> GetOrderDetail(List<OrderViewModel> orders)
         {
-            for (var i = 0;i<orders.Count();i++)
+            for (var i = 0; i < orders.Count(); i++)
             {
-                var orderDetail= await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == orders[i].Id,x=>x.ProductInMenu.Product);
-                orders[i].OrderDetails= _mapper.Map<IEnumerable<OrderDetailViewModel>>(orderDetail);
+                var orderDetail = await _unitOfWork.OrderDetailRepository.WhereAsync(x => x.OrderId == orders[i].Id, x => x.ProductInMenu.Product);
+                orders[i].OrderDetails = _mapper.Map<IEnumerable<OrderDetailViewModel>>(orderDetail);
             }
             return orders;
         }

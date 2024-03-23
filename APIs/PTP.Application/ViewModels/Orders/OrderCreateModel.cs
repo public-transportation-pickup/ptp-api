@@ -9,7 +9,7 @@ public class OrderCreateModel
     public DateTime PickUpTime { get; set; } = default!;//This is a arrival time
     // public int TotalPreparationTime { get; set; }
     public decimal Total { get; set; } = 0;
-    public Guid MenuId { get; set; }
+    // public Guid MenuId { get; set; }
     public Guid StationId { get; set; } = default!;
     public Guid StoreId { get; set; }
     public PaymentCreateModel Payment { get; set; } = default!;

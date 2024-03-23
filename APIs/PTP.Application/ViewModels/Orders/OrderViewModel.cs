@@ -21,9 +21,9 @@ public class OrderViewModel
     public string StorePhoneNumber { get; set; } = default!;
     public Guid PaymentId { get; set; }
     public string PaymentType { get; set; } = default!;
+    public DateTime CreationDate { get; set; }
     public string? PaymentStatus { get; set; }
-    public Guid MenuId { get; set; }
-    public string? CanceledReason { get; set; }
+    // public Guid MenuId { get; set; }
     public decimal? ReturnAmount { get; set; } = null;
     public IEnumerable<OrderDetailViewModel>? OrderDetails { get; set; }
 

@@ -120,7 +120,7 @@ namespace PTP.Application.Features.Stores.Commands
                 {
                     await AddStationsToStore(request.CreateModel.StationIds, store.Id);
                 }
-
+                await CreateMenuDefault(store);
                 await _unitOfWork.StoreRepository.AddAsync(store);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
                 await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
@@ -164,6 +164,21 @@ namespace PTP.Application.Features.Stores.Commands
 
                 if (!await CreateUserToFirebaseAsync(user.Email, user.Password)) throw new Exception($"Create Account to FireBase Fail!");
                 return user.Id;
+            }
+            private async Task CreateMenuDefault(Store store)
+            {
+                var menu = new Menu
+                {
+                    Name = "Tất cả lịch bán",
+                    Description = "Menu cho tất cả lịch bán từ T2 đếm CN",
+                    StartTime = TimeSpan.ParseExact("06:00", @"hh\:mm", CultureInfo.InvariantCulture),
+                    EndTime = TimeSpan.ParseExact("22:00", @"hh\:mm", CultureInfo.InvariantCulture),
+                    DateApply = "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday",
+                    Status = nameof(DefaultStatusEnum.Active),
+                    IsApplyForAll = true,
+                    StoreId = store.Id
+                };
+                await _unitOfWork.MenuRepository.AddAsync(menu);
             }
 
             private async Task<bool> CreateUserToFirebaseAsync(string email, string password)

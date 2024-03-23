@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PTP.Domain.Enums;
 
 namespace PTP.Domain.Entities;
 public class Product : BaseEntity
@@ -13,6 +14,8 @@ public class Product : BaseEntity
 	public DateTime? ExpirationDate { get; set; }
 	public int PreparationTime { get; set; } = default!;
 	public int NumProcessParallel { get; set; }
+	public string Status { get; set; } = DefaultStatusEnum.Active.ToString();
+
 	#region Config Relationship
 	public Guid CategoryId { get; set; } = default!;
 	public Category Category { get; set; } = default!;

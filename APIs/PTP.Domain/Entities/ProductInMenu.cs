@@ -16,7 +16,6 @@ public class ProductInMenu : BaseEntity
 	public Menu Menu { get; set; } = default!;
 	public Guid ProductId { get; set; }
 	public Product Product { get; set; } = default!;
-
 	public ICollection<OrderDetail> OrderDetails { get; set; } = default!;
 	#endregion
 }

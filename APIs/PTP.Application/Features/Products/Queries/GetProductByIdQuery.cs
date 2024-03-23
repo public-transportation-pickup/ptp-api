@@ -44,10 +44,15 @@ public class GetProductByQuery : IRequest<ProductViewModel>
             {
                 return _mapper.Map<ProductViewModel>(cacheResult);
             }
-            var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, x => x.Store, x => x.Category);
+            var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (product is null) throw new BadRequestException($"Product with ID-{request.Id} is not exist!");
             await _cacheService.SetAsync<Product>(CacheKey.PRODUCT + request.Id, product);
-            return _mapper.Map<ProductViewModel>(product);
+            var result = _mapper.Map<ProductViewModel>(product);
+            result.ProductMenuId = product.ProductInMenus.First().Id;
+            result.QuantityInDay = product.ProductInMenus.First().QuantityInDay;
+            result.MenuId = product.ProductInMenus.First().MenuId;
+
+            return result;
         }
     }
 }

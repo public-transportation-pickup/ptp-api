@@ -12,7 +12,7 @@ using System.Globalization;
 
 namespace PTP.Application.Features.Menus.Queries
 {
-    public class GetMenuDetailByStoreId : IRequest<MenuViewModel>
+    public class GetMenuDetailByStoreId : IRequest<ProductsStore>
     {
         public Guid StoreId { get; set; } = default!;
         public string ArrivalTime { get; set; } = default!;
@@ -26,7 +26,7 @@ namespace PTP.Application.Features.Menus.Queries
             }
         }
 
-        public class QueryHandler : IRequestHandler<GetMenuDetailByStoreId, MenuViewModel>
+        public class QueryHandler : IRequestHandler<GetMenuDetailByStoreId, ProductsStore>
         {
             private readonly IUnitOfWork _unitOfWork;
             private readonly IMapper _mapper;
@@ -43,21 +43,26 @@ namespace PTP.Application.Features.Menus.Queries
                 _logger = logger;
             }
 
-            public async Task<MenuViewModel> Handle(GetMenuDetailByStoreId request, CancellationToken cancellationToken)
+            public async Task<ProductsStore> Handle(GetMenuDetailByStoreId request, CancellationToken cancellationToken)
             {
                 var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
-                                                 x.StoreId == request.StoreId &&
-                                                 x.DateApply.Date == request.DateApply.Date
-                                                 , x => x.Store);
-
+                                                 x.StoreId == request.StoreId);
+                var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.StoreId);
 
                 if (menus.Count == 0) return new();
-
-                var result = _mapper.Map<MenuViewModel>(GetMenu(menus, request.ArrivalTime));
-                result.ProductInMenus = await GetProductsInMenu(result.Id);
+                var menuIds = CheckMenu(menus, request);
+                var result = new ProductsStore
+                {
+                    StoreId = store!.Id,
+                    Name = store!.Name,
+                    Description = store!.Description,
+                    PhoneNumber = store!.PhoneNumber,
+                    Status = store!.Status
+                };
+                result.ProductInMenus = await GetProductsInMenu(menuIds);
                 result.Categories = result.ProductInMenus?.ToList().ConvertAll<object>(x =>
                 {
-                    
+
                     return new
                     {
                         x.CategoryId,
@@ -67,28 +72,52 @@ namespace PTP.Application.Features.Menus.Queries
                 return result;
             }
 
-            private async Task<List<ProductMenuViewModel>> GetProductsInMenu(Guid menuId)
+            private async Task<List<ProductMenuViewModel>?> GetProductsInMenu(List<Guid> menuIds)
             {
                 var productMenus = await _unitOfWork.ProductInMenuRepository
-                                .WhereAsync(x => x.MenuId == menuId,
+                                .WhereAsync(x => menuIds.Contains(x.MenuId),
                                             x => x.Menu,
                                             x => x.Product,
                                             x => x.Product.Category);
 
-                if (productMenus.Count == 0) throw new NotFoundException($"There are no product for Menu-{menuId}!");
+                if (productMenus.Count == 0) return null;
                 return _mapper.Map<List<ProductMenuViewModel>>(productMenus);
 
             }
 
-            private Menu GetMenu(IEnumerable<Menu> menus, string arrivalTime)
+            private List<Guid> CheckMenu(IEnumerable<Menu> menus, GetMenuDetailByStoreId request)
             {
+                var menuIds = new List<Guid>();
+                TimeSpan.TryParseExact(request.ArrivalTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan aTime);
+
                 foreach (var item in menus)
                 {
-                    TimeSpan.TryParseExact(arrivalTime, @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan aTime);
-                    if (item.StartTime < aTime && item.EndTime > aTime) return item;
+                    if (item.IsApplyForAll)
+                    {
+                        if (item.StartTime < aTime && item.EndTime > aTime)
+                        {
+                            menuIds.Add(item.Id);
+                        }
+                    }
+                    else if (item.StartDate == null && item.EndDate == null)
+                    {
+                        if (item.StartTime < aTime && item.EndTime > aTime && item.DateApply.Contains(request.DateApply.DayOfWeek.ToString()))
+                        {
+                            menuIds.Add(item.Id);
+                        }
+                    }
+                    else
+                    {
+                        if (item.StartDate < request.DateApply && item.EndDate > request.DateApply)
+                        {
+                            if (item.StartTime < aTime && item.EndTime > aTime && item.DateApply.Contains(request.DateApply.DayOfWeek.ToString()))
+                            {
+                                menuIds.Add(item.Id);
+                            }
+                        }
+                    }
                 }
-
-                return new();
+                return menuIds;
             }
 
         }

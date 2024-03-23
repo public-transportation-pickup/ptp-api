@@ -9,10 +9,12 @@ public class ProductCreateModel
     public decimal Price { get; set; } = default!;
     public string Description { get; set; } = default!;
     public IFormFile? Image { get; set; }
-    public int PreparationTime { get; set; } = default!;
-    public int NumProcessParallel { get; set; }
     public DateTime? ManufacturingDate { get; set; }
     public DateTime? ExpirationDate { get; set; }
     public Guid CategoryId { get; set; } = default!;
     public Guid StoreId { get; set; }
+    public Guid MenuId { get; set; }
+    public int QuantityInDay { get; set; }
+    public int NumProcessParallel { get; set; }
+    public int PreparationTime { get; set; } = default!;
 }
