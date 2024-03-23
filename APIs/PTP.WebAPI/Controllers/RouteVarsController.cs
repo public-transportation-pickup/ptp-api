@@ -93,10 +93,21 @@ public class RouteVarsController : BaseController
     /// <param name="id"></param>
     /// <param name="models"></param>
     /// <returns></returns>
-    [Route("api/route-vars/{id}/duplicate")]
+    [Route("{id}/duplicate")]
     [HttpPost]
     public async Task<IActionResult> Duplicate([FromRoute] Guid id, [FromBody] List<RouteStationDuplicateModel> models)
     {
         return Ok(await _mediator.Send(new DuplicateRouteVarCommand { Id = id, Stations = models }));
+    }
+
+    /// <summary>
+    /// Load tất cả các store theo routeVariation
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/stores")]
+    public async Task<IActionResult> GetStoreByRouteVars([FromRoute] Guid id)
+    {
+        return Ok(await _mediator.Send(new GetStoresByRouteVarId { RouteVarId = id }));
     }
 }
