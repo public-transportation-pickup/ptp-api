@@ -9,9 +9,9 @@ namespace PTP.Application.GlobalExceptionHandling
 {
     public class GlobalErrorHandlingMiddleware : IMiddleware
     {
- 
 
-     
+
+
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             HttpStatusCode status;
@@ -64,7 +64,7 @@ namespace PTP.Application.GlobalExceptionHandling
             return context.Response.WriteAsync(exceptionResult);
         }
 
-       
+
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {

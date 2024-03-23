@@ -1,7 +1,10 @@
 using AutoMapper;
+using MongoDB.Bson;
+using PTP.Application.Features.Routes.Commands;
 using PTP.Application.ViewModels;
 using PTP.Application.ViewModels.Categories;
 using PTP.Application.ViewModels.Menus;
+using PTP.Application.ViewModels.MongoDbs.Carts;
 using PTP.Application.ViewModels.OrderDetails;
 using PTP.Application.ViewModels.Orders;
 using PTP.Application.ViewModels.ProductMenus;
@@ -17,6 +20,7 @@ using PTP.Application.ViewModels.Users;
 using PTP.Application.ViewModels.WalletLogs;
 using PTP.Application.ViewModels.Wallets;
 using PTP.Domain.Entities;
+using PTP.Domain.Entities.MongoDbs;
 
 namespace PTP.Application.Profiles;
 public class MapperConfigurationProfile : Profile
@@ -194,6 +198,16 @@ public class MapperConfigurationProfile : Profile
 		CreateMap<Station, StationViewModel>().ReverseMap();
 		CreateMap<Station, StationUpdateModel>().ReverseMap();
 		CreateMap<Route, RouteCreateModel>().ReverseMap();
+		#endregion
+
+		#region Carts
+		CreateMap<CartEntity, CartCreateModel>().ReverseMap();
+		CreateMap<CartEntity, CartViewModel>().ReverseMap()
+			.ForMember(x => x.Id, cfg => cfg.MapFrom(x => ObjectId.Parse(x.Id)));
+		CreateMap<CartEntity, CartUpdateModel>().ReverseMap()
+			.ForMember(x => x.Id, cfg => cfg.MapFrom(x => ObjectId.Parse(x.Id)));
+		CreateMap<CartItemCreateModel, CartItemEntity>().ReverseMap();
+		CreateMap<CartItemEntity, CartItemViewModel>().ReverseMap();
 		#endregion
 	}
 }

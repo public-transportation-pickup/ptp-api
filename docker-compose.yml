@@ -5,8 +5,16 @@ networks:
   elastic: 
     driver: bridge
 volumes:
+  dbdata6:
   elasticsearch-data:
 services:
+  mongo-db: 
+    image: mongodb/mongodb-community-server:5.0-ubi8 
+    restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - 'dbdata6:/data/db'
   elasticsearch:
     container_name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
@@ -64,6 +72,7 @@ services:
     - "/etc/localtime:/etc/localtime:ro"
     - CONNECTIONSTRINGS__DEFAULTCONNECTION=Server=sql-server;Database=[PTP.Database];Trusted_Connection=False;User Id=sa;Password=z@123456!;MultipleActiveResultSets=true;TrustServerCertificate=true
     - ConnectionStrings__RedisConnection=redis:6379
+    - CONNECTIONSTRINGS__MONGODBCONNECTION=mongo-db://mongodb:27017
     ports:
     - "5000:80"
 

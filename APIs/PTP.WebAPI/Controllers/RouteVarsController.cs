@@ -93,7 +93,7 @@ public class RouteVarsController : BaseController
     /// <param name="id"></param>
     /// <param name="models"></param>
     /// <returns></returns>
-    [Route("api/route-vars/{id}/duplicate")]
+    [Route("{id}/duplicate")]
     [HttpPost]
     public async Task<IActionResult> Duplicate([FromRoute] Guid id, [FromBody] List<RouteStationDuplicateModel> models)
     {
@@ -105,7 +105,7 @@ public class RouteVarsController : BaseController
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpGet("api/route-vars/{id}/stores")]
+    [HttpGet("{id}/stores")]
     public async Task<IActionResult> GetStoreByRouteVars([FromRoute] Guid id)
     {
         return Ok(await _mediator.Send(new GetStoresByRouteVarId { RouteVarId = id }));

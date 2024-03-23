@@ -25,5 +25,6 @@ public class FirebaseSettings
 public class ConnectionStrings
 {
 	public string DefaultConnection { get; set; } = default!;
+	public string MongoDbConnection { get; set; } = string.Empty;
 	public string RedisConnection { get; set; } = default!;
 }
