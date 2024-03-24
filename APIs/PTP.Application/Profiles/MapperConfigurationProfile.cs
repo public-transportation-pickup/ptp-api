@@ -50,7 +50,8 @@ public class MapperConfigurationProfile : Profile
 
 		#region RouteVariation Mapper
 		CreateMap<RouteVar, RouteVarViewModel>().ReverseMap();
-		CreateMap<RouteVar, RouteVarCreateModel>().ReverseMap();
+		CreateMap<RouteVar, RouteVarCreateModel>().ReverseMap()
+			.ForMember(x => x.RouteStations, cfg => cfg.Ignore());
 		CreateMap<RouteVar, RouteVar>();
 		#endregion
 		#region TimeTable
@@ -204,9 +205,11 @@ public class MapperConfigurationProfile : Profile
 		#region Carts
 		CreateMap<CartEntity, CartCreateModel>().ReverseMap();
 		CreateMap<CartEntity, CartViewModel>().ReverseMap()
-			.ForMember(x => x.Id, cfg => cfg.MapFrom(x => ObjectId.Parse(x.Id)));
+			.ForMember(x => x.Id, cfg => cfg.MapFrom(x => ObjectId.Parse(x.Id)))
+			.ForMember(x => x.Items, cfg => cfg.MapFrom(x => x.Items));
 		CreateMap<CartEntity, CartUpdateModel>().ReverseMap()
-			.ForMember(x => x.Id, cfg => cfg.MapFrom(x => ObjectId.Parse(x.Id)));
+			.ForMember(x => x.Id, cfg => cfg.MapFrom(x => ObjectId.Parse(x.Id)))
+			.ForMember(x => x.Items, cfg => cfg.MapFrom(x => x.Items));
 		CreateMap<CartItemCreateModel, CartItemEntity>().ReverseMap();
 		CreateMap<CartItemEntity, CartItemViewModel>().ReverseMap();
 		#endregion
