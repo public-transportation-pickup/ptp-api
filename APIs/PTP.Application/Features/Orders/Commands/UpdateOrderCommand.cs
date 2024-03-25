@@ -110,9 +110,9 @@ namespace PTP.Application.Features.Orders.Commands
                 decimal percent = (decimal)0.7;
                 if (!order.Status.Equals("Waiting") && !order.Status.Equals("Preparing"))
                     throw new BadRequestException("Order can cancel when status is Waiting or Preparing!");
-                order.Status = nameof(OrderStatusEnum.Canceled);
                 order.CanceledReason = reason;
-                order.ReturnAmount = order.Status.Equals("Waiting") ? order.Total : order.Total * percent;
+                order.ReturnAmount = order.Status.Equals(nameof(OrderStatusEnum.Waiting)) ? order.Total : order.Total * percent;
+                order.Status = nameof(OrderStatusEnum.Canceled);
                 await CreateTransaction(order);
                 return order;
             }
