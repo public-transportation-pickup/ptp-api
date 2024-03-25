@@ -9,12 +9,12 @@ public class UpdateUserCommand : IRequest
 	public UserUpdateModel Model { get; set; } = default!;
 	public class CommandValidation : AbstractValidator<UpdateUserCommand>
 	{
-		public CommandValidation() 
+		public CommandValidation()
 		{
 			RuleFor(x => x.Id).NotNull().NotEmpty().WithMessage("Id must not null or empty");
 			RuleFor(x => x.Model.FullName).NotNull().NotEmpty()
 							.WithMessage("Name must not null or empty");
-			
+
 		}
 	}
 	public class CommandHandler : IRequestHandler<UpdateUserCommand>
@@ -44,6 +44,7 @@ public class UpdateUserCommand : IRequest
 				user.RoleId = role.Id;
 				_ = _unitOfWork.Mapper.Map(request.Model, user);
 				_unitOfWork.UserRepository.Update(user);
+				await _unitOfWork.SaveChangesAsync();
 			}
 
 		}
