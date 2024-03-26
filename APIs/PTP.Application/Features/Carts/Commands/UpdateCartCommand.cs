@@ -26,7 +26,7 @@ public class UpdateCartCommand : IRequest<CartViewModel?>
         {
             var cart = unitOfWork.Mapper.Map<CartEntity>(request.model);
             var res = await cartRepository.UpdateCartAsync(cart);
-            return res ?? new();
+            return res;
         }
     }
 }
