@@ -23,7 +23,7 @@ public class GetCartByUserQuery : IRequest<CartViewModel?>
         {
             var currentUser = claimsService.GetCurrentUser;
             var result = await cartRepository.GetCartByUserIdAsync(currentUser);
-            return result;
+            return result ?? new();
         }
     }
 }
