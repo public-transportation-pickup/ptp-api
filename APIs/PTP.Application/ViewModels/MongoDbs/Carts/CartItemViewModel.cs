@@ -5,5 +5,6 @@ public class CartItemViewModel
     public Guid ProductMenuId { get; set; }
     public int Quantity { get; set; }
     public decimal ActualPrice { get; set; }
+    public string ImageURL { get; set; } = string.Empty;
     public string Note { get; set; } = string.Empty;
 }
