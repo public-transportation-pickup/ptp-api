@@ -38,8 +38,8 @@ public class CartRepository : ICartRepository
                 Eq(x => x.Id, entity.Id),
             Builders<CartEntity>.Update
                 .Set(x => x.Items, entity.Items)
-                .Set(x => x.Note, entity.Note)
-
+                .Set(x => x.Note, entity.Note),
+                options: new UpdateOptions { IsUpsert = true }
         );
         return await GetCartByUserIdAsync(entity.UserId);
 
