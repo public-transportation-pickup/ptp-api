@@ -4,6 +4,7 @@ public class CartItemCreateModel
 {
 
     public Guid ProductMenuId { get; set; } = Guid.Empty;
+    public string Name { get; set; } = string.Empty;
     public int Quantity { get; set; } = 0;
     public decimal ActualPrice { get; set; }
     public string ImageURL { get; set; } = string.Empty;
