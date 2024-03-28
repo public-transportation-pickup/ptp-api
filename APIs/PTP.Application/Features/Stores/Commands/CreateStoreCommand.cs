@@ -173,7 +173,7 @@ namespace PTP.Application.Features.Stores.Commands
                     Description = "Menu cho tất cả lịch bán từ T2 đếm CN",
                     StartTime = TimeSpan.ParseExact("06:00", @"hh\:mm", CultureInfo.InvariantCulture),
                     EndTime = TimeSpan.ParseExact("22:00", @"hh\:mm", CultureInfo.InvariantCulture),
-                    DateApply = "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday",
+                    DateApply = "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday",
                     Status = nameof(DefaultStatusEnum.Active),
                     IsApplyForAll = true,
                     StoreId = store.Id

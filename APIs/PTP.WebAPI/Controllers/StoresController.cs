@@ -59,12 +59,12 @@ namespace PTP.WebAPI.Controllers
 		[HttpGet("{id}/products")]
 		[Authorize(Roles = "Admin,StoreManager")]
 		public async Task<IActionResult> GetProductsByStoreId([FromRoute] Guid id,
-															  //   [FromQuery] Guid categoryId = default,
+															  [FromQuery] Guid menuId = default,
 															  [FromQuery] int pageNumber = 0,
 															  [FromQuery] int pageSize = 10,
 															  [FromQuery] Dictionary<string, string> filter = default!)
 		// => Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, CategoryId = categoryId,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
-		=> Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
+		=> Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, MenuId = menuId, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
 
 		// [ProducesResponseType((int)HttpStatusCode.OK)]
 		// [ProducesResponseType((int)HttpStatusCode.BadRequest)]

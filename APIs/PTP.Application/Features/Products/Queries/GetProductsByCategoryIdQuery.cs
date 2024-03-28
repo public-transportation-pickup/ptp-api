@@ -48,13 +48,13 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
             var cacheResult = await GetCache(request);
             if (cacheResult is not null) return cacheResult;
 
-            var products = await _unitOfWork.ProductRepository.WhereAsync(x => x.CategoryId == request.CategoryId, x => x.Store, x => x.Category);
+            var products = await _unitOfWork.ProductRepository.WhereAsync(x => x.CategoryId == request.CategoryId, x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (products is null) throw new BadRequestException($"Category with ID-{request.CategoryId} is not exist any products!");
 
             await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, products);
 
             var viewModels = _mapper.Map<List<ProductViewModel>>(products);
-            for (int i = 0; i < products.Count; i++)
+            for (int i = 0; i < viewModels.Count; i++)
             {
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
@@ -85,11 +85,17 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
             var cacheResult = await _cacheService.GetByPrefixAsync<Product>(CacheKey.PRODUCT);
             if (cacheResult!.Count > 0)
             {
-                var result = cacheResult.Where(x => x.CategoryId == request.CategoryId);
+                var result = cacheResult.Where(x => x.CategoryId == request.CategoryId).ToList();
                 if (result == null) return null;
 
-                var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(result);
-                var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels;
+                var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(result).ToList();
+                for (int i = 0; i < cacheViewModels.Count; i++)
+                {
+                    cacheViewModels[i].ProductMenuId = result[i].ProductInMenus.First().Id;
+                    cacheViewModels[i].QuantityInDay = result[i].ProductInMenus.First().QuantityInDay;
+                    cacheViewModels[i].MenuId = result[i].ProductInMenus.First().MenuId;
+                }
+                var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels.AsEnumerable();
                 if (request.Filter!.Count > 0)
                 {
                     foreach (var filter in request.Filter)

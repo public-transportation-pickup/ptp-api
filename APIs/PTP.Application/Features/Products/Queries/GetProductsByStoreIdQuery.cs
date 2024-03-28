@@ -15,6 +15,8 @@ namespace PTP.Application.Features.Products.Queries;
 public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
 {
     public Guid StoreId { get; set; } = default!;
+
+    public Guid? MenuId { get; set; }
     //public Guid CategoryId{get;set;}=default!;
 
     public Dictionary<string, string>? Filter { get; set; } = default!;
@@ -47,22 +49,23 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
         {
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
+            request.Filter!.Remove("menuId");
 
             var cacheResult = await GetCache(request);
             if (cacheResult is not null) return cacheResult;
 
-            var products = await _unitOfWork.ProductRepository.WhereAsync(x => x.StoreId == request.StoreId, x => x.Store, x => x.Category);
+            var products = await _unitOfWork.ProductRepository.WhereAsync(x => x.StoreId == request.StoreId, x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (products is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any products!");
             await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, products);
             var viewModels = _mapper.Map<List<ProductViewModel>>(products);
 
-            for (int i = 0; i < products.Count; i++)
+            for (int i = 0; i < viewModels.Count; i++)
             {
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
             }
-
+            if (request.MenuId != Guid.Empty) viewModels = viewModels.Where(x => x.MenuId == request.MenuId).ToList();
             var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels.AsEnumerable();
 
             if (request.Filter!.Count > 0)
@@ -94,11 +97,18 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
             var cacheResult = await _cacheService.GetByPrefixAsync<Product>(CacheKey.PRODUCT);
             if (cacheResult!.Count > 0)
             {
-                var result = cacheResult.Where(x => x.StoreId == request.StoreId);
+                var result = cacheResult.Where(x => x.StoreId == request.StoreId).ToList();
                 if (result == null) return null;
 
-                var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(result);
-                var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels;
+                var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(result).ToList();
+                for (int i = 0; i < cacheViewModels.Count; i++)
+                {
+                    cacheViewModels[i].ProductMenuId = result[i].ProductInMenus.First().Id;
+                    cacheViewModels[i].QuantityInDay = result[i].ProductInMenus.First().QuantityInDay;
+                    cacheViewModels[i].MenuId = result[i].ProductInMenus.First().MenuId;
+                }
+                if (request.MenuId != Guid.Empty) cacheViewModels = cacheViewModels.Where(x => x.MenuId == request.MenuId).ToList();
+                var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels.AsEnumerable();
                 if (request.Filter!.Count > 0)
                 {
                     foreach (var filter in request.Filter)
