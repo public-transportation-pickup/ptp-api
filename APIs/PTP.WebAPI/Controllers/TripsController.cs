@@ -31,7 +31,7 @@ public class TripsController : BaseController
     public async Task<IActionResult> GetTripsByParentId(Guid routeId,
         Guid routeVarId,
         [FromQuery] Dictionary<string, string> filter,
-        [FromQuery] int pageNumber = -1)
+        [FromQuery] int pageNumber = 0)
     => Ok(await mediator.Send(new GetAllTripByRouteIdQuery
     {
         RouteId = routeId,

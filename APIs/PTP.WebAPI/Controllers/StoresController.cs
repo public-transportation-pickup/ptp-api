@@ -38,8 +38,14 @@ namespace PTP.WebAPI.Controllers
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
 		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById([FromRoute] Guid id)
-		=> Ok(await _mediator.Send(new GetStoreByIdQuery { Id = id }));
+		public async Task<IActionResult> GetById([FromRoute] Guid id,
+												 [FromQuery] bool isReport = false)
+		{
+			if (isReport == false) return Ok(await _mediator.Send(new GetStoreByIdQuery { Id = id }));
+
+			return Ok(await _mediator.Send(new GetStoreReportById { Id = id }));
+		}
+
 
 		[ProducesResponseType((int)HttpStatusCode.OK)]
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -59,12 +65,12 @@ namespace PTP.WebAPI.Controllers
 		[HttpGet("{id}/products")]
 		[Authorize(Roles = "Admin,StoreManager")]
 		public async Task<IActionResult> GetProductsByStoreId([FromRoute] Guid id,
-															  //   [FromQuery] Guid categoryId = default,
+															  [FromQuery] Guid menuId = default,
 															  [FromQuery] int pageNumber = 0,
 															  [FromQuery] int pageSize = 10,
 															  [FromQuery] Dictionary<string, string> filter = default!)
 		// => Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, CategoryId = categoryId,PageNumber=pageNumber,PageSize=pageSize,Filter=filter }));
-		=> Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
+		=> Ok(await _mediator.Send(new GetProductsByStoreIdQuery { StoreId = id, MenuId = menuId, PageNumber = pageNumber, PageSize = pageSize, Filter = filter }));
 
 		// [ProducesResponseType((int)HttpStatusCode.OK)]
 		// [ProducesResponseType((int)HttpStatusCode.BadRequest)]

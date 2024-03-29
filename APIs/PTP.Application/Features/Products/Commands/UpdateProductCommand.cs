@@ -79,6 +79,7 @@ public class UpdateProductCommand : IRequest<bool>
             var productMenu = await _unitOfWork.ProductInMenuRepository.GetByIdAsync(model.ProductMenuId);
             if (productMenu == null) throw new BadRequestException("Not Found Product in Menu!");
             productMenu.Status = model.Status;
+            productMenu.MenuId = model.MenuId;
             productMenu.SalePrice = model.Price;
             productMenu.QuantityInDay = model.QuantityInDay;
             productMenu.NumProcessParallel = model.NumProcessParallel;
