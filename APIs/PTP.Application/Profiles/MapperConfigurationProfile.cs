@@ -212,6 +212,7 @@ public class MapperConfigurationProfile : Profile
 			.ForMember(x => x.Items, cfg => cfg.MapFrom(x => x.Items));
 		CreateMap<CartItemCreateModel, CartItemEntity>().ReverseMap();
 		CreateMap<CartItemEntity, CartItemViewModel>().ReverseMap();
+		CreateMap<CartItemEntity, CartItemUpdateModel>().ReverseMap();
 		#endregion
 	}
 }

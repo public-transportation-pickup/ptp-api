@@ -20,7 +20,8 @@ public class AuthService : IAuthService
 	{
 		var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey: _appSettings.FirebaseSettings.ApiKeY));
 
-		var user = await auth.GetUserAsync(token);
+		var user = await auth.GetUserAsync(token)
+			?? throw new Exception($"Error at {nameof(AuthService)}: Firebase can not get this user");
 
 		if (user is null)
 			throw new Exception($"Error at: {nameof(IAuthService)}_ User not exist on firebase authentication");
