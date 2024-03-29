@@ -52,39 +52,28 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                 return result;
             }
 
-            private List<DateValue> GetTotalOrderLast(List<Order> orders)
+
+            private List<int> GetTotalOrderNow(List<Order> orders)
             {
-                DateTime startOfLastWeek = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek).Date;
+                DateTime startOfCurrent = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + 1).Date;
+                DateTime endOfCurrent = startOfCurrent.AddDays(7).AddSeconds(-1);
+                var ordersFromCurrentWeek = Enumerable.Range(0, 7)
+                    .Select(i => orders.Count(o => o.CreationDate.DayOfWeek == ((DateTime)startOfCurrent.AddDays(i)).DayOfWeek))
+                    .ToList();
+
+
+                return ordersFromCurrentWeek;
+            }
+            private List<int> GetTotalOrderLast(List<Order> orders)
+            {
+                DateTime startOfLastWeek = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek - 6).Date;
                 DateTime endOfLastWeek = startOfLastWeek.AddDays(7).AddSeconds(-1);
-                var totalOrderLast = orders
-                                        .Where(o => o.CreationDate >= startOfLastWeek && o.CreationDate <= endOfLastWeek)
-                                        .GroupBy(o => o.CreationDate.DayOfWeek)
-                                        .Select(o => new DateValue { });
-                return totalOrderLast.ToList();
+                var ordersFromLastWeek = Enumerable.Range(0, 7)
+                    .Select(i => orders.Count(o => o.CreationDate.DayOfWeek == ((DateTime)startOfLastWeek.AddDays(i)).DayOfWeek))
+                    .ToList();
 
 
-                // List<Object> orderss = new List<Object>
-                // {
-                //     new  { OrderId = 1, OrderDate = new DateTime(2022, 12, 1) },
-                //     new  { OrderId = 2, OrderDate = new DateTime(2022, 12, 2) },
-                //     new  { OrderId = 3, OrderDate = new DateTime(2022, 11, 30) },
-                //     new  { OrderId = 4, OrderDate = new DateTime(2022, 11, 29) },
-                //     new  { OrderId = 5, OrderDate = new DateTime(2022, 11, 28) },
-                //     new  { OrderId = 6, OrderDate = new DateTime(2022, 11, 27) }
-                // };
-
-
-
-                // var ordersFromLastWeek = orderss
-                //     .Where(o => o.OrderDate >= startOfLastWeek && o.OrderDate <= endOfLastWeek)
-                //     .GroupBy(o => o.OrderDate.DayOfWeek)
-                //     .Select(g => new
-                //     {
-                //         DayOfWeek = g.Key.ToString(),
-                //         OrderCount = g.Count()
-                //     })
-                //     .ToList();
-                // throw new NotImplementedException();
+                return ordersFromLastWeek;
             }
             private async Task<List<ProductMost>> GetProductMosts(List<Order> orders)
             {
