@@ -80,7 +80,7 @@ namespace PTP.Application.Features.Menus.Queries
                                             x => x.Product,
                                             x => x.Product.Category);
 
-                if (productMenus.Count == 0) return null;
+                if (productMenus.Count == 0) return new();
                 return _mapper.Map<List<ProductMenuViewModel>>(productMenus);
 
             }

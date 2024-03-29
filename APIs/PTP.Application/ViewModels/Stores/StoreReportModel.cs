@@ -5,7 +5,7 @@ public class StoreReportModel
     public List<decimal>? SaleValuesNew { get; set; }
     public List<decimal>? SaleValuesLast { get; set; }
     public List<int>? TotalOrderNew { get; set; }
-    public List<DateValue>? TotalOrderLast { get; set; }
+    public List<int>? TotalOrderLast { get; set; }
     public List<ProductMost>? ProductMosts { get; set; }
     public List<CustomerMost>? CustomerMosts { get; set; }
 
@@ -13,7 +13,7 @@ public class StoreReportModel
 
 public class DateValue
 {
-    public string? DayOfWeek { get; set; }
+    // public string? DayOfWeek { get; set; }
     public int Value { get; set; }
 }
 
