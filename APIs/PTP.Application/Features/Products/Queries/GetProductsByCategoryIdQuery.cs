@@ -45,8 +45,8 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
 
-            var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
+            // var cacheResult = await GetCache(request);
+            // if (cacheResult is not null) return cacheResult;
 
             var products = await _unitOfWork.ProductRepository.WhereAsync(x => x.CategoryId == request.CategoryId, x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (products is null) throw new BadRequestException($"Category with ID-{request.CategoryId} is not exist any products!");
@@ -86,7 +86,7 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
             if (cacheResult!.Count > 0)
             {
                 var result = cacheResult.Where(x => x.CategoryId == request.CategoryId).ToList();
-                if (result == null) return null;
+                if (result.Count == 0) return null;
 
                 var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(result).ToList();
                 for (int i = 0; i < cacheViewModels.Count; i++)

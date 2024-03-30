@@ -45,13 +45,13 @@ namespace PTP.Application.Features.Stores.Queries
 
             public async Task<StoreViewModel> Handle(GetStoreByUserIdQuery request, CancellationToken cancellationToken)
             {
-                if (!_claimService.GetCurrentUser.Equals(request.UserId)) throw new BadRequestException("UserId is not valid!");
-                if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                var cacheResult = await _cacheService.GetAsync<Store>(CacheKey.STORE + request.UserId);
-                if (cacheResult is not null)
-                {
-                    return _mapper.Map<StoreViewModel>(cacheResult);
-                }
+                // if (!_claimService.GetCurrentUser.Equals(request.UserId)) throw new BadRequestException("UserId is not valid!");
+                // if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+                // var cacheResult = await _cacheService.GetAsync<Store>(CacheKey.STORE + request.UserId);
+                // if (cacheResult is not null)
+                // {
+                //     return _mapper.Map<StoreViewModel>(cacheResult);
+                // }
                 var store = await _unitOfWork.StoreRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId, x => x.User);
                 if (store is null) throw new BadRequestException($"Store with UserID-{request.UserId} is not exist!");
                 await _cacheService.SetAsync<Store>(CacheKey.STORE + request.UserId, store);

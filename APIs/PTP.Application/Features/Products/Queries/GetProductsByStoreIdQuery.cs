@@ -51,8 +51,8 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
             request.Filter!.Remove("pageNumber");
             request.Filter!.Remove("menuId");
 
-            var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
+            // var cacheResult = await GetCache(request);
+            // if (cacheResult is not null) return cacheResult;
 
             var products = await _unitOfWork.ProductRepository.WhereAsync(x => x.StoreId == request.StoreId, x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (products is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any products!");
@@ -98,7 +98,7 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
             if (cacheResult!.Count > 0)
             {
                 var result = cacheResult.Where(x => x.StoreId == request.StoreId).ToList();
-                if (result == null) return null;
+                if (result.Count == 0) return null;
 
                 var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(result).ToList();
                 for (int i = 0; i < cacheViewModels.Count; i++)

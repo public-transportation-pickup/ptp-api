@@ -37,8 +37,8 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
 
-            var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
+            // var cacheResult = await GetCache(request);
+            // if (cacheResult is not null) return cacheResult;
 
             var products = await _unitOfWork.ProductRepository.GetAllAsync(x => x.Store, x => x.Category);
             if (products.Count == 0) throw new NotFoundException("There are no product in DB!");
