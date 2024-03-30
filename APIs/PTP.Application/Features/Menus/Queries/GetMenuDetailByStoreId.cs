@@ -94,23 +94,23 @@ namespace PTP.Application.Features.Menus.Queries
                 {
                     if (item.IsApplyForAll)
                     {
-                        if (item.StartTime < aTime && item.EndTime > aTime)
+                        if (item.StartTime <= aTime && item.EndTime >= aTime)
                         {
                             menuIds.Add(item.Id);
                         }
                     }
                     else if (item.StartDate == null && item.EndDate == null)
                     {
-                        if (item.StartTime < aTime && item.EndTime > aTime && item.DateApply.Contains(request.DateApply.DayOfWeek.ToString()))
+                        if (item.StartTime <= aTime && item.EndTime >= aTime && item.DateApply.Contains(request.DateApply.DayOfWeek.ToString()))
                         {
                             menuIds.Add(item.Id);
                         }
                     }
                     else
                     {
-                        if (item.StartDate < request.DateApply && item.EndDate > request.DateApply)
+                        if (item.StartDate <= request.DateApply && item.EndDate >= request.DateApply)
                         {
-                            if (item.StartTime < aTime && item.EndTime > aTime && item.DateApply.Contains(request.DateApply.DayOfWeek.ToString()))
+                            if (item.StartTime <= aTime && item.EndTime >= aTime && item.DateApply.Contains(request.DateApply.DayOfWeek.ToString()))
                             {
                                 menuIds.Add(item.Id);
                             }

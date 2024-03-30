@@ -37,12 +37,12 @@ public class GetCategoryByIdQuery : IRequest<CategoryViewModel>
         }
         public async Task<CategoryViewModel> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
         {
-            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            var cacheResult = await _cacheService.GetAsync<Category>(CacheKey.CATE + request.Id);
-            if (cacheResult is not null)
-            {
-                return _mapper.Map<CategoryViewModel>(cacheResult);
-            }
+            // if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            // var cacheResult = await _cacheService.GetAsync<Category>(CacheKey.CATE + request.Id);
+            // if (cacheResult is not null)
+            // {
+            //     return _mapper.Map<CategoryViewModel>(cacheResult);
+            // }
             var cate = await _unitOfWork.CategoryRepository.GetByIdAsync(request.Id);
             if (cate is null) throw new BadRequestException($"Category with ID-{request.Id} is not exist!");
             await _cacheService.SetAsync<Category>(CacheKey.CATE + request.Id, cate);

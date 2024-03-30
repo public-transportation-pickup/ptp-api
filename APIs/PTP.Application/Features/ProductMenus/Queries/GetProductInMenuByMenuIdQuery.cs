@@ -44,8 +44,8 @@ public class GetProductInMenuByMenuIdQuery : IRequest<Pagination<ProductMenuView
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
 
-            var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
+            // var cacheResult = await GetCache(request);
+            // if (cacheResult is not null) return cacheResult;
 
             var productMenus = await _unitOfWork.ProductInMenuRepository
                                 .WhereAsync(x => x.MenuId == request.MenuId,
