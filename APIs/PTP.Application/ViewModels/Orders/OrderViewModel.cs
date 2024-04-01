@@ -18,6 +18,7 @@ public class OrderViewModel
     public string StationAddress { get; set; } = default!;
     public Guid StoreId { get; set; }
     public string StoreName { get; set; } = default!;
+    public string StoreAddress {get; set;} = string.Empty;
     public string StorePhoneNumber { get; set; } = default!;
     public Guid PaymentId { get; set; }
     public string PaymentType { get; set; } = default!;
