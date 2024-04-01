@@ -116,7 +116,7 @@ public static class SqlQueriesStorage
                                                     rs.DurationToNext, s.[Name] AS StationName,
                                                     DATEADD(MINUTE, rs.DurationFromStart, PARSE(t.StartTime AS time)) AS ArrivalTime,
                                                     rs.StationId AS StationId,
-                                                    s.StoreId AS StoreId
+                                                    s.StoreId AS StoreId, s.Latitude, s.Longitude
                                                     FROM RouteStation rs
                                                     JOIN Station s
                                                     ON s.Id = rs.StationId 

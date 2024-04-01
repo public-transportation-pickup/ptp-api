@@ -12,5 +12,7 @@ public class ScheduleViewModel
     public TimeSpan ArrivalTime { get; set; } = default!;
     public Guid? StoreId { get; set; }
     public Guid StationId { get; set; }
+    public decimal Latitude { get; set; }
+    public decimal Longitude { get; set; } 
 
 }
