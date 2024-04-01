@@ -164,6 +164,7 @@ public class MapperConfigurationProfile : Profile
 			.ForMember(x => x.StoreName, opt => opt.MapFrom(x => x.Store.Name))
 			.ForMember(x => x.PaymentType, opt => opt.MapFrom(x => x.Payment.PaymentType))
 			.ForMember(x => x.PaymentStatus, opt => opt.MapFrom(x => x.Payment.Status))
+			.ForMember(x => x.StoreAddress, opt => opt.MapFrom(x => $"{x.Store.AddressNo}, {x.Store.Street}, {x.Store.Ward}, {x.Store.Zone}"))
 			.ReverseMap();
 		CreateMap<Order, OrderUpdateModel>().ReverseMap();
 

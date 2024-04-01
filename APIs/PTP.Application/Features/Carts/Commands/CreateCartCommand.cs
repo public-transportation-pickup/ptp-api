@@ -24,7 +24,19 @@ public class CreateCartCommand : IRequest<CartViewModel?>
         {
             var currentUser = claimsService.GetCurrentUser;
             var cart = unitOfWork.Mapper.Map<CartEntity>(request.model);
+
             cart.UserId = currentUser;
+            if (cart.Items.Any())
+            {
+                foreach (var cartItem in cart.Items)
+                {
+                    if (await unitOfWork.ProductInMenuRepository.FirstOrDefaultAsync(x => x.Id == cartItem.ProductMenuId) is null)
+                    {
+                        throw new Exception($"ProductMenuId not exsit {cartItem.ProductMenuId}");
+                    }
+                }
+            }
+
             return await cartRepository.CreateCartAsync(cart);
 
         }

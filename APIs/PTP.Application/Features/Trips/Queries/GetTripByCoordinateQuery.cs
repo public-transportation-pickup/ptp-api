@@ -1,16 +1,17 @@
 using MediatR;
+using PTP.Application.Features.Trips.Models;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Application.Services.RouteStations;
 using PTP.Application.ViewModels.RouteStations;
 using PTP.Application.ViewModels.Trips;
 
 namespace PTP.Application.Features.Trips.Queries;
-public class GetTripByUserLocation : IRequest<TripViewModel>
+public class GetTripByUserLocation : IRequest<TripCoordinateResponseModel?>
 {
     public Guid RouteVarId { get; set; } = Guid.Empty;
     public decimal Latitude { get; set; } = 0;
     public decimal Longitude { get; set; } = 0;
-    public class QueryHandler : IRequestHandler<GetTripByUserLocation, TripViewModel?>
+    public class QueryHandler : IRequestHandler<GetTripByUserLocation, TripCoordinateResponseModel?>
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly RouteStationBusinesses routeStationBusinesses;
@@ -24,49 +25,56 @@ public class GetTripByUserLocation : IRequest<TripViewModel>
             this.routeStationBusinesses = new(unitOfWork);
             this.unitOfWork = unitOfWork;
         }
-        public async Task<TripViewModel?> Handle(GetTripByUserLocation request, CancellationToken cancellationToken)
+        public async Task<TripCoordinateResponseModel?> Handle(GetTripByUserLocation request, CancellationToken cancellationToken)
         {
             var timeTable = (await unitOfWork.TimeTableRepository.WhereAsync(x => x.RouteVarId == request.RouteVarId && x.IsCurrent)
                 ?? throw new Exception("Not found timetable")).First();
 
             var currentCoordinate = new { request.Latitude, request.Longitude };
 
-            var routeStations =  await routeStationBusinesses.GetRouteStationByRouteVarId(request.RouteVarId);
+            var routeStations = await routeStationBusinesses.GetRouteStationByRouteVarId(request.RouteVarId);
             var routeVar = await unitOfWork.RouteVarRepository.GetByIdAsync(request.RouteVarId, x => x.Route);
             var trips = await unitOfWork.TripRepository.WhereAsync(x => x.TimeTableId == timeTable.Id);
             var now = DateTime.UtcNow;
             System.Console.WriteLine(now);
-            if(routeVar?.Route?.AverageVelocity <= 0)
-            { 
+            if (routeVar?.Route?.AverageVelocity <= 0)
+            {
                 throw new Exception($"RouteVaration: {routeVar.RouteVarName} chưa support tính duration! add endpoint 'distance-modification'");
             }
-            if (routeStations.Count > 0 && trips.Count > 0 && routeVar?.Route?.AverageVelocity > 0) 
+            if (routeStations.Count > 0 && trips.Count > 0 && routeVar?.Route?.AverageVelocity > 0)
             {
                 // ToDo
                 var points = RouteStationViewModel.To(routeStations);
                 var upperIndex = FindUpperBoundIndex(points, currentCoordinate.Latitude, currentCoordinate.Longitude);
                 var lastStation = routeStations.MaxBy(x => x.Index);
-                var distance = await locationService.GetDistance(orgLat: currentCoordinate.Latitude, 
+                var distance = await locationService.GetDistance(orgLat: currentCoordinate.Latitude,
                     orgLng: currentCoordinate.Longitude,
                     destLat: lastStation!.Latitude,
                     destLng: lastStation!.Longitude);
                 var duration = distance / routeVar.Route.AverageVelocity;
-                
-                
+
+
                 var eta = DateTime.Now.AddMinutes(duration);
 
                 var currentEstimateTrip = trips.MinBy(x => Math.Abs((eta - DateTime.Parse(x.EndTime)).TotalMilliseconds));
                 
-                return await mediator.Send(new GetTripByIdQuery{
+                var trip = await mediator.Send(new GetTripByIdQuery
+                {
                     Id = currentEstimateTrip!.Id,
                     IsSchedule = true
                 }, cancellationToken: cancellationToken);
+                return new()
+                {
+                    Trip = trip,
+                    Schedule = trip.Schedules.FirstOrDefault(x => x.Index == upperIndex) ?? new()
+                };
 
-            } else return null;
+            }
+            else return null;
 
 
         }
-        
+
         private static int FindLowerBoundIndex(decimal[,] points,
             decimal lat,
             decimal lon)

@@ -25,6 +25,16 @@ public class UpdateCartCommand : IRequest<CartViewModel?>
         public async Task<CartViewModel?> Handle(UpdateCartCommand request, CancellationToken cancellationToken)
         {
             var cart = unitOfWork.Mapper.Map<CartEntity>(request.model);
+            if (cart.Items.Any())
+            {
+                foreach (var item in cart.Items)
+                {
+                    if (await unitOfWork.ProductInMenuRepository.FirstOrDefaultAsync(x => x.Id == item.ProductMenuId) is null)
+                    {
+                        throw new Exception($"Product In Menu not exist in this Id {item.ProductMenuId}");
+                    }
+                }
+            }
             var res = await cartRepository.UpdateCartAsync(cart);
             return res;
         }
