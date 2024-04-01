@@ -3,6 +3,7 @@ using FluentValidation;
 using Hangfire;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.OrderDetails;
@@ -68,6 +69,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             var order = _mapper.Map<Order>(request.CreateModel);
 
             var productInMenus = await GetProductInMenus(request.CreateModel.OrderDetails);
+            IsTimeValid(productInMenus, request.CreateModel.PickUpTime);
             order.TotalPreparationTime = GetTotalPreparationTime(productInMenus, request.CreateModel.OrderDetails);
             if (DateTime.Now.AddMinutes(order.TotalPreparationTime) > order.PickUpTime.AddHours(1))
                 throw new BadRequestException($"Prepration time is not valid - {order.TotalPreparationTime}");
@@ -89,7 +91,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         private async Task<List<ProductInMenu>> GetProductInMenus(List<OrderDetailCreateModel> models)
         {
             var ids = models.Select(x => x.ProductMenuId);
-            return await _unitOfWork.ProductInMenuRepository.WhereAsync(x => ids.Contains(x.Id), x => x.Product);
+            return await _unitOfWork.ProductInMenuRepository.WhereAsync(x => ids.Contains(x.Id), x => x.Product, x => x.Menu);
         }
 
         private int GetTotalPreparationTime(List<ProductInMenu> productInMenus, List<OrderDetailCreateModel> models)
@@ -106,6 +108,26 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             return total;
         }
 
+        private void IsTimeValid(List<ProductInMenu> productInMenus, DateTime pickUpTime)
+        {
+            var aTime = pickUpTime.TimeOfDay;
+            var error = "";
+            foreach (var item in productInMenus)
+            {
+                if (!item.Menu.IsApplyForAll)
+                {
+                    if (item.Menu.StartDate > pickUpTime || item.Menu.EndDate < pickUpTime)
+                    {
+                        error += $"{item.Product.Name} đã ngưng phục vụ \n";
+                    }
+                    else if (item.Menu.StartTime > aTime || item.Menu.EndTime < aTime || !item.Menu.DateApply.Contains(pickUpTime.DayOfWeek.ToString()))
+                    {
+                        error += $"{item.Product.Name} đã ngưng phục vụ \n";
+                    }
+                }
+            }
+            if (!error.IsNullOrEmpty()) throw new BadRequestException(error);
+        }
         private List<ProductInMenu> CheckProductInStock(List<ProductInMenu> productInMenus, List<OrderDetailCreateModel> models)
         {
             productInMenus = productInMenus.OrderBy(x => x.Id).ToList();

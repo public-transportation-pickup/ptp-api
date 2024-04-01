@@ -45,16 +45,8 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                                     x.StoreId == request.Id &&
                                     x.Status == nameof(OrderStatusEnum.Completed)
                                     , x => x.User);
-                var totalOrders = orders.Count > 0 ? orders.Count : 0;
-                var totalSales = orders.Count > 0 ? orders.Sum(o => o.Total) : 0;
-                var averageSaleValue = totalOrders != 0 ? (totalSales / totalOrders) : 0;
-                var visitors = 0;
                 var result = new StoreReportModel
                 {
-                    TotalSales = totalSales,
-                    TotalOrders = totalOrders,
-                    AverageSaleValue = averageSaleValue,
-                    Visitors = visitors,
                     SaleValuesNew = GetSaleValuesNew(orders),
                     SaleValuesLast = GetSaleValuesLast(orders),
                     TotalOrderNew = GetTotalOrderNow(orders),
@@ -62,9 +54,33 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                     ProductMosts = await GetProductMosts(orders),
                     CustomerMosts = GetCustomerMosts(orders)
                 };
+
+                result = GetOtherNewReport(orders, result);
+                result = GetOtherLastReport(orders, result);
                 return result;
             }
 
+            private StoreReportModel GetOtherNewReport(List<Order> orders, StoreReportModel model)
+            {
+                DateTime startOfCurrent = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + 1).Date;
+                orders = orders.Where(x => x.CreationDate >= startOfCurrent).ToList();
+                model.TotalOrdersNew = orders.Count > 0 ? orders.Count : 0;
+                model.TotalSalesNew = orders.Count > 0 ? orders.Sum(o => o.Total) : 0;
+                model.AverageSaleValueNew = model.TotalOrdersNew != 0 ? (model.TotalSalesNew / model.TotalOrdersNew) : 0;
+                model.VisitorsNew = 0;
+                return model;
+            }
+            private StoreReportModel GetOtherLastReport(List<Order> orders, StoreReportModel model)
+            {
+                DateTime startOfLastWeek = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek - 6).Date;
+                DateTime endOfLastWeek = startOfLastWeek.AddDays(7).AddSeconds(-1);
+                orders = orders.Where(x => x.CreationDate >= startOfLastWeek && x.CreationDate <= endOfLastWeek).ToList();
+                model.TotalOrdersLast = orders.Count > 0 ? orders.Count : 0;
+                model.TotalSalesLast = orders.Count > 0 ? orders.Sum(o => o.Total) : 0;
+                model.AverageSaleValueLast = model.TotalOrdersLast != 0 ? (model.TotalSalesLast / model.TotalOrdersLast) : 0;
+                model.VisitorsLast = 0;
+                return model;
+            }
 
 
             private List<decimal> GetSaleValuesNew(List<Order> orders)
