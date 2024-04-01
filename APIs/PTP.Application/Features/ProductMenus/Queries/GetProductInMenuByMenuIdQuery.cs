@@ -44,8 +44,8 @@ public class GetProductInMenuByMenuIdQuery : IRequest<Pagination<ProductMenuView
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
 
-            // var cacheResult = await GetCache(request);
-            // if (cacheResult is not null) return cacheResult;
+            var cacheResult = await GetCache(request);
+            if (cacheResult is not null) return cacheResult;
 
             var productMenus = await _unitOfWork.ProductInMenuRepository
                                 .WhereAsync(x => x.MenuId == request.MenuId,
@@ -55,9 +55,6 @@ public class GetProductInMenuByMenuIdQuery : IRequest<Pagination<ProductMenuView
 
             if (productMenus.Count == 0) throw new NotFoundException($"There are no product for Menu-{request.MenuId}!");
             await _cacheService.SetByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU, productMenus);
-            // return request.CategoryId==Guid.Empty
-            //     ?_mapper.Map<IEnumerable<ProductMenuViewModel>>(productMenus)
-            //     :_mapper.Map<IEnumerable<ProductMenuViewModel>>(productMenus.Where(x=>x.Product.CategoryId==request.CategoryId));
             var viewModels = _mapper.Map<IEnumerable<ProductMenuViewModel>>(productMenus);
             var filterResult = request.Filter.Count > 0 ? new List<ProductMenuViewModel>() : viewModels;
 
@@ -91,7 +88,7 @@ public class GetProductInMenuByMenuIdQuery : IRequest<Pagination<ProductMenuView
             if (cacheResult!.Count > 0)
             {
                 var result = cacheResult.Where(x => x.MenuId == request.MenuId);
-                if (result == null) return null;
+                if (!result.Any()) return null;
                 var cacheViewModels = _mapper.Map<IEnumerable<ProductMenuViewModel>>(result);
                 var filterRe = request.Filter!.Count > 0 ? new List<ProductMenuViewModel>() : cacheViewModels;
                 if (request.Filter!.Count > 0)

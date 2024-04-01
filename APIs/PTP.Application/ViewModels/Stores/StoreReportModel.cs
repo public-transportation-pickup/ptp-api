@@ -2,12 +2,16 @@ namespace PTP.Application.ViewModels.Stores;
 
 public class StoreReportModel
 {
-    public decimal TotalSales { get; set; }
-    public int TotalOrders { get; set; }
-    public decimal AverageSaleValue { get; set; }
-    public int Visitors { get; set; }
-    public List<decimal>? SaleValuesNew
-    { get; set; }
+    public decimal TotalSalesNew { get; set; }
+    public decimal TotalSalesLast { get; set; }
+
+    public int TotalOrdersNew { get; set; }
+    public int TotalOrdersLast { get; set; }
+    public decimal AverageSaleValueNew { get; set; }
+    public decimal AverageSaleValueLast { get; set; }
+    public int VisitorsNew { get; set; }
+    public int VisitorsLast { get; set; }
+    public List<decimal>? SaleValuesNew { get; set; }
     public List<decimal>? SaleValuesLast { get; set; }
     public List<int>? TotalOrderNew { get; set; }
     public List<int>? TotalOrderLast { get; set; }

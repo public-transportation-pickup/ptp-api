@@ -38,12 +38,12 @@ public class GetProductMenuByIdQuery : IRequest<ProductMenuViewModel>
         }
         public async Task<ProductMenuViewModel> Handle(GetProductMenuByIdQuery request, CancellationToken cancellationToken)
         {
-            // if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            // var cacheResult = await _cacheService.GetAsync<ProductInMenu>(CacheKey.PRODUCTMENU + request.Id);
-            // if (cacheResult is not null)
-            // {
-            //     return _mapper.Map<ProductMenuViewModel>(cacheResult);
-            // }
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            var cacheResult = await _cacheService.GetAsync<ProductInMenu>(CacheKey.PRODUCTMENU + request.Id);
+            if (cacheResult is not null)
+            {
+                return _mapper.Map<ProductMenuViewModel>(cacheResult);
+            }
             var productMenu = await _unitOfWork.ProductInMenuRepository
                                 .FirstOrDefaultAsync(x => x.Id == request.Id,
                                             x => x.Menu,

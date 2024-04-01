@@ -38,8 +38,8 @@ public class GetAllCategoryQuery : IRequest<PaginatedList<CategoryViewModel>>
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
 
-            // var cacheResult = await GetCache(request);
-            // if (cacheResult is not null) return cacheResult;
+            var cacheResult = await GetCache(request);
+            if (cacheResult is not null) return cacheResult;
 
             var cates = await _unitOfWork.CategoryRepository.GetAllAsync();
             if (cates.Count == 0) throw new NotFoundException("There are no category in DB!");
