@@ -4,6 +4,7 @@ public class CartUpdateModel
     public string Id { get; set; } = string.Empty;
     public Guid StoreId { get; set; }
     public Guid StationId { get; set; } = Guid.Empty;
+    public string StationAddr { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string Note { get; set; } = string.Empty;
     public DateTime PickUpTime { get; set; }

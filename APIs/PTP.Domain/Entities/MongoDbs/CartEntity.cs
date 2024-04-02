@@ -8,6 +8,7 @@ public class CartEntity
     public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
     public string Note { get; set; } = string.Empty;
     public Guid StoreId { get; set; }
+    public string StationAddr { get; set; } = string.Empty;
     // public Guid MenuId { get; set; } = Guid.Empty;
     public DateTime PickUpTime { get; set; }
     public Guid StationId { get; set; } = Guid.Empty;
