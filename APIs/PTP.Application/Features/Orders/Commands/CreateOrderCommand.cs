@@ -71,7 +71,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             var order = _mapper.Map<Order>(request.CreateModel);
 
             var productInMenus = await GetProductInMenus(request.CreateModel.OrderDetails);
-            IsTimeValid(productInMenus, request.CreateModel.PickUpTime);
+            await IsTimeValid(productInMenus, request.CreateModel.PickUpTime);
             order.TotalPreparationTime = GetTotalPreparationTime(productInMenus, request.CreateModel.OrderDetails);
             if (DateTime.Now.AddMinutes(order.TotalPreparationTime) > order.PickUpTime.AddHours(1))
                 throw new BadRequestException($"Prepration time is not valid - {order.TotalPreparationTime}");
@@ -117,7 +117,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             foreach (var item in productInMenus)
             {
                 var menu = await _unitOfWork.MenuRepository.GetByIdAsync(item.MenuId);
-                if (!item.Menu.IsApplyForAll)
+                if (menu!.IsApplyForAll == false)
                 {
                     if (menu!.StartDate > pickUpTime || menu!.EndDate < pickUpTime)
                     {
