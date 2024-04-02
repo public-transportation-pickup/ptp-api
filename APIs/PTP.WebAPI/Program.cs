@@ -1,12 +1,15 @@
+using System.Collections.Immutable;
 using System.Reflection;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using PTP.Application.GlobalExceptionHandling;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Infrastructure;
 using PTP.WebAPI;
 using Serilog;
 using Serilog.Exceptions;
+using FluentValidation;
 using Serilog.Sinks.Elasticsearch;
 using WebAPI.Middlewares;
 
@@ -15,7 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.AddWebAPIServices();
-
 
 //Log.Logger = new LoggerConfiguration()
 //	.ReadFrom.Configuration(builder.Configuration)
