@@ -24,7 +24,9 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         public CommmandValidation()
         {
             RuleFor(x => x.CreateModel.Name).NotNull().NotEmpty().WithMessage("Name must not null or empty");
-            RuleFor(x => x.CreateModel.PhoneNumber).NotNull().NotEmpty().WithMessage("PhoneNumber must not null or empty");
+            RuleFor(x => x.CreateModel.PhoneNumber).NotNull().NotEmpty()
+                    .Matches(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$")
+                    .WithMessage("PhoneNumber is not correct format!");
             RuleFor(x => x.CreateModel.Total).NotNull().NotEmpty().WithMessage("Total must not null or empty");
             RuleFor(x => x.CreateModel.PickUpTime)
                 .GreaterThanOrEqualTo(DateTime.Now)
@@ -91,7 +93,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         private async Task<List<ProductInMenu>> GetProductInMenus(List<OrderDetailCreateModel> models)
         {
             var ids = models.Select(x => x.ProductMenuId);
-            return await _unitOfWork.ProductInMenuRepository.WhereAsync(x => ids.Contains(x.Id), x => x.Product, x => x.Menu);
+            return await _unitOfWork.ProductInMenuRepository.WhereAsync(x => ids.Contains(x.Id), x => x.Product);
         }
 
         private int GetTotalPreparationTime(List<ProductInMenu> productInMenus, List<OrderDetailCreateModel> models)
@@ -108,19 +110,20 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             return total;
         }
 
-        private void IsTimeValid(List<ProductInMenu> productInMenus, DateTime pickUpTime)
+        private async Task IsTimeValid(List<ProductInMenu> productInMenus, DateTime pickUpTime)
         {
             var aTime = pickUpTime.TimeOfDay;
             var error = "";
             foreach (var item in productInMenus)
             {
+                var menu = await _unitOfWork.MenuRepository.GetByIdAsync(item.MenuId);
                 if (!item.Menu.IsApplyForAll)
                 {
-                    if (item.Menu.StartDate > pickUpTime || item.Menu.EndDate < pickUpTime)
+                    if (menu!.StartDate > pickUpTime || menu!.EndDate < pickUpTime)
                     {
                         error += $"{item.Product.Name} đã ngưng phục vụ \n";
                     }
-                    else if (item.Menu.StartTime > aTime || item.Menu.EndTime < aTime || !item.Menu.DateApply.Contains(pickUpTime.DayOfWeek.ToString()))
+                    else if (menu.StartTime > aTime || menu.EndTime < aTime || !menu.DateApply.Contains(pickUpTime.DayOfWeek.ToString()))
                     {
                         error += $"{item.Product.Name} đã ngưng phục vụ \n";
                     }
