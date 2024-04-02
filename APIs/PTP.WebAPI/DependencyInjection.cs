@@ -1,3 +1,4 @@
+using FluentValidation;
 using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,7 +14,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using WebAPI.Middlewares;
-
 namespace PTP.WebAPI;
 public static class DependencyInjection
 {
@@ -33,14 +33,14 @@ public static class DependencyInjection
 			x.LowercaseQueryStrings = true;
 			x.LowercaseUrls = true;
 		});
+
 		var configuration = builder.Configuration.Get<AppSettings>() ?? throw new Exception("Null configuration");
 		// DI AppSettings
 		builder.Services.AddSingleton(configuration);
-
+		builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 		builder.Services.AddInfrastructureServices(configuration.ConnectionStrings.DefaultConnection);
 		builder.Services.AddSingleton<GlobalErrorHandlingMiddleware>();
 		//Register to connect Redis
-
 		builder.Services.AddStackExchangeRedisCache(redisOptions =>
 		{
 			redisOptions.Configuration = configuration.ConnectionStrings.RedisConnection;
