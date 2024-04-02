@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
+using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Menus.Commands;
@@ -33,10 +34,20 @@ public class DeleteMenuCommand : IRequest<bool>
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             await _cacheService.RemoveAsync(CacheKey.MENU + request.Id);
 
-            var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.Id);
+            var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.Id, x => x.ProductInMenus!);
             if (menu is null) throw new NotFoundException($"Menu with Id-{request.Id} is not exist!");
             _unitOfWork.MenuRepository.SoftRemove(menu);
+            await DeleteProduct(menu.ProductInMenus!);
             return await _unitOfWork.SaveChangesAsync();
+        }
+
+        private async Task DeleteProduct(ICollection<ProductInMenu> productMenus)
+        {
+            if (productMenus.Count == 0) return;
+            _unitOfWork.ProductInMenuRepository.SoftRemoveRange(productMenus.ToList());
+            var productIds = productMenus.Select(x => x.ProductId);
+            var product = await _unitOfWork.ProductRepository.WhereAsync(x => productIds.Contains(x.Id));
+            _unitOfWork.ProductRepository.SoftRemoveRange(product);
         }
     }
 

@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using PTP.Application.Commons;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
@@ -20,6 +21,7 @@ public class GetOrdersByStoreIdQuery : IRequest<Pagination<OrderViewModel>>
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public string? RoleName { get; set; }
+    public string? PhoneNumber { get; set; }
     public class QueryValidation : AbstractValidator<GetOrdersByStoreIdQuery>
     {
         public QueryValidation()
@@ -53,8 +55,11 @@ public class GetOrdersByStoreIdQuery : IRequest<Pagination<OrderViewModel>>
 
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
+            request.Filter!.Remove("roleName");
+            request.Filter!.Remove("phoneNumber");
             var orders = await GetOrders(request.StoreId, request.RoleName!);
             var viewModels = _mapper.Map<IEnumerable<OrderViewModel>>(orders);
+            if (!request.PhoneNumber.IsNullOrEmpty()) viewModels = viewModels.Where(x => x.PhoneNumber == request.PhoneNumber).ToList();
             viewModels = await GetOrderDetail(viewModels.ToList());
             var filterResult = request.Filter.Count > 0 ? new List<OrderViewModel>() : viewModels;
 

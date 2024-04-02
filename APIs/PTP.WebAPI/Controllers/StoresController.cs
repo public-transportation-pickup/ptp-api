@@ -95,8 +95,9 @@ namespace PTP.WebAPI.Controllers
 															[FromQuery] int pageNumber = 0,
 															[FromQuery] int pageSize = 10,
 															[FromQuery] Dictionary<string, string> filter = default!,
-															[FromQuery] string roleName = default!)
-		=> Ok(await _mediator.Send(new GetOrdersByStoreIdQuery { StoreId = id, PageSize = pageSize, PageNumber = pageNumber, Filter = filter, RoleName = roleName }));
+															[FromQuery] string roleName = default!,
+															[FromQuery] string phoneNumber = default!)
+		=> Ok(await _mediator.Send(new GetOrdersByStoreIdQuery { StoreId = id, PageSize = pageSize, PageNumber = pageNumber, Filter = filter, RoleName = roleName, PhoneNumber = phoneNumber }));
 		#endregion
 
 		#region COMMANDS
