@@ -1,9 +1,11 @@
 using Hangfire;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PTP.Application;
 using PTP.Application.GlobalExceptionHandling;
+using PTP.Application.Validations;
 using PTP.Infrastructure;
 using Scrutor;
 using System.Diagnostics;
@@ -45,6 +47,7 @@ public static class DependencyInjection
 		});
 
 		// Register To Handle Query/Command of MediatR
+		builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 		builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 		// Scan and register all interfaces --> implementations 
 		builder.Services.Scan(scan => scan
