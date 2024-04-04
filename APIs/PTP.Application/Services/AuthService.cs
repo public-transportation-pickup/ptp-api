@@ -32,7 +32,7 @@ public class AuthService : IAuthService
 		{
 			string newToken = _jwtTokenGenerator.GenerateToken(user: userInDb, role: userInDb.Role.Name);
 			userInDb.JWTToken = newToken;
-			if (userInDb.FCMToken is null)
+			if (FCMToken is not null)
 			{
 				userInDb.FCMToken = FCMToken;
 			}
