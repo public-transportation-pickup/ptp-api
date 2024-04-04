@@ -16,7 +16,7 @@ public class AuthService : IAuthService
 		_appSettings = appSettings;
 		_jwtTokenGenerator = jWTTokenGenerator;
 	}
-	public async Task<LoginResponseModel> LoginAsync(string token, string role)
+	public async Task<LoginResponseModel> LoginAsync(string token, string? FCMToken, string role)
 	{
 		var auth = new FirebaseAuthProvider(new FirebaseConfig(apiKey: _appSettings.FirebaseSettings.ApiKeY));
 
@@ -25,13 +25,17 @@ public class AuthService : IAuthService
 
 		if (user is null)
 			throw new Exception($"Error at: {nameof(IAuthService)}_ User not exist on firebase authentication");
-			
+
 		var userInDb = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email == user.Email, x => x.Role);
-		
+
 		if (userInDb is not null)
 		{
 			string newToken = _jwtTokenGenerator.GenerateToken(user: userInDb, role: userInDb.Role.Name);
 			userInDb.JWTToken = newToken;
+			if (FCMToken is not null)
+			{
+				userInDb.FCMToken = FCMToken;
+			}
 			_unitOfWork.UserRepository.Update(userInDb);
 			await _unitOfWork.SaveChangesAsync();
 			// TODO: Gen token rồi trả Token system
@@ -45,12 +49,13 @@ public class AuthService : IAuthService
 		{
 			var roleInDb = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == role.ToLower())
 						?? throw new Exception($"Error: {nameof(AuthService)}_ Role Not found: rolename: {role}");
-						
+
 			// TODO: Insert Db
 			PTP.Domain.Entities.User newUser = new()
 			{
 				FullName = $"{user.LastName.ToUpper()} {user.FirstName.ToUpper()}",
 				PhoneNumber = string.Empty,
+				FCMToken = FCMToken,
 				Id = Guid.NewGuid(),
 				Email = user.Email,
 				RoleId = roleInDb.Id,
@@ -61,7 +66,7 @@ public class AuthService : IAuthService
 			await _unitOfWork.UserRepository.AddAsync(newUser);
 			if (await _unitOfWork.SaveChangesAsync())
 			{
-				var wallet = new Wallet 
+				var wallet = new Wallet
 				{
 					Name = $"User {user.Email}'s Wallet",
 					Amount = 0,
@@ -82,19 +87,20 @@ public class AuthService : IAuthService
 		}
 	}
 
-    public async Task<LoginResponseModel> RefreshTokenAsync(string token)
-    {
-        var user = (await _unitOfWork.UserRepository.WhereAsync(x => x.JWTToken == token, x => x.Role)).FirstOrDefault() ?? throw new Exception("Not have any user with provided token");
-		if(user is not null)
+	public async Task<LoginResponseModel> RefreshTokenAsync(string token)
+	{
+		var user = (await _unitOfWork.UserRepository.WhereAsync(x => x.JWTToken == token, x => x.Role)).FirstOrDefault() ?? throw new Exception("Not have any user with provided token");
+		if (user is not null)
 		{
 			return new LoginResponseModel
-				{
-					Token = _jwtTokenGenerator.GenerateToken(user, user.Role.Name),
-					User = _unitOfWork.Mapper.Map<UserViewModel>(user)
-				};
-		} else 
+			{
+				Token = _jwtTokenGenerator.GenerateToken(user, user.Role.Name),
+				User = _unitOfWork.Mapper.Map<UserViewModel>(user)
+			};
+		}
+		else
 		{
 			return new();
 		}
-    }
+	}
 }

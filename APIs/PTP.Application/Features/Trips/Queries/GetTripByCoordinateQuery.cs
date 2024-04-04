@@ -1,4 +1,5 @@
 using MediatR;
+using MongoDB.Driver.Linq;
 using PTP.Application.Features.Trips.Models;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Application.Services.RouteStations;
@@ -51,13 +52,19 @@ public class GetTripByUserLocation : IRequest<TripCoordinateResponseModel?>
                     orgLng: currentCoordinate.Longitude,
                     destLat: lastStation!.Latitude,
                     destLng: lastStation!.Longitude);
+                var distanceToStart = await locationService.GetDistance(orgLat: currentCoordinate.Latitude,
+                    orgLng: currentCoordinate.Longitude,
+                    destLat: routeStations.MinBy(x => x.Index)!.Latitude,
+                    destLng: routeStations.MinBy(x => x.Index)!.Longitude);
                 var duration = distance / routeVar.Route.AverageVelocity;
 
-
+                var nextStation = routeStations
+                    .Where(x => distanceToStart - x.DistanceFromStart > 0)
+                    .OrderBy(x => distanceToStart - x.DistanceFromStart).FirstOrDefault();
                 var eta = DateTime.Now.AddMinutes(duration);
 
                 var currentEstimateTrip = trips.MinBy(x => Math.Abs((eta - DateTime.Parse(x.EndTime)).TotalMilliseconds));
-                
+
                 var trip = await mediator.Send(new GetTripByIdQuery
                 {
                     Id = currentEstimateTrip!.Id,
@@ -66,7 +73,7 @@ public class GetTripByUserLocation : IRequest<TripCoordinateResponseModel?>
                 return new()
                 {
                     Trip = trip,
-                    Schedule = trip.Schedules.FirstOrDefault(x => x.Index == upperIndex) ?? new()
+                    Schedule = trip.Schedules.FirstOrDefault(x => x.Index == nextStation?.Index) ?? new()
                 };
 
             }
