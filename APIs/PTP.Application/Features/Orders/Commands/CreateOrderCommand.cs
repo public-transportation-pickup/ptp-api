@@ -6,11 +6,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.Utilities;
 using PTP.Application.ViewModels.OrderDetails;
 using PTP.Application.ViewModels.Orders;
 using PTP.Application.ViewModels.Payments;
 using PTP.Domain.Entities;
 using PTP.Domain.Enums;
+using PTP.Domain.Globals;
 using System.Globalization;
 
 namespace PTP.Application.Features.Orders;
@@ -48,12 +50,14 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         private ILogger<CommandHandler> _logger;
         private readonly IClaimsService _claimsService;
         private readonly ICacheService _cacheService;
+        private readonly AppSettings _appSetting;
         public CommandHandler(IUnitOfWork unitOfWork,
                             IMapper mapper,
                             ILogger<CommandHandler> logger,
                             IClaimsService claimsService,
                             ICacheService cacheService,
-                            IBackgroundJobClient backgroundJob)
+                            IBackgroundJobClient backgroundJob,
+                            AppSettings appSettings)
         {
             _backgroundJob = backgroundJob;
             _unitOfWork = unitOfWork;
@@ -61,6 +65,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             _logger = logger;
             _claimsService = claimsService;
             _cacheService = cacheService;
+            _appSetting = appSettings;
         }
 
 
@@ -86,6 +91,15 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             _unitOfWork.ProductInMenuRepository.UpdateRange(productInMenus);
             if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
             AutoApprove(order);
+
+            //Send Notification
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.StoreId == request.CreateModel.StoreId);
+            await FirebaseUtilities.SendNotification(user!.FCMToken!, "New Order", "You have new order in queue!", _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+
+            //Update Cache
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
+            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
             return _mapper.Map<OrderViewModel>(order);
         }
 
@@ -117,7 +131,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             foreach (var item in productInMenus)
             {
                 var menu = await _unitOfWork.MenuRepository.GetByIdAsync(item.MenuId);
-                if (menu?.IsApplyForAll == false)
+                if (menu!.IsApplyForAll == false)
                 {
                     if (menu!.StartDate > pickUpTime || menu!.EndDate < pickUpTime)
                     {
@@ -143,7 +157,9 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
                 else if ((models[i].Quantity - (productInMenus[i].QuantityInDay - productInMenus[i].QuantityUsed)) == 0)
                 {
                     productInMenus[i].QuantityUsed += models[i].Quantity;
-                    productInMenus[i].Status = ProductInMenuStatusEnum.INACTIVE.ToString();
+                    productInMenus[i].Status = ProductInMenuStatusEnum.InActive.ToString();
+                    productInMenus[i].Product.Status = ProductInMenuStatusEnum.InActive.ToString(); ;
+                    _unitOfWork.ProductRepository.Update(productInMenus[i].Product);
                 }
                 else
                 {

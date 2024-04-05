@@ -21,4 +21,5 @@ public class ProductViewModel
     public Guid ProductMenuId { get; set; }
     public Guid MenuId { get; set; }
     public int QuantityInDay { get; set; }
+    public int QuantityUsed { get; set; } = 0;
 }

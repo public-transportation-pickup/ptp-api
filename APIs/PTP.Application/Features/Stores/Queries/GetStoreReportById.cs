@@ -187,7 +187,7 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                                 TotalMoney = o.Sum(x => x.Total),
                                 TotalOrder = o.Count(x => x.CreatedBy == o.Key),
                                 PhoneNumber = o.FirstOrDefault()!.User.PhoneNumber,
-                                FullName = o.FirstOrDefault()!.User.FullName
+                                FullName = o.FirstOrDefault()!.Name
                             })
                             .OrderByDescending(s => s.TotalMoney)
                             .Take(5)

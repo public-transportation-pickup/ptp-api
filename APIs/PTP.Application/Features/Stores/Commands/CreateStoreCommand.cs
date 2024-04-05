@@ -4,6 +4,7 @@ using Firebase.Auth;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using PTP.Application.Commons;
 using PTP.Application.Features.Users.Commands;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
@@ -118,7 +119,7 @@ namespace PTP.Application.Features.Stores.Commands
 
                 if (request.CreateModel.StationIds != null)
                 {
-                    await AddStationsToStore(request.CreateModel.StationIds, store.Id);
+                    await AddStationsToStore(request.CreateModel.StationIds, store);
                 }
                 await CreateMenuDefault(store);
                 await _unitOfWork.StoreRepository.AddAsync(store);
@@ -127,14 +128,18 @@ namespace PTP.Application.Features.Stores.Commands
                 return _mapper.Map<StoreViewModel>(store);
             }
 
-            private async Task AddStationsToStore(List<Guid> StationIds, Guid storeId)
+            private async Task AddStationsToStore(List<Guid> StationIds, Store store)
             {
                 var stations = await _unitOfWork.StationRepository.WhereAsync(x => StationIds.Contains(x.Id));
                 if (stations.Count == 0) throw new BadRequestException("No Station found!");
+                string errors="";
                 for (int i = 0; i < stations.Count; i++)
                 {
-                    stations[i].StoreId = storeId;
+                    stations[i].StoreId = store.Id;
+                    var distance= await _locationService.GetDistance(store.Latitude,store.Longitude,stations[i].Latitude,stations[i].Longitude,"bike");
+                    if(distance >1000) errors+=$"Khoảng cách tới trạm {stations[i].Name} không quá 1000m";
                 }
+                if(!errors.IsNullOrEmpty()) throw new BadRequestException(errors);
                 _unitOfWork.StationRepository.UpdateRange(stations);
             }
 

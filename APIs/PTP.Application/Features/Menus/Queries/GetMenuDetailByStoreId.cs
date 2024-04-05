@@ -8,6 +8,7 @@ using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Menus;
 using PTP.Application.ViewModels.ProductMenus;
 using PTP.Domain.Entities;
+using PTP.Domain.Enums;
 using System.Globalization;
 
 namespace PTP.Application.Features.Menus.Queries
@@ -75,7 +76,7 @@ namespace PTP.Application.Features.Menus.Queries
             private async Task<List<ProductMenuViewModel>?> GetProductsInMenu(List<Guid> menuIds)
             {
                 var productMenus = await _unitOfWork.ProductInMenuRepository
-                                .WhereAsync(x => menuIds.Contains(x.MenuId),
+                                .WhereAsync(x => menuIds.Contains(x.MenuId) && x.Status == nameof(ProductInMenuStatusEnum.Active),
                                             x => x.Menu,
                                             x => x.Product,
                                             x => x.Product.Category);
