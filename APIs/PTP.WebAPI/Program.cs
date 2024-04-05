@@ -12,6 +12,7 @@ using Serilog.Exceptions;
 using FluentValidation;
 using Serilog.Sinks.Elasticsearch;
 using WebAPI.Middlewares;
+using PTP.Application.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,7 @@ var app = builder.Build();
 app.UseCors();
 app.UseHangfireDashboard("/hangfire", new DashboardOptions { IgnoreAntiforgeryToken = true, Authorization = new[] { new DashboardAuthorizationFilter() } }, null);
 RecurringJob.AddOrUpdate<IBusRouteService>("check-routes", interService => interService.CheckNewCreatedRoute(), Cron.Monthly());
+RecurringJob.AddOrUpdate<IProductService>("Update-product-quantity", interService => interService.UpdateProduct(), Cron.Daily());
 // Configure the HTTP request pipeline.
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.UseMiddleware<PerformanceMiddleware>();

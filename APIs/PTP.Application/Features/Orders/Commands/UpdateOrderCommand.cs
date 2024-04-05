@@ -9,6 +9,7 @@ using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Orders;
 using PTP.Domain.Entities;
 using PTP.Domain.Enums;
+using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Orders.Commands
 {
@@ -51,7 +52,7 @@ namespace PTP.Application.Features.Orders.Commands
             {
                 _logger.LogInformation("Update Order:\n");
 
-                var order = await _unitOfWork.OrderRepository.GetByIdAsync(request.UpdateModel.Id);
+                var order = await _unitOfWork.OrderRepository.GetByIdAsync(request.UpdateModel.Id, x => x.OrderDetails);
                 if (order is null) throw new NotFoundException($"Order with Id-{request.UpdateModel.Id} is not exist!");
 
                 var status = request.UpdateModel.Status;
@@ -67,7 +68,11 @@ namespace PTP.Application.Features.Orders.Commands
                         order = CompletedState(order);
                         break;
                     case nameof(OrderStatusEnum.Canceled):
-                        if (order.Status == "Waiting" || order.Status == "Preparing") await CancelOrder(order, request.UpdateModel.CanceledReason!);
+                        if (order.Status == "Waiting" || order.Status == "Preparing")
+                        {
+                            await CancelOrder(order, request.UpdateModel.CanceledReason!);
+                            await UpdateQuantity(order);
+                        }
                         break;
 
                 }
@@ -115,6 +120,31 @@ namespace PTP.Application.Features.Orders.Commands
                 order.Status = nameof(OrderStatusEnum.Canceled);
                 await CreateTransaction(order);
                 return order;
+            }
+
+            private async Task UpdateQuantity(Order order)
+            {
+                var orderDetails = order.OrderDetails;
+                var products = new List<Product>();
+                var productMenus = new List<ProductInMenu>();
+                foreach (var item in orderDetails)
+                {
+                    var productMenu = await _unitOfWork.ProductInMenuRepository.FirstOrDefaultAsync(x => x.Id == item.ProductMenuId);
+                    var product = await _unitOfWork.ProductRepository.FirstOrDefaultAsync(x => x.Id == productMenu!.ProductId);
+                    productMenu!.QuantityUsed -= item.Quantity;
+                    if (productMenu!.Status == ProductInMenuStatusEnum.InActive.ToString() && productMenu.QuantityInDay > productMenu.QuantityUsed)
+                    {
+                        productMenu.Status = ProductInMenuStatusEnum.Active.ToString();
+                        product!.Status = ProductInMenuStatusEnum.Active.ToString();
+                    }
+                    productMenus.Add(productMenu);
+                    products.Add(product!);
+                }
+                _unitOfWork.ProductInMenuRepository.UpdateRange(productMenus);
+                _unitOfWork.ProductRepository.UpdateRange(products);
+                if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+                await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
+                await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
             }
             private async Task CreateTransaction(Order order)
             {

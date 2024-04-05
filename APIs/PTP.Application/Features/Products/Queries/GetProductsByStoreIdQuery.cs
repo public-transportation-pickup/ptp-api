@@ -64,6 +64,7 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
+                viewModels[i].QuantityUsed = products[i].ProductInMenus.First().QuantityUsed;
             }
             if (request.MenuId != Guid.Empty) viewModels = viewModels.Where(x => x.MenuId == request.MenuId).ToList();
             var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels.AsEnumerable();
@@ -106,6 +107,7 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
                     cacheViewModels[i].ProductMenuId = result[i].ProductInMenus.First().Id;
                     cacheViewModels[i].QuantityInDay = result[i].ProductInMenus.First().QuantityInDay;
                     cacheViewModels[i].MenuId = result[i].ProductInMenus.First().MenuId;
+                    cacheViewModels[i].QuantityUsed = result[i].ProductInMenus.First().QuantityUsed;
                 }
                 if (request.MenuId != Guid.Empty) cacheViewModels = cacheViewModels.Where(x => x.MenuId == request.MenuId).ToList();
                 var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels.AsEnumerable();
