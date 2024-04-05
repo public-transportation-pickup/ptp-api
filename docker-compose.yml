@@ -8,6 +8,21 @@ volumes:
   dbdata6:
   elasticsearch-data:
 services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "16686:16686"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+  seq:
+    image: datalust/seq
+    ports:
+      - "80:80"
+      - "5341:5341"
+    environment:
+      - ACCEPT_EULA=Y
   mongo-db: 
     image: mongodb/mongodb-community-server:5.0-ubi8 
     restart: always
@@ -15,30 +30,6 @@ services:
       - '27017:27017'
     volumes:
       - 'dbdata6:/data/db'
-  elasticsearch:
-    container_name: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
-    ports:
-      - 9200:9200
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-    environment:
-      - xpack.security.enabled=false
-      - "discovery.type=single-node"
-    networks:
-      - elastic
-  kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:8.7.1
-    ports:
-      - '5601:5601'
-    depends_on:
-      - elasticsearch
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    networks:
-      - elastic
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
     environment:

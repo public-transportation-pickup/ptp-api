@@ -4,11 +4,16 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
+using MongoDB.Driver.Core.Extensions.DiagnosticSources;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using PTP.Application;
 using PTP.Application.GlobalExceptionHandling;
 using PTP.Application.Validations;
 using PTP.Infrastructure;
 using Scrutor;
+using StackExchange.Redis;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -17,8 +22,32 @@ using WebAPI.Middlewares;
 namespace PTP.WebAPI;
 public static class DependencyInjection
 {
-	public static WebApplicationBuilder AddWebAPIServices(this WebApplicationBuilder builder)
+
+	public static async Task<WebApplicationBuilder> AddWebAPIServicesAsync(this WebApplicationBuilder builder)
 	{
+
+		const string serviceName = "PTP_WebAPI";
+		const string serviceVersion = "v1.0";
+		// Add Tracing
+		builder.Services.AddOpenTelemetry()
+			.WithTracing(cfg =>
+				cfg.AddSource(serviceName)
+					.ConfigureResource(resource => resource.AddService(serviceName: serviceName,
+						serviceVersion: serviceVersion))
+					.AddAspNetCoreInstrumentation()
+					.AddSqlClientInstrumentation()
+					.AddHttpClientInstrumentation()
+					.AddMongoDBInstrumentation()
+					.AddRedisInstrumentation()
+					.AddOtlpExporter(ex =>
+					{
+						ex.Endpoint = new("http://jaeger:4317");
+						ex.ExportProcessorType = OpenTelemetry.ExportProcessorType.Simple;
+						ex.TimeoutMilliseconds = 30;
+						ex.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+					})
+					.AddConsoleExporter());
+		builder.Logging.AddSeq("http://seq:5341");
 		builder.Services.AddHttpContextAccessor();
 		builder.Services.AddCors(options
 		=> options.AddDefaultPolicy(policy
@@ -36,18 +65,28 @@ public static class DependencyInjection
 
 		var configuration = builder.Configuration.Get<AppSettings>() ?? throw new Exception("Null configuration");
 		// DI AppSettings
+		List<Assembly> assemblies = new List<Assembly>
+        {
+            typeof(Program).Assembly,
+            Application.AssemblyReference.Assembly,
+            Infrastructure.AssemblyReference.Assembly
+		};
 		builder.Services.AddSingleton(configuration);
-		builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+		builder.Services.AddValidatorsFromAssemblies(assemblies: assemblies);
 		builder.Services.AddInfrastructureServices(configuration.ConnectionStrings.DefaultConnection);
 		builder.Services.AddSingleton<GlobalErrorHandlingMiddleware>();
 		//Register to connect Redis
-		builder.Services.AddStackExchangeRedisCache(redisOptions =>
-		{
-			redisOptions.Configuration = configuration.ConnectionStrings.RedisConnection;
-		});
-
+		IConnectionMultiplexer redisConnectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(configuration.ConnectionStrings.RedisConnection);
+		builder.Services.AddSingleton(redisConnectionMultiplexer);
+		builder.Services.AddStackExchangeRedisCache(options => options.ConnectionMultiplexerFactory = () => Task.FromResult(redisConnectionMultiplexer));
+		// Register MongoDb
+		var mongoUrl = MongoUrl.Create(configuration.ConnectionStrings.MongoDbConnection);
+		var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
+		clientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber());
+		var mongoClient = new MongoClient(clientSettings);
+		builder.Services.AddSingleton(mongoClient.GetDatabase("ptp-db"));
 		// Register To Handle Query/Command of MediatR
-		builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+		builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 		builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 		// Scan and register all interfaces --> implementations 
 		builder.Services.Scan(scan => scan
