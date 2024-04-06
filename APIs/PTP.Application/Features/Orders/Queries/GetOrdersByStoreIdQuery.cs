@@ -69,8 +69,16 @@ public class GetOrdersByStoreIdQuery : IRequest<Pagination<OrderViewModel>>
                 {
                     filterResult = filterResult.Union(FilterUtilities.SelectItems(viewModels, filter.Key, filter.Value));
                 }
+                if (request.Filter.GetValueOrDefault("status") == OrderStatusEnum.Prepared.ToString())
+                {
+                    filterResult = filterResult.OrderBy(o => Math.Abs((o.PickUpTime - DateTime.Now).TotalSeconds)).ToList();
+                }
+                else
+                {
+                    filterResult = filterResult.OrderByDescending(x => x.CreationDate);
+                }
+
             }
-            filterResult = filterResult.OrderBy(o => Math.Abs((o.PickUpTime - DateTime.Now).TotalSeconds)).ToList();
 
 
             return new Pagination<OrderViewModel>

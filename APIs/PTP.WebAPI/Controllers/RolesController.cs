@@ -29,7 +29,7 @@ public class RolesController : BaseController
     [HttpGet("{id}")]
     public async Task<IActionResult> TestNotify(int id)
     {
-        string fcm = "coYahtu78b2ZSNKo0sF-cj:APA91bGwxSoNAA-vAzxm2nG0Zxt7NSZHdpsNdWgQVQzx6soc1k3iopzAC9sdrzL3RuuECxRh19ndDc2eYbjjxxPl59W4oZ_AexCPVJo3yNSTHM0gX0fBpkA2f2DslCGOk5i5D-Y-qvEb";
+        string fcm = "fgMcaOSnSQem8NlJ8en6sw:APA91bHKRiEZMnCvhLfgBlVtBPGCZ-zI9-6nJMnxWAABYceKIBZZHC4hT2gVNw1Uo-ttyIZqZvrsWhb6vv-VhYOO7fThksvDezlSuZLyO2x53VY3ZIYUoKOr6SX9iQjfXfqVuZbk9dnR";
         await FirebaseUtilities.SendNotification(fcm, "Test", "Test message", _appSettings.FirebaseSettings.SenderId, _appSettings.FirebaseSettings.ServerKey);
         return Ok();
     }

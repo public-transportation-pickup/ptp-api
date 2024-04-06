@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Orders;
 using PTP.Domain.Entities;
 using PTP.Domain.Enums;
@@ -31,18 +32,18 @@ namespace PTP.Application.Features.Orders.Commands
             private readonly IUnitOfWork _unitOfWork;
             private readonly ICacheService _cacheService;
             private readonly IMapper _mapper;
-            private ILogger<CommandHandler> _logger;
+            private readonly AppSettings _app;
             private readonly IClaimsService _claimService;
             public CommandHandler(IUnitOfWork unitOfWork,
                     ICacheService cacheService,
-                    ILogger<CommandHandler> logger,
+                    AppSettings app,
                     IMapper mapper,
                     IBackgroundJobClient backgroundJob,
                     IClaimsService claimsService)
             {
                 _unitOfWork = unitOfWork;
                 _cacheService = cacheService;
-                _logger = logger;
+                _app = app;
                 _mapper = mapper;
                 _backgroundJob = backgroundJob;
                 _claimService = claimsService;
@@ -50,28 +51,35 @@ namespace PTP.Application.Features.Orders.Commands
 
             public async Task<bool> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
             {
-                _logger.LogInformation("Update Order:\n");
-
-                var order = await _unitOfWork.OrderRepository.GetByIdAsync(request.UpdateModel.Id, x => x.OrderDetails);
+                string title = "";
+                string body = "";
+                var order = await _unitOfWork.OrderRepository.GetByIdAsync(request.UpdateModel.Id, x => x.OrderDetails, x => x.Store, x => x.User);
                 if (order is null) throw new NotFoundException($"Order with Id-{request.UpdateModel.Id} is not exist!");
-
                 var status = request.UpdateModel.Status;
                 switch (status)
                 {
                     case nameof(OrderStatusEnum.Preparing):
                         order = PreparingState(order);
+                        title = "Đơn hàng đã được xác nhận";
+                        body = $"Cửa hàng {order.Store.Name} đã xác nhận đơn hàng của bạn!";
                         break;
                     case nameof(OrderStatusEnum.Prepared):
                         order = PreparedState(order);
+                        title = "Đơn hàng đã được chuẩn bị";
+                        body = $"Đơn hàng tại {order.Store.Name} đã được chuẩn bị! Vui lòng đến lấy  trước khi hết hạn";
                         break;
                     case nameof(OrderStatusEnum.Completed):
                         order = CompletedState(order);
+                        title = "Đơn hàng đã được giao";
+                        body = $"{order.Store.Name}! Cảm ơn đã mua hàng!";
                         break;
                     case nameof(OrderStatusEnum.Canceled):
                         if (order.Status == "Waiting" || order.Status == "Preparing")
                         {
                             await CancelOrder(order, request.UpdateModel.CanceledReason!);
                             await UpdateQuantity(order);
+                            title = "Đơn hàng đã bị hủy";
+                            body = $"Đơn hàng của bạn đã hủy thành công! Vui lòng xác nhận lại";
                         }
                         break;
 
@@ -80,8 +88,12 @@ namespace PTP.Application.Features.Orders.Commands
 
                 _unitOfWork.OrderRepository.Update(order);
                 var result = await _unitOfWork.SaveChangesAsync();
+                // var tmp = "f7XpUca9TNSSn3cnH9Ecc_:APA91bEgcpDsepM3k8q_dlee-b47Lywrv8KxgjXBzxTWwJVc4m46UTpQIVip9Wc7gPLc-LAoxNlSmYLmomOgY_TiVwZkuujbWcw5FR6J7Qw8iqH5cMSNvl5u6o85LjnEHqkSBN9Y1wyw";
+                await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _app.FirebaseSettings.SenderId, _app.FirebaseSettings.ServerKey);
+                // await FirebaseUtilities.SendNotification(tmp, title, body, _app.FirebaseSettings.SenderId, _app.FirebaseSettings.ServerKey);
                 return result;
             }
+
             private Order PreparingState(Order order)
             {
                 if (!order.Status.Equals("Waiting"))
@@ -149,10 +161,10 @@ namespace PTP.Application.Features.Orders.Commands
             private async Task CreateTransaction(Order order)
             {
                 var userWallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x => x.UserId == order.UserId);
-                if (userWallet!.Amount < order.Total) throw new BadRequestException("Wallet is not enough monney!");
+                if (userWallet is null) throw new BadRequestException($"Wallet have User Id-{order.UserId} does not exist!");
                 var storeUser = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.StoreId == order.StoreId, x => x.Wallet);
                 if (storeUser is null) throw new BadRequestException($"Wallet have Store Id-{order.StoreId} does not exist!");
-
+                if (storeUser!.Wallet.Amount < order.Total) throw new BadRequestException("Wallet is not enough monney!");
                 var transactions = new List<Transaction>{
                     new Transaction{Name=nameof(TransactionTypeEnum.Receive),Amount=order.ReturnAmount!.Value,TransactionType=nameof(TransactionTypeEnum.Receive),WalletId=userWallet.Id,PaymentId=order.PaymentId},
                     new Transaction{Name=nameof(TransactionTypeEnum.Transfer),Amount=order.ReturnAmount!.Value,TransactionType=nameof(TransactionTypeEnum.Transfer),WalletId=storeUser.WalletId,PaymentId=order.PaymentId}

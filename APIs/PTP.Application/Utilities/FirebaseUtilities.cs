@@ -34,6 +34,7 @@ public static class FirebaseUtilities
         var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
         var result = await client.PostAsync("/fcm/send", httpContent);
+        Console.WriteLine($"Noti result: {result}");
         return result.StatusCode.Equals(HttpStatusCode.OK);
     }
 }
