@@ -80,7 +80,7 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
             //         }
             //     }
             // }
-            filterResult.OrderByDescending(x => x.CreationDate);
+            filterResult = filterResult.OrderByDescending(x => x.CreationDate);
 
             return PaginatedList<OrderViewModel>.Create(
                         source: filterResult.AsQueryable(),

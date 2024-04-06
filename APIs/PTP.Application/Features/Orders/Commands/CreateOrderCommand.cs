@@ -89,12 +89,14 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             await CreateTransaction(order);
             await _unitOfWork.OrderRepository.AddAsync(order);
             _unitOfWork.ProductInMenuRepository.UpdateRange(productInMenus);
-            if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
-            AutoApprove(order);
 
+            if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
             //Send Notification
+
+            AutoApprove(order);
             var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.StoreId == request.CreateModel.StoreId);
-            await FirebaseUtilities.SendNotification(user!.FCMToken!, "New Order", "You have new order in queue!", _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+            await FirebaseUtilities.SendNotification(user!.FCMToken!, "New Order", "Bạn có đơn hàng mới trong hàng chờ!", _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+
 
             //Update Cache
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
@@ -243,10 +245,10 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         public async Task RollBackTransaction(Order order)
         {
             var userWallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x => x.UserId == order.UserId);
-            if (userWallet!.Amount < order.Total) throw new BadRequestException("Wallet is not enough monney!");
+            if (userWallet is null) throw new BadRequestException($"Wallet have User Id-{order.UserId} does not exist!");
             var storeUser = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.StoreId == order.StoreId, x => x.Wallet);
             if (storeUser is null) throw new BadRequestException($"Wallet have Store Id-{order.StoreId} does not exist!");
-
+            if (storeUser!.Wallet.Amount < order.Total) throw new BadRequestException("Wallet is not enough monney!");
             var transactions = new List<Transaction>{
                     new Transaction{Name=nameof(TransactionTypeEnum.Receive),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Receive),WalletId=userWallet.Id,PaymentId=order.PaymentId},
                     new Transaction{Name=nameof(TransactionTypeEnum.Transfer),Amount=order.Total,TransactionType=nameof(TransactionTypeEnum.Transfer),WalletId=storeUser.WalletId,PaymentId=order.PaymentId}
