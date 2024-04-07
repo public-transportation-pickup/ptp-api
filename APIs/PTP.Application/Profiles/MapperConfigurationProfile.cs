@@ -219,14 +219,14 @@ public class MapperConfigurationProfile : Profile
 		#endregion
 		#region Notifications
 		CreateMap<NotificationEntity, NotificationViewModel>()
-			.ForMember(x => ObjectId.Parse(x.Id), src => src.MapFrom(x => x.Id))
-			.ReverseMap();
+			.ReverseMap()
+			.ForMember(x => x.Id, cfg => cfg.MapFrom(x => ObjectId.Parse(x.Id)));
 		CreateMap<NotificationEntity, NotificationCreateModel>()
-			.ForMember(x => (NotificationSourceEnum)x.Source, cfg => cfg.MapFrom(x => x.Source))
-			.ReverseMap();
+			.ReverseMap()
+			.ForMember(x => x.Source, cfg => cfg.MapFrom(x => (NotificationSourceEnum)x.Source));
 		CreateMap<NotificationEntity, NotificationUpdateModel>()
-			.ForMember(x => x.Source, cfg => cfg.MapFrom(x => x.Source))
-			.ReverseMap();
+			.ReverseMap()
+			.ForMember(x => x.Id, cfg => cfg.MapFrom(x => ObjectId.Parse(x.Id)));
 		#endregion
 	}
 }
