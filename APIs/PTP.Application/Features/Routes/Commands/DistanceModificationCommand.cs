@@ -25,7 +25,7 @@ public class DistanceModificationCommand : IRequest<bool>
 			this.backgroundJobClient = backgroundJobClient;
 			_unitOfWork = unitOfWork;
 		}
-		private async Task DistanceModify(DistanceModificationCommand request)
+		public async Task DistanceModify(DistanceModificationCommand request)
 		{
 			var routeStations = (await _unitOfWork.RouteStationRepository.WhereAsync(x => x.RouteId == request.Id, x => x.Station))
 																.OrderBy(x => x.Index)
