@@ -71,6 +71,7 @@ public class NotificationRepository : INotificationRepository
                 .Set(x => x.ImageURL, entity.ImageURL)
                 .Set(x => x.Content, entity.Content)
                 .Set(x => x.Title, entity.Title)
+                .Set(x => x.IsSeen, entity.IsSeen)
                 .Set(x => x.Source, entity.Source));
         return result;
     }

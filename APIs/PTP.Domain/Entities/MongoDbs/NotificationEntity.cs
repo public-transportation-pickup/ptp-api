@@ -12,6 +12,7 @@ public class NotificationEntity
     [BsonId]
     public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
     public string Title { get; set; } = string.Empty;
+    public bool IsSeen { get; set; } = false;
     public string Content { get; set; } = string.Empty;
     public string ImageURL { get; set; } = string.Empty;
     public NotificationSourceEnum Source { get; set; } = NotificationSourceEnum.Admin;
