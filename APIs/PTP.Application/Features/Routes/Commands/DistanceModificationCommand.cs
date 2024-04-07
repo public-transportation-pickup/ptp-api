@@ -1,4 +1,5 @@
 using FluentValidation;
+using Hangfire;
 using MediatR;
 using PTP.Application.IntergrationServices.Interfaces;
 
@@ -17,12 +18,14 @@ public class DistanceModificationCommand : IRequest<bool>
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILocationService _locationService;
-		public CommandHandler(IUnitOfWork unitOfWork, ILocationService locationService)
+		private readonly IBackgroundJobClient backgroundJobClient;
+		public CommandHandler(IUnitOfWork unitOfWork, ILocationService locationService, IBackgroundJobClient backgroundJobClient)
 		{
 			_locationService = locationService;
+			this.backgroundJobClient = backgroundJobClient;
 			_unitOfWork = unitOfWork;
 		}
-		public async Task<bool> Handle(DistanceModificationCommand request, CancellationToken cancellationToken)
+		private async Task DistanceModify(DistanceModificationCommand request)
 		{
 			var routeStations = (await _unitOfWork.RouteStationRepository.WhereAsync(x => x.RouteId == request.Id, x => x.Station))
 																.OrderBy(x => x.Index)
@@ -82,7 +85,13 @@ public class DistanceModificationCommand : IRequest<bool>
 				_unitOfWork.RouteVarRepository.Update(rV);
 			}
 
-			return await _unitOfWork.SaveChangesAsync();
+			await _unitOfWork.SaveChangesAsync();
+			return;
+		}
+		public Task<bool> Handle(DistanceModificationCommand request, CancellationToken cancellationToken)
+		{
+			backgroundJobClient.Schedule(() => DistanceModify(request), DateTimeOffset.Now);
+			return Task.FromResult(true);
 		}
 	}
 }

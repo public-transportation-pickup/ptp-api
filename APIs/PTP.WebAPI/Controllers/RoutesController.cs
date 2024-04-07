@@ -1,4 +1,5 @@
 using System.Net;
+using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Routes.Commands;
@@ -11,8 +12,10 @@ public class RoutesController : BaseController
 {
 
 	private readonly IMediator _mediator;
-	public RoutesController(IMediator mediator)
+	private readonly IBackgroundJobClient backgroundJobClient;
+	public RoutesController(IMediator mediator, IBackgroundJobClient backgroundJobClient)
 	{
+		this.backgroundJobClient = backgroundJobClient;
 		_mediator = mediator;
 	}
 	/// <summary>
@@ -26,8 +29,8 @@ public class RoutesController : BaseController
 	[HttpGet]
 	public async Task<IActionResult> Get(
 		[FromQuery] Dictionary<string, string> filter,
-		[FromQuery] int pageNumber = -1) 
-			=> Ok(await _mediator.Send(new GetAllRouteQuery 
+		[FromQuery] int pageNumber = -1)
+			=> Ok(await _mediator.Send(new GetAllRouteQuery
 			{
 				Filter = filter,
 				PageNumber = pageNumber
@@ -87,7 +90,7 @@ public class RoutesController : BaseController
 	[HttpPut("{id}")]
 	public async Task<IActionResult> Update(Guid id, [FromBody] RouteUpdateModel model)
 		=> await _mediator.Send(new UpdateRouteCommand { Id = id, Model = model }) ? NoContent() : BadRequest();
-	
+
 	[HttpPost]
 	public async Task<IActionResult> Create([FromBody] CreateRouteCommand command)
 		=> Ok(await _mediator.Send(command));

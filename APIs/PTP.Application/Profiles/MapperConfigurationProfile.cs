@@ -5,6 +5,7 @@ using PTP.Application.ViewModels;
 using PTP.Application.ViewModels.Categories;
 using PTP.Application.ViewModels.Menus;
 using PTP.Application.ViewModels.MongoDbs.Carts;
+using PTP.Application.ViewModels.MongoDbs.Notifications;
 using PTP.Application.ViewModels.OrderDetails;
 using PTP.Application.ViewModels.Orders;
 using PTP.Application.ViewModels.ProductMenus;
@@ -215,6 +216,17 @@ public class MapperConfigurationProfile : Profile
 		CreateMap<CartItemCreateModel, CartItemEntity>().ReverseMap();
 		CreateMap<CartItemEntity, CartItemViewModel>().ReverseMap();
 		CreateMap<CartItemEntity, CartItemUpdateModel>().ReverseMap();
+		#endregion
+		#region Notifications
+		CreateMap<NotificationEntity, NotificationViewModel>()
+			.ForMember(x => ObjectId.Parse(x.Id), src => src.MapFrom(x => x.Id))
+			.ReverseMap();
+		CreateMap<NotificationEntity, NotificationCreateModel>()
+			.ForMember(x => (NotificationSourceEnum)x.Source, cfg => cfg.MapFrom(x => x.Source))
+			.ReverseMap();
+		CreateMap<NotificationEntity, NotificationUpdateModel>()
+			.ForMember(x => x.Source, cfg => cfg.MapFrom(x => x.Source))
+			.ReverseMap();
 		#endregion
 	}
 }
