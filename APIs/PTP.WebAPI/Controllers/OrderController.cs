@@ -23,6 +23,14 @@ public class OrderController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [HttpGet]
+    [Authorize(Roles = (nameof(RoleEnum.StoreManager)))]
+    public async Task<IActionResult> GetAllOrder([FromQuery] Guid storeId)
+    => Ok(await _mediator.Send(new GetAllOrderQuery { StoreId = storeId }));
+
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     => Ok(await _mediator.Send(new GetOrdersByIdQuery { Id = id }));

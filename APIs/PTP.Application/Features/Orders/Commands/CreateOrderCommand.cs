@@ -199,29 +199,46 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
 
         public async Task BackgroundJob(OrderUpdateModel model, string statusCheck)
         {
+            string title = "";
+            string body = "";
             var order = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id);
             if (order == null) throw new BadRequestException($"Order- {model.Id} is not found!");
+            if (statusCheck != nameof(OrderStatusEnum.Preparing))
+            {
+                title = "Đơn hàng đã được chuẩn bị";
+                body = $"Đơn hàng tại {order.Store.Name} đã được chuẩn bị! Vui lòng đến lấy  trước khi hết hạn";
+
+            }
+            else
+            {
+                title = "Đơn hàng đã bị hủy";
+                body = $"Đơn hàng của bạn đã bị hủy do quá thời gian lấy hàng!";
+
+            }
             if (order.Status == statusCheck)
             {
                 order = _mapper.Map(model, order);
                 _unitOfWork.OrderRepository.Update(order);
-                if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
+                if (await _unitOfWork.SaveChangesAsync())
+                {
+                    await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+                }
             }
         }
         public async Task BackgroundJobForConfirm(Guid orderId)
         {
-            var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
-            // var orderCheck = await _unitOfWork.OrderRepository.WhereAsync(x => x.Status == nameof(OrderStatusEnum.Preparing));
-            // var menu = await _unitOfWork.MenuRepository.GetByIdAsync(order!.MenuId);
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId, x => x.Store);
             if (order == null) throw new BadRequestException($"Order- {orderId} is not found!");
             if (order.Status == nameof(OrderStatusEnum.Waiting))
             {
-                // order.Status = orderCheck.Count < menu!.MaxNumOrderProcess ? nameof(OrderStatusEnum.Preparing) : nameof(OrderStatusEnum.Canceled);
-                // order.CanceledReason = orderCheck.Count < menu!.MaxNumOrderProcess ? null : "Số lượng đơn hàng đã vượt quá giới hạn!";
-                // if (order.Status == nameof(OrderStatusEnum.Canceled)) await RollBackTransaction(order);
                 order.Status = nameof(OrderStatusEnum.Preparing);
                 _unitOfWork.OrderRepository.Update(order);
-                if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("SaveChanges Fail!");
+                string title = "Đơn hàng đã được xác nhận";
+                string body = $"Cửa hàng {order.Store.Name} đã xác nhận đơn hàng của bạn!";
+                if (await _unitOfWork.SaveChangesAsync())
+                {
+                    await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+                }
             }
         }
 
