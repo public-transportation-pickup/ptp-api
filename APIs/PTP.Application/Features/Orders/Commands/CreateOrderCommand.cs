@@ -201,7 +201,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         {
             string title = "";
             string body = "";
-            var order = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id);
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id, x => x.Store);
             if (order == null) throw new BadRequestException($"Order- {model.Id} is not found!");
             if (statusCheck != nameof(OrderStatusEnum.Preparing))
             {
