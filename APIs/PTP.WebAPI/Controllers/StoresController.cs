@@ -93,7 +93,7 @@ namespace PTP.WebAPI.Controllers
 		[Authorize(Roles = "Admin,StoreManager")]
 		public async Task<IActionResult> GetOrdersByStoreId([FromRoute] Guid id,
 															[FromQuery] int pageNumber = 0,
-															[FromQuery] int pageSize = 10,
+															[FromQuery] int pageSize = 1000,
 															[FromQuery] Dictionary<string, string> filter = default!,
 															[FromQuery] string roleName = default!,
 															[FromQuery] string phoneNumber = default!)

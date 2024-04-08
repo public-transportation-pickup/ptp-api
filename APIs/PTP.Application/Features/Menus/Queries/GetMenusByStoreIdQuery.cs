@@ -48,7 +48,7 @@ public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
             if (menus is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any menus!");
             await _cacheService.SetByPrefixAsync<Menu>(CacheKey.MENU, menus);
             var viewModels = _mapper.Map<IEnumerable<MenuViewModel>>(menus);
-            return viewModels.OrderByDescending(x => x.StartTime);
+            return viewModels.OrderByDescending(x => x.CreationDate);
 
         }
 
@@ -63,7 +63,7 @@ public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
                 var result = cacheResult.Where(x => x.StoreId == request.StoreId);
                 if (!result.Any()) return null;
                 var cacheViewModels = _mapper.Map<IEnumerable<MenuViewModel>>(result);
-                return cacheViewModels;
+                return cacheViewModels.OrderByDescending(x => x.CreationDate);
             }
             return null;
         }

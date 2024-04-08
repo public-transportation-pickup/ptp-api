@@ -151,7 +151,7 @@ public class MapperConfigurationProfile : Profile
 		#region Wallet
 		CreateMap<Wallet, WalletViewModel>()
 			.ForMember(x => x.WalletLogs, opt => opt.MapFrom(x => x.WalletLogs))
-			.ForMember(x => x.Transactions, opt => opt.MapFrom(x => x.Transactions))
+			.ForMember(x => x.Transactions, opt => opt.Ignore())
 			.ReverseMap();
 		#endregion
 
@@ -191,7 +191,10 @@ public class MapperConfigurationProfile : Profile
 		#endregion
 
 		#region Transactions
-		CreateMap<Transaction, TransactionViewModel>().ReverseMap();
+		CreateMap<Transaction, TransactionViewModel>()
+		.ForMember(x => x.Name, opt => opt.MapFrom(x => x.Payment!.Order.Name))
+		.ForMember(x => x.OrderId, opt => opt.MapFrom(x => x.Payment!.OrderId))
+		.ReverseMap();
 		#endregion
 
 		#region WalletLogs
