@@ -1,6 +1,46 @@
 namespace PTP.Application.Commons;
 public static class SqlQueriesStorage
 {
+    /// <summary>
+    /// Lấy tổng Station, Routes
+    /// </summary>
+
+    public const string GET_SUM_ROUTES = @"SELECT * FROM
+        (SELECT COUNT(*) Stations FROM Station) a,
+        (SELECT COUNT(*) Routes FROM [Route]) b";
+    /// <summary>
+    /// Thống kê top 20 station có nhiều order nhất
+    /// </summary>
+    public const string GET_TOP_ORDER_STATION = @"SELECT TOP 20 s.Name AS [Name], 
+        COUNT(CASE WHEN o.[Status] = 'Completed' THEN o.Id END) AS OrderCompleted,
+        COUNT(CASE WHEN o.[Status] = 'Canceled' THEN o.Id END) AS OrderCanceled,
+        COUNT(CASE WHEN o.[Status] != 'Canceled' AND o.Status != 'Completed' THEN o.Id END) AS OrderOthers
+        FROM Station s INNER JOIN [Order] o
+        ON s.Id = o.StationId
+        WHERE o.[Status] IS NOT NULL
+        GROUP BY s.Name
+        ORDER BY OrderCompleted DESC, OrderCanceled DESC";
+    /// <summary>
+    /// Lấy thống kê top 20 cửa hàng có nhiều ORDER nhất
+    /// </summary>
+    public const string GET_TOP_ORDER_STORES = @"SELECT TOP 20 s.Name AS [Name], 
+        COUNT(CASE WHEN o.[Status] = 'Completed' THEN o.Id END) AS OrderCompleted,
+        COUNT(CASE WHEN o.[Status] = 'Canceled' THEN o.Id END) AS OrderCanceled,
+        COUNT(CASE WHEN o.[Status] != 'Canceled' AND o.Status != 'Completed' THEN o.Id END) AS OrderOthers
+        FROM Store s INNER JOIN [Order] o
+        ON s.Id = o.StoreId
+        WHERE o.[Status] IS NOT NULL
+        GROUP BY s.Name
+        ORDER BY OrderCompleted DESC, OrderCanceled DESC";
+
+    /// <summary>
+    /// Lấy thống kê top5 cửa hàng có doanh thu cao nhất
+    /// </summary>
+    public const string GET_TOP_PROFIT_STORES = @"SELECT TOP 5 s.Name, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS TotalValue
+        FROM [Order] o INNER JOIN [Store] s
+        ON o.StoreId = s.Id
+        GROUP BY s.Name
+        ORDER BY TotalValue DESC";
     public const string GET_ROUTE_BY_STATION_NAME = @"
         SELECT DISTINCT (r.Id), r.RouteId, r.Name,r.[Status], 
             r.RouteNo, r.Distance, r.TimeOfTrip, r.HeadWay, r.OperationTime,
