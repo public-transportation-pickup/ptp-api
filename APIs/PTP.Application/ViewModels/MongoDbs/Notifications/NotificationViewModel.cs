@@ -10,4 +10,5 @@ public class NotificationViewModel
     public string ImageURL { get; set; } = string.Empty;
     public NotificationSourceEnum Source { get; set; }
     public Guid UserId { get; set; } = Guid.Empty;
+    public DateTime CreateDate { get; set; }
 }

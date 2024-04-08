@@ -16,6 +16,7 @@ public class NotificationEntity
     public string Content { get; set; } = string.Empty;
     public string ImageURL { get; set; } = string.Empty;
     public NotificationSourceEnum Source { get; set; } = NotificationSourceEnum.Admin;
+    public DateTime CreateDate { get; set; }
     public Guid UserId { get; set; } = Guid.Empty;
 }
 

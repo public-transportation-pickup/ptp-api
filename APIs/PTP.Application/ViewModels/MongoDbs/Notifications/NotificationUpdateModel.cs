@@ -9,4 +9,5 @@ public class NotificationUpdateModel
     public string Content { get; set; } = string.Empty;
     public string ImageURL { get; set; } = string.Empty;
     public NotificationSourceEnum Source { get; set; }
+    public DateTime CreateDate { get; set; }
 }
