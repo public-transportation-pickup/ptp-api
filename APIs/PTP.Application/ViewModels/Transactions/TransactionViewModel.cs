@@ -15,6 +15,8 @@ namespace PTP.Application.ViewModels.Transactions
         public string TransactionType { get; set; } = nameof(TransactionTypeEnum.None);
         public Guid WalletId { get; set; }
         public Guid? PaymentId { get; set; }
+        public Guid? OrderId { get; set; }
+        public string? Name { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
     }

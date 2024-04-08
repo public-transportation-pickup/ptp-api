@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.ViewModels.Transactions;
 using PTP.Application.ViewModels.Wallets;
 using PTP.Domain.Entities;
 using PTP.Domain.Globals;
@@ -43,16 +44,18 @@ namespace PTP.Application.Features.Wallets.Queries
             }
             public async Task<WalletViewModel> Handle(GetWalletByUserIdQuery request, CancellationToken cancellationToken)
             {
-                // if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                // var cacheResult = await _cacheService.GetByPrefixAsync<Wallet>(CacheKey.WALLET);
-                // if (cacheResult!.Count > 0)
-                // {
-                //     return _mapper.Map<WalletViewModel>(cacheResult.FirstOrDefault(x => x.UserId == request.UserId));
-                // }
-                var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId, x => x.Transactions, x => x.WalletLogs);
+                var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId, x => x.WalletLogs);
                 if (wallet is null) throw new BadRequestException($"User-{request.UserId} is not exist any Wallet!");
-                // await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
-                return _mapper.Map<WalletViewModel>(wallet);
+
+                var result = _mapper.Map<WalletViewModel>(wallet);
+                result.Transactions = await GetTransactions(wallet.Id);
+                return result;
+            }
+
+            private async Task<List<TransactionViewModel>> GetTransactions(Guid walletId)
+            {
+                var transaction = await _unitOfWork.TransactionRepository.WhereAsync(x => x.WalletId == walletId, x => x.Payment!, x => x.Payment!.Order);
+                return _mapper.Map<List<TransactionViewModel>>(transaction);
             }
         }
     }
