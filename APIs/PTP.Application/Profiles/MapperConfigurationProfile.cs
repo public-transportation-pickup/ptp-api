@@ -22,6 +22,7 @@ using PTP.Application.ViewModels.WalletLogs;
 using PTP.Application.ViewModels.Wallets;
 using PTP.Domain.Entities;
 using PTP.Domain.Entities.MongoDbs;
+using ZstdSharp.Unsafe;
 
 namespace PTP.Application.Profiles;
 public class MapperConfigurationProfile : Profile
@@ -195,6 +196,7 @@ public class MapperConfigurationProfile : Profile
 		CreateMap<Transaction, TransactionViewModel>()
 		.ForMember(x => x.Name, opt => opt.MapFrom(x => x.Payment!.Order.Name))
 		.ForMember(x => x.OrderId, opt => opt.MapFrom(x => x.Payment!.OrderId))
+		.ForMember(x => x.PhoneNumber, opt => opt.MapFrom(x => x.Payment!.Order.PhoneNumber))
 		.ReverseMap();
 		#endregion
 
