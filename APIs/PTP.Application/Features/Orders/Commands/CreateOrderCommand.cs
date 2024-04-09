@@ -2,10 +2,12 @@ using AutoMapper;
 using FluentValidation;
 using Hangfire;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.SignalR;
 using PTP.Application.Utilities;
 using PTP.Application.ViewModels.OrderDetails;
 using PTP.Application.ViewModels.Orders;
@@ -51,13 +53,15 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         private readonly IClaimsService _claimsService;
         private readonly ICacheService _cacheService;
         private readonly AppSettings _appSetting;
+        private readonly IHubContext<SignalrHub> _hubContext;
         public CommandHandler(IUnitOfWork unitOfWork,
                             IMapper mapper,
                             ILogger<CommandHandler> logger,
                             IClaimsService claimsService,
                             ICacheService cacheService,
                             IBackgroundJobClient backgroundJob,
-                            AppSettings appSettings)
+                            AppSettings appSettings,
+                            IHubContext<SignalrHub> hubContext)
         {
             _backgroundJob = backgroundJob;
             _unitOfWork = unitOfWork;
@@ -66,6 +70,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             _claimsService = claimsService;
             _cacheService = cacheService;
             _appSetting = appSettings;
+            _hubContext = hubContext;
         }
 
 
@@ -96,7 +101,8 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             AutoApprove(order);
             var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.StoreId == request.CreateModel.StoreId);
             await FirebaseUtilities.SendNotification(user!.FCMToken!, "New Order", "Bạn có đơn hàng mới trong hàng chờ!", _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
-
+            //Send Message
+            await _hubContext.Clients.All.SendAsync("messageReceived", "CreateOrder", $"{request.CreateModel.StoreId}");
 
             //Update Cache
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
@@ -201,7 +207,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         {
             string title = "";
             string body = "";
-            var order = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id, x => x.Store);
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(model.Id, x => x.User, x => x.Store);
             if (order == null) throw new BadRequestException($"Order- {model.Id} is not found!");
             if (statusCheck != nameof(OrderStatusEnum.Preparing))
             {
@@ -227,7 +233,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         }
         public async Task BackgroundJobForConfirm(Guid orderId)
         {
-            var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId, x => x.Store);
+            var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId, x => x.User, x => x.Store);
             if (order == null) throw new BadRequestException($"Order- {orderId} is not found!");
             if (order.Status == nameof(OrderStatusEnum.Waiting))
             {

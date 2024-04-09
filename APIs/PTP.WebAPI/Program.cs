@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using PTP.Application.GlobalExceptionHandling;
 using PTP.Application.IntergrationServices.Interfaces;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.SignalR;
 using PTP.Infrastructure;
 using PTP.WebAPI;
 using WebAPI.Middlewares;
@@ -21,6 +22,7 @@ await builder.AddWebAPIServicesAsync();
 
 var app = builder.Build();
 app.UseCors();
+
 app.UseHangfireDashboard("/hangfire", new DashboardOptions { IgnoreAntiforgeryToken = true, Authorization = new[] { new DashboardAuthorizationFilter() } }, null);
 RecurringJob.AddOrUpdate<IBusRouteService>("check-routes", interService => interService.CheckNewCreatedRoute(), Cron.Monthly());
 RecurringJob.AddOrUpdate<IProductService>("Update-product-quantity", interService => interService.UpdateProduct(), Cron.Daily());
@@ -37,6 +39,7 @@ app.UseAuthorization();
 
 ApplyMigration();
 app.MapControllers();
+app.MapHub<SignalrHub>("/hub");
 
 app.Run();
 

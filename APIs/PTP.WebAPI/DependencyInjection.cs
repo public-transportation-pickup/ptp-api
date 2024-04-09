@@ -52,6 +52,7 @@ public static class DependencyInjection
 		builder.Services.AddCors(options
 		=> options.AddDefaultPolicy(policy
 		=> policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
 		builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 		builder.Services.AddHttpClient();
 		builder.Services.AddEndpointsApiExplorer();
@@ -66,10 +67,10 @@ public static class DependencyInjection
 		var configuration = builder.Configuration.Get<AppSettings>() ?? throw new Exception("Null configuration");
 		// DI AppSettings
 		List<Assembly> assemblies = new List<Assembly>
-        {
-            typeof(Program).Assembly,
-            Application.AssemblyReference.Assembly,
-            Infrastructure.AssemblyReference.Assembly
+		{
+			typeof(Program).Assembly,
+			Application.AssemblyReference.Assembly,
+			Infrastructure.AssemblyReference.Assembly
 		};
 		builder.Services.AddSingleton(configuration);
 		builder.Services.AddValidatorsFromAssemblies(assemblies: assemblies);
@@ -157,7 +158,7 @@ public static class DependencyInjection
 			};
 		});
 
-
+		builder.Services.AddSignalR();
 		builder.Services.AddSingleton<PerformanceMiddleware>();
 		builder.Services.AddSingleton<Stopwatch>();
 		return builder;
