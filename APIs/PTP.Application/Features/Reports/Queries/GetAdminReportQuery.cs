@@ -46,6 +46,7 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
             {
                 Routes = routes.Routes,
                 Stations = routes.Stations,
+                Stores = routes.Stores,
                 TopOrderStations = topOrderStation ?? new(),
                 TopOrderStores = topOrderStore ?? new(),
                 TopProfitStores = topProfitStore ?? new()

@@ -3,6 +3,7 @@ public class AdminReportViewModel
 {
     public int Routes { get; set; }
     public int Stations { get; set; }
+    public int Stores { get; set; }
     public List<TopOrderStoreModel> TopOrderStores { get; set; } = new();
     public List<TopProfitStoreModel> TopProfitStores { get; set; } = new();
     public List<TopOrderStationModel> TopOrderStations { get; set; } = new();
