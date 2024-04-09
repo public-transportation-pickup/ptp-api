@@ -3,9 +3,11 @@ using Azure.Core;
 using FluentValidation;
 using Hangfire;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
+using PTP.Application.SignalR;
 using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Orders;
 using PTP.Domain.Entities;
@@ -34,12 +36,13 @@ namespace PTP.Application.Features.Orders.Commands
             private readonly IMapper _mapper;
             private readonly AppSettings _app;
             private readonly IClaimsService _claimService;
+            private readonly IHubContext<SignalrHub> _hubContext;
             public CommandHandler(IUnitOfWork unitOfWork,
                     ICacheService cacheService,
                     AppSettings app,
                     IMapper mapper,
                     IBackgroundJobClient backgroundJob,
-                    IClaimsService claimsService)
+                    IClaimsService claimsService, IHubContext<SignalrHub> hubContext)
             {
                 _unitOfWork = unitOfWork;
                 _cacheService = cacheService;
@@ -47,6 +50,7 @@ namespace PTP.Application.Features.Orders.Commands
                 _mapper = mapper;
                 _backgroundJob = backgroundJob;
                 _claimService = claimsService;
+                _hubContext = hubContext;
             }
 
             public async Task<bool> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
@@ -88,9 +92,9 @@ namespace PTP.Application.Features.Orders.Commands
 
                 _unitOfWork.OrderRepository.Update(order);
                 var result = await _unitOfWork.SaveChangesAsync();
-                // var tmp = "f7XpUca9TNSSn3cnH9Ecc_:APA91bEgcpDsepM3k8q_dlee-b47Lywrv8KxgjXBzxTWwJVc4m46UTpQIVip9Wc7gPLc-LAoxNlSmYLmomOgY_TiVwZkuujbWcw5FR6J7Qw8iqH5cMSNvl5u6o85LjnEHqkSBN9Y1wyw";
                 await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _app.FirebaseSettings.SenderId, _app.FirebaseSettings.ServerKey);
-                // await FirebaseUtilities.SendNotification(tmp, title, body, _app.FirebaseSettings.SenderId, _app.FirebaseSettings.ServerKey);
+                //Send Message
+                await _hubContext.Clients.All.SendAsync("messageReceived", "UpdateOrder", $"{order.StoreId}");
                 return result;
             }
 
