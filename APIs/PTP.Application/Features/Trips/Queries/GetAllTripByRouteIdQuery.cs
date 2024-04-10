@@ -29,6 +29,7 @@ public class GetAllTripByRouteIdQuery : IRequest<PaginatedList<TripViewModel>>
                 request.Filter.Remove("routeVarId");
                 request.Filter.Remove("pageNumber");
             }
+            var today = DateTime.Now.DayOfWeek.ConvertToDateApplys();
             using var connection = connectionConfiguration.GetDbConnection();
             var query = SqlQueriesStorage.GET_TRIPS_BY_PARENTS_ID;
             var parameters = new DynamicParameters();
@@ -45,12 +46,16 @@ public class GetAllTripByRouteIdQuery : IRequest<PaginatedList<TripViewModel>>
                     returnResult = returnResult.Union(FilterUtilities.SelectItems(resultFromDb, item.Key, item.Value)).ToList();
 
                 }
-            } else returnResult = resultFromDb.ToList();
+            }
+            else returnResult = resultFromDb.ToList();
+
 
             return PaginatedList<TripViewModel>.Create(
-                source: returnResult.AsQueryable(),
+                source: returnResult
+                    .Where(x => x.ApplyDates.Contains(today))
+                    .AsQueryable(),
                 pageIndex: request.PageNumber >= 0 ? 0 : request.PageNumber,
-                pageSize: request.PageNumber >=0 ? 20 : returnResult.Count
+                pageSize: request.PageNumber >= 0 ? 20 : returnResult.Count
             );
 
 
