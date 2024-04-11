@@ -8,7 +8,7 @@ public static class SqlQueriesStorage
     public const string GET_SUM_ROUTES = @"SELECT * FROM
         (SELECT COUNT(*) Stations FROM Station) a,
         (SELECT COUNT(*) Routes FROM [Route]) b,
-        (SELECT COUNT(*) Stores FROM [Stores]) c";
+        (SELECT COUNT(*) Stores FROM [Store]) c";
     /// <summary>
     /// Thống kê top 20 station có nhiều order nhất
     /// </summary>
