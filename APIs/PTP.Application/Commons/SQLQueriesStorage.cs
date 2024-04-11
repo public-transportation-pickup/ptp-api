@@ -2,7 +2,7 @@ namespace PTP.Application.Commons;
 public static class SqlQueriesStorage
 {
 
-    public const string GET_CATEGORIES_REPORT = @"TOP 5 SELECT c.Name, c.ImageURL, COUNT(p.Id) AS Products
+    public const string GET_CATEGORIES_REPORT = @"SELECT TOP 5 c.Name, c.ImageURL, COUNT(p.Id) AS Products
         FROM Category c LEFT JOIN 
         Product p
         ON c.Id = p.CategoryId
