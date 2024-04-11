@@ -1,5 +1,7 @@
 version: '3.5'
 networks:
+  web:
+    external: true
 volumes:
   dbdata6:
   elasticsearch-data:
