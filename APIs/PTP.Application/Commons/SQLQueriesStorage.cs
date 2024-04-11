@@ -27,7 +27,7 @@ public static class SqlQueriesStorage
         COUNT(CASE WHEN o.[Status] = 'Completed' THEN o.Id END) AS OrderCompleted,
         COUNT(CASE WHEN o.[Status] = 'Canceled' THEN o.Id END) AS OrderCanceled,
         COUNT(CASE WHEN o.[Status] != 'Canceled' AND o.Status != 'Completed' THEN o.Id END) AS OrderOthers
-        FROM Station s INNER JOIN [Orders] o
+        FROM Station s INNER JOIN [Order] o
         ON s.Id = o.StationId
         WHERE o.[Status] IS NOT NULL
         GROUP BY s.Name
