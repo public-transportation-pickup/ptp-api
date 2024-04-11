@@ -35,7 +35,7 @@ public static class SqlQueriesStorage
     /// <summary>
     /// Lấy thống kê top 20 cửa hàng có nhiều ORDER nhất
     /// </summary>
-    public const string GET_TOP_ORDER_STORES = @"SELECT a.Name, a.Address, a.OrderCompleted, a.OrderCanceled, a.OrderOthers, b.Revenue
+    public const string GET_TOP_ORDER_STORES = @"SELECT TOP 5 a.Name, a.Address, a.OrderCompleted, a.OrderCanceled, a.OrderOthers, b.Revenue
             FROM 
             (SELECT s.Name, s.Address,
                 COUNT(CASE WHEN o.[Status] = 'Completed' THEN o.Id END) AS OrderCompleted,
@@ -46,14 +46,13 @@ public static class SqlQueriesStorage
                 FROM Store s) s INNER JOIN [Order] o
                 ON s.Id = o.StoreId
             WHERE o.[Status] IS NOT NULL
-            GROUP BY s.Name, s.Address
-            ORDER BY OrderCompleted DESC, OrderCanceled DESC) a
+            GROUP BY s.Name, s.Address) a
             INNER JOIN (SELECT TOP 5 s.Name, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS Revenue
                     FROM [Order] o INNER JOIN [Store] s
                     ON o.StoreId = s.Id
-                    GROUP BY s.Name
-                    ORDER BY Revenue DESC) b 
-            ON a.Name = b.Name";
+                    GROUP BY s.Name) b 
+            ON a.Name = b.Name
+            ORDER BY Revenue DESC";
 
     /// <summary>
     /// Lấy thống kê top5 cửa hàng có doanh thu cao nhất
