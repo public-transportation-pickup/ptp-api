@@ -24,15 +24,15 @@ services:
     environment:
       - ACCEPT_EULA=Y
   mongo-db: 
-    image: mongodb/mongodb-community-server:5.0-ubi8 
+    image: mongo:5.0
     restart: always
     ports:
       - '27017:27017'
     volumes:
       - dbdata6:/data/db
     environment: 
-      MONGODB_INITDB_ROOT_USERNAME: demoadmin
-      MONGODB_INITDB_ROOT_PASSWORD: demopassword
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
     environment:
