@@ -31,8 +31,8 @@ services:
     volumes:
       - dbdata6:/data/db
     environment: 
-      MONGO_INITDB_ROOT_USERNAME: 'rootuser'
-      MONGO_INITDB_ROOT_PASSWORD: 'rootpass'
+      MONGODB_INITDB_ROOT_USERNAME: demoadmin
+      MONGODB_INITDB_ROOT_PASSWORD: demopassword
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
     environment:
