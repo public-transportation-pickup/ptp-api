@@ -36,6 +36,11 @@ public class DuplicateRouteVarCommand : IRequest<IEnumerable<RouteStationViewMod
 							?? throw new Exception($"Error: {nameof(DuplicateRouteVarCommand)}-no_data_found");
 			var oldRouteStations = await unitOfWork.RouteStationRepository.WhereAsync(x => x.RouteVarId == request.Id);
 			if (routeVariation.RouteStations?.Count <= 0) throw new Exception();
+			foreach (var station in request.Stations)
+			{
+				var isExist = await unitOfWork.StationRepository.GetByIdAsync(station.StationId)
+					?? throw new ArgumentException("One or more station is not exsit!");
+			}
 			unitOfWork.RouteVarRepository.SoftRemove(routeVariation);
 			unitOfWork.RouteStationRepository.SoftRemoveRange(oldRouteStations);
 			var newRouteVar = new RouteVar
