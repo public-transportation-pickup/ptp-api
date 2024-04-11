@@ -62,8 +62,8 @@ public class TimetablesController : BaseController
     public async Task<IActionResult> Create(List<TimetableCreateModel> models)
     {
         var result = await mediator.Send(new CreateTimetableCommand { Models = models });
-        if (result) return StatusCode((int)HttpStatusCode.Created);
-        else return BadRequest("Create Failed!");
+        return Ok(result);
+
     }
 
     /// <summary>
