@@ -30,9 +30,6 @@ services:
       - '27017:27017'
     volumes:
       - dbdata6:/data/db
-    environment: 
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
     environment:
