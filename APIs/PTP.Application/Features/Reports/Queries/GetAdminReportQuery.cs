@@ -24,33 +24,86 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
         }
         private List<decimal> GetSaleValueCurrent(List<Order> orders)
         {
-            if (orders is null || orders.Count <= 0) return new();
+            if (orders is null || orders.Count <= 0)
+            {
+                // No orders exist, return sale values as 0 for each day of the week
+                return Enumerable.Range(0, 7).Select(_ => 0m).ToList();
+            }
 
             DateTime today = DateTime.Today;
             DateTime mondayOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
             DateTime sundayOfWeek = mondayOfWeek.AddDays(6);
-            var saleValue = orders.Where(x => x.Status == "Completed" && x.CreationDate >= mondayOfWeek && x.CreationDate <= sundayOfWeek)
-                .GroupBy(x => x.CreationDate.Day);
-            List<decimal> saleValueCurrent = new();
-            foreach (var day in saleValue)
+
+            var saleValue = orders
+                .Where(x => x.Status == "Completed" && x.CreationDate >= mondayOfWeek && x.CreationDate <= sundayOfWeek)
+                .GroupBy(x => x.CreationDate.Day)
+                .OrderBy(g => g.Key); // Ensure days are in chronological order
+
+            List<decimal> saleValueCurrent = new List<decimal>();
+
+            // Loop through each day of the week (from Monday to Sunday)
+            for (int i = 0; i < 7; i++)
             {
-                saleValueCurrent.Add(day.Sum(x => x.Total));
+                DateTime currentDate = mondayOfWeek.AddDays(i);
+
+                // Find orders for the current day (if any)
+                var ordersForDay = saleValue.FirstOrDefault(g => g.Key == currentDate.Day);
+
+                if (ordersForDay != null)
+                {
+                    // Sum the total values for orders on this day
+                    decimal totalForDay = ordersForDay.Sum(x => x.Total);
+                    saleValueCurrent.Add(totalForDay);
+                }
+                else
+                {
+                    // No orders found for this day, so sale value is 0
+                    saleValueCurrent.Add(0m);
+                }
             }
+
             return saleValueCurrent;
         }
         private List<decimal> GetSaleValueLast(List<Order> orders)
         {
-            if (orders is null || orders.Count <= 0) return new();
+            if (orders is null || orders.Count <= 0)
+            {
+                // No orders exist, return sale values as 0 for each day of the week
+                return Enumerable.Range(0, 7).Select(_ => 0m).ToList();
+            }
+
             DateTime today = DateTime.Today;
             DateTime mondayOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday).AddDays(-7);
             DateTime sundayOfWeek = mondayOfWeek.AddDays(6);
-            var saleValue = orders.Where(x => x.Status == "Completed" && x.CreationDate >= mondayOfWeek && x.CreationDate <= sundayOfWeek)
-                .GroupBy(x => x.CreationDate.Day);
-            List<decimal> saleValueCurrent = new();
-            foreach (var day in saleValue)
+
+            var saleValue = orders
+                .Where(x => x.Status == "Completed" && x.CreationDate >= mondayOfWeek && x.CreationDate <= sundayOfWeek)
+                .GroupBy(x => x.CreationDate.Day)
+                .OrderBy(g => g.Key); // Ensure days are in chronological order
+
+            List<decimal> saleValueCurrent = new List<decimal>();
+
+            // Loop through each day of the week (from Monday to Sunday)
+            for (int i = 0; i < 7; i++)
             {
-                saleValueCurrent.Add(day.Sum(x => x.Total));
+                DateTime currentDate = mondayOfWeek.AddDays(i);
+
+                // Find orders for the current day (if any)
+                var ordersForDay = saleValue.FirstOrDefault(g => g.Key == currentDate.Day);
+
+                if (ordersForDay != null)
+                {
+                    // Sum the total values for orders on this day
+                    decimal totalForDay = ordersForDay.Sum(x => x.Total);
+                    saleValueCurrent.Add(totalForDay);
+                }
+                else
+                {
+                    // No orders found for this day, so sale value is 0
+                    saleValueCurrent.Add(0m);
+                }
             }
+
             return saleValueCurrent;
         }
         public async Task<AdminReportViewModel> Handle(GetAdminReportQuery request, CancellationToken cancellationToken)
