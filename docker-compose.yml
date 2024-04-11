@@ -1,9 +1,5 @@
 version: '3.5'
 networks:
-  web:
-    external: true
-  elastic: 
-    driver: bridge
 volumes:
   dbdata6:
   elasticsearch-data:
