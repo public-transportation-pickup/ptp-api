@@ -34,16 +34,29 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
                 var quantity = int.Parse(timetable.Route.TotalTrip);
                 for (int i = 0; i < quantity; i++)
                 {
-                    var endTime = startTime.Add(TimeSpan.FromMinutes(timeOfTrip));
-                    trips.Add(new Trip
+                    try
                     {
-                        Id = Guid.NewGuid(),
-                        StartTime = startTime.ToString(),
-                        EndTime = endTime.ToString(),
-                        Name = string.Empty,
-                        Status = string.Empty,
-                    });
-                    startTime = startTime.Add(endTime).Add(TimeSpan.FromMinutes(timeSpacing));
+                        var endTime = startTime.Add(TimeSpan.FromMinutes(timeOfTrip));
+                        trips.Add(new Trip
+                        {
+                            Id = Guid.NewGuid(),
+                            StartTime = startTime.ToString(),
+                            EndTime = endTime.ToString(),
+                            Name = string.Empty,
+                            Status = string.Empty,
+                        });
+                        if (endTime > startEndTime.Max())
+                        {
+                            break;
+                        }
+                        startTime = startTime.Add(endTime).Add(TimeSpan.FromMinutes(timeSpacing));
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine(ex);
+                        
+                    }
+
                 }
                 await unitOfWork.TripRepository.AddRangeAsync(trips);
                 await unitOfWork.SaveChangesAsync();
