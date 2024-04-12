@@ -32,7 +32,7 @@ public class GetAllUserQuery : GetAllUserQueryModel, IRequest<PaginatedList<User
             // Adding Fillter
             var returnResult = new List<UserViewModel>();
             System.Console.WriteLine(request.Filter?.Count);
-            if (request.Filter?.Count > 9)
+            if (request.Filter?.Count > 0)
             {
                
                 //request.Filter.Remove("PageNumber");
