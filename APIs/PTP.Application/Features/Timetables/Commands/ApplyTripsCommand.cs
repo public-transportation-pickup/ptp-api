@@ -40,6 +40,7 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
                         trips.Add(new Trip
                         {
                             Id = Guid.NewGuid(),
+                            Description = string.Empty,
                             StartTime = startTime.ToString(),
                             EndTime = endTime.ToString(),
                             Name = string.Empty,
