@@ -1,6 +1,37 @@
+using System;
 namespace PTP.Application.Utilities;
 public static class StringConvertHelper
 {
+	public static string ConvertToDateApplys(this DayOfWeek dayOfWeek)
+	{
+		string result = "";
+		switch (dayOfWeek)
+		{
+			case DayOfWeek.Monday:
+				result = "T2";
+				break;
+			case DayOfWeek.Tuesday:
+				result = "T3";
+				break;
+			case DayOfWeek.Wednesday:
+				result = "T4";
+				break;
+			case DayOfWeek.Thursday:
+				result = "T5";
+				break;
+			case DayOfWeek.Friday:
+				result = "T6";
+				break;
+			case DayOfWeek.Saturday:
+				result = "T7";
+				break;
+			case DayOfWeek.Sunday:
+				result = "CN";
+				break;
+
+		}
+		return result;
+	}
 	public static bool CheckDayActive(this string dates)
 	{
 		if (string.IsNullOrEmpty(dates)) return false;

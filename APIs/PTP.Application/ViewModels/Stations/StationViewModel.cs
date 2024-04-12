@@ -13,6 +13,7 @@ public class StationViewModel
     public string AddressNo { get; set; } = default!;
     public string Street { get; set; } = default!;
     public string SupportDisability { get; set; } = default!;
+    public Guid StoreId { get; set; } = Guid.Empty;
 
     #region Location 
     public string Address { get; set; } = default!;

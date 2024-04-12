@@ -37,7 +37,7 @@ public class DeleteMenuCommand : IRequest<bool>
             var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.Id, x => x.ProductInMenus!);
             if (menu is null) throw new NotFoundException($"Menu with Id-{request.Id} is not exist!");
             _unitOfWork.MenuRepository.SoftRemove(menu);
-            await DeleteProduct(menu.ProductInMenus!);
+            //await DeleteProduct(menu.ProductInMenus!);
             return await _unitOfWork.SaveChangesAsync();
         }
 

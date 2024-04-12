@@ -24,12 +24,12 @@ services:
     environment:
       - ACCEPT_EULA=Y
   mongo-db: 
-    image: mongodb/mongodb-community-server:5.0-ubi8 
+    image: mongo:5.0
     restart: always
     ports:
       - '27017:27017'
     volumes:
-      - 'dbdata6:/data/db'
+      - dbdata6:/data/db
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
     environment:

@@ -94,6 +94,7 @@ namespace PTP.Application.Features.Orders.Commands
                 var result = await _unitOfWork.SaveChangesAsync();
                 await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _app.FirebaseSettings.SenderId, _app.FirebaseSettings.ServerKey);
                 //Send Message
+                // await _hubContext.Clients.All.SendAsync("messageReceived", "UpdateOrder", $"{order.StoreId}");
                 await _hubContext.Clients.All.SendAsync("messageReceived", $"UpdateOrder-{order.Status}", $"{order.StoreId}");
                 return result;
             }

@@ -1,6 +1,13 @@
 namespace PTP.Application.Commons;
 public static class SqlQueriesStorage
 {
+
+    public const string GET_CATEGORIES_REPORT = @"SELECT TOP 5 c.Name, c.ImageURL, COUNT(p.Id) AS Products
+        FROM Category c LEFT JOIN 
+        Product p
+        ON c.Id = p.CategoryId
+        GROUP BY c.ImageURL, c.Name
+        ORDER BY Products DESC";
     /// <summary>
     /// Lấy tổng Station, Routes
     /// </summary>
@@ -8,7 +15,11 @@ public static class SqlQueriesStorage
     public const string GET_SUM_ROUTES = @"SELECT * FROM
         (SELECT COUNT(*) Stations FROM Station) a,
         (SELECT COUNT(*) Routes FROM [Route]) b,
-        (SELECT COUNT(*) Stores FROM [Stores]) c";
+        (SELECT COUNT(*) Stores FROM [Store]) c, 
+        (
+            SELECT SUM(Total) Revenue
+            FROM [Order] WHERE [Status] = 'Completed'
+        ) d";
     /// <summary>
     /// Thống kê top 20 station có nhiều order nhất
     /// </summary>
@@ -24,24 +35,35 @@ public static class SqlQueriesStorage
     /// <summary>
     /// Lấy thống kê top 20 cửa hàng có nhiều ORDER nhất
     /// </summary>
-    public const string GET_TOP_ORDER_STORES = @"SELECT TOP 20 s.Name AS [Name], 
-        COUNT(CASE WHEN o.[Status] = 'Completed' THEN o.Id END) AS OrderCompleted,
-        COUNT(CASE WHEN o.[Status] = 'Canceled' THEN o.Id END) AS OrderCanceled,
-        COUNT(CASE WHEN o.[Status] != 'Canceled' AND o.Status != 'Completed' THEN o.Id END) AS OrderOthers
-        FROM Store s INNER JOIN [Order] o
-        ON s.Id = o.StoreId
-        WHERE o.[Status] IS NOT NULL
-        GROUP BY s.Name
-        ORDER BY OrderCompleted DESC, OrderCanceled DESC";
+    public const string GET_TOP_ORDER_STORES = @"SELECT TOP 5 a.Name, a.Address, a.OrderCompleted, a.OrderCanceled, a.OrderOthers, b.Revenue
+            FROM 
+            (SELECT s.Name, s.Address,
+                COUNT(CASE WHEN o.[Status] = 'Completed' THEN o.Id END) AS OrderCompleted,
+                COUNT(CASE WHEN o.[Status] = 'Canceled' THEN o.Id END) AS OrderCanceled,
+                COUNT(CASE WHEN o.[Status] != 'Canceled' AND o.Status != 'Completed' THEN o.Id END) AS OrderOthers
+            FROM
+                (SELECT s.Id, s.Name AS [Name], s.AddressNo + ', ' + s.Street + ', ' + s.Ward + ', ' + s.[Zone]  AS [Address]
+                FROM Store s) s INNER JOIN [Order] o
+                ON s.Id = o.StoreId
+            WHERE o.[Status] IS NOT NULL
+            GROUP BY s.Name, s.Address) a
+            INNER JOIN (SELECT TOP 5 s.Name, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS Revenue
+                    FROM [Order] o INNER JOIN [Store] s
+                    ON o.StoreId = s.Id
+                    GROUP BY s.Name) b 
+            ON a.Name = b.Name
+            ORDER BY Revenue DESC";
 
     /// <summary>
     /// Lấy thống kê top5 cửa hàng có doanh thu cao nhất
     /// </summary>
-    public const string GET_TOP_PROFIT_STORES = @"SELECT TOP 5 s.Name, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS TotalValue
+    public const string GET_TOP_PROFIT_STORES = @"SELECT TOP 5 s.Name, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS Revenue
         FROM [Order] o INNER JOIN [Store] s
         ON o.StoreId = s.Id
+        WHERE o.CreationDate >= DATEADD(day, -(DATEPART(dw, GETDATE()) + 5) % 7, CAST(GETDATE() AS date))
+                AND o.CreationDate < DATEADD(day, 7 - (DATEPART(dw, GETDATE()) + 5) % 7, CAST(GETDATE() AS date))
         GROUP BY s.Name
-        ORDER BY TotalValue DESC";
+        ORDER BY Revenue DESC";
     public const string GET_ROUTE_BY_STATION_NAME = @"
         SELECT DISTINCT (r.Id), r.RouteId, r.Name,r.[Status], 
             r.RouteNo, r.Distance, r.TimeOfTrip, r.HeadWay, r.OperationTime,
