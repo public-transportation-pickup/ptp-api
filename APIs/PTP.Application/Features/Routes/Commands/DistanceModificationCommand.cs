@@ -75,9 +75,9 @@ public class DistanceModificationCommand : IRequest<bool>
 					}
 
 					routeStation.DurationFromStart = route!.AverageVelocity > 0 ? routeStation.DistanceFromStart / route!.AverageVelocity :
-						routeStation.DistanceFromStart / 25;
+						routeStation.DistanceFromStart / 371.1714285714286;
 					routeStation.DurationToNext = route.AverageVelocity > 0 ? routeStation.DistanceToNext / route!.AverageVelocity :
-						routeStation.DistanceFromStart / 25;
+						routeStation.DistanceFromStart / 371.1714285714286;
 
 				}
 				routeVar.ToList().ForEach(x => x.Station = null!);
