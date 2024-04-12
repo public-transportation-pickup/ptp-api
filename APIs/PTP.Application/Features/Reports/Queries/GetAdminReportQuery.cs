@@ -106,6 +106,7 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
 
             return saleValueCurrent;
         }
+     
         public async Task<AdminReportViewModel> Handle(GetAdminReportQuery request, CancellationToken cancellationToken)
         {
             var orders = await unitOfWork.OrderRepository.WhereAsync(x => x.Status == "Completed");
@@ -137,9 +138,9 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
                 Revenue = routes.Revenue,
                 TopOrderStations = topOrderStation ?? new(),
                 TopOrderStores = topOrderStore ?? new(),
-                Categories = categories ?? new(),
-                SaleValueCurrent = GetSaleValueCurrent(orders: orders),
-                SaleValueLast = GetSaleValueLast(orders)
+                Categories = categories ?? new(),   
+                SaleValueLast = GetSaleValueLast(orders),
+                SaleValueCurrent = GetSaleValueCurrent(orders)
 
             };
 

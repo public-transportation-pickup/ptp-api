@@ -6,6 +6,7 @@ public static class SqlQueriesStorage
         FROM Category c LEFT JOIN 
         Product p
         ON c.Id = p.CategoryId
+        Where c.ISDELETED = 0
         GROUP BY c.ImageURL, c.Name
         ORDER BY Products DESC";
     /// <summary>

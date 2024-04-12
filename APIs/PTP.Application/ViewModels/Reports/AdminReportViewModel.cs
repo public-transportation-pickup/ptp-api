@@ -13,11 +13,10 @@ public class AdminReportViewModel
 
 }
 
-
-
 public class TopOrderStoreModel
 {
     public string Name { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
     public int OrderCanceled { get; set; }
     public int OrderCompleted { get; set; }
     public int OrderOthers { get; set; }
