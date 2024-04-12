@@ -5,6 +5,7 @@ using PTP.Application.Features.Trips.Queries;
 using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Trips;
 using PTP.Domain.Entities;
+using PTP.Domain.Enums;
 
 namespace PTP.Application.Features.Timetables.Commands;
 public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
@@ -29,7 +30,7 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
                 var timeOfTrip = timetable.Route.TimeOfTrip.Length > 2
                     ? timetable.Route.TimeOfTrip.ConvertAverageTime()
                     : int.Parse(timetable.Route.TimeOfTrip);
-                var startTime = startEndTime.First();
+                var startTime = startEndTime.Min();
                 List<Trip> trips = new();
                 var quantity = int.Parse(timetable.Route.TotalTrip);
                 for (int i = 0; i < quantity; i++)
@@ -37,6 +38,10 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
                     try
                     {
                         var endTime = startTime.Add(TimeSpan.FromMinutes(timeOfTrip));
+                        if (endTime > startEndTime.Max())
+                        {
+                            break;
+                        }
                         trips.Add(new Trip
                         {
                             Id = Guid.NewGuid(),
@@ -45,18 +50,15 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
                             EndTime = endTime.ToString(),
                             TimeTableId = timetable.Id,
                             Name = string.Empty,
-                            Status = string.Empty,
+                            Status = DefaultStatusEnum.Active.ToString(),
                         });
-                        if (endTime > startEndTime.Max())
-                        {
-                            break;
-                        }
+
                         startTime = startTime.Add(endTime).Add(TimeSpan.FromMinutes(timeSpacing));
                     }
                     catch (Exception ex)
                     {
                         System.Console.WriteLine(ex);
-                        
+
                     }
 
                 }
