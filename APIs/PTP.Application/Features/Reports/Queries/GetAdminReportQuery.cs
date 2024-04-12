@@ -106,6 +106,30 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
 
             return saleValueCurrent;
         }
+        private List<SaleValue> GetSaleValue(List<decimal> last, List<decimal> current)
+        {
+            List<string> day = new() 
+            {
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            };
+            List<SaleValue> saleValue = new();
+            for(int i = 0; i < last.Count(); i++) 
+            {
+                saleValue.Add(new() 
+                {
+                    Day = day[i],
+                    Last = last[i],
+                    Current = current[i]
+                });
+            }
+            return saleValue;
+        }
         public async Task<AdminReportViewModel> Handle(GetAdminReportQuery request, CancellationToken cancellationToken)
         {
             var orders = await unitOfWork.OrderRepository.WhereAsync(x => x.Status == "Completed");
@@ -138,8 +162,7 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
                 TopOrderStations = topOrderStation ?? new(),
                 TopOrderStores = topOrderStore ?? new(),
                 Categories = categories ?? new(),
-                SaleValueCurrent = GetSaleValueCurrent(orders: orders),
-                SaleValueLast = GetSaleValueLast(orders)
+                SaleValue = GetSaleValue(last: GetSaleValueLast(orders), current: GetSaleValueCurrent(orders))
 
             };
 
