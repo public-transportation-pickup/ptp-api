@@ -76,6 +76,7 @@ public static class StringConvertHelper
 		List<TimeSpan> timeSpan = new();
 		foreach (var item in list)
 		{
+			System.Console.WriteLine(item);
 			timeSpan.Add(TimeSpan.Parse(item));
 		}
 		return timeSpan;
