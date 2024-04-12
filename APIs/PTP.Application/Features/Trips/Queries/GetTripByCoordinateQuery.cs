@@ -63,9 +63,10 @@ public class GetTripByUserLocation : IRequest<TripCoordinateResponseModel?>
                 //     .OrderBy(x => distanceToStart - x.DistanceFromStart).FirstOrDefault();
                 var nextStation = routeStations
                     .OrderBy(x => Math.Abs(x.Latitude - currentCoordinate.Latitude))
+                    .ThenBy(x => Math.Abs(x.Latitude - currentCoordinate.Latitude))
                     .Take(2)
                     .MaxBy(x => x.Index);
-                    
+
                 var eta = DateTime.Now.AddMinutes(duration);
 
                 var currentEstimateTrip = trips.MinBy(x => Math.Abs((eta - DateTime.Parse(x.EndTime)).TotalMilliseconds));
