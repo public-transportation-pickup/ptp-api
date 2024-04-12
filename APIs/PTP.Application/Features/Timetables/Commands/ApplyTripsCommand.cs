@@ -21,7 +21,7 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
         }
         public async Task<IEnumerable<TripViewModel>> Handle(ApplyTripCommand request, CancellationToken cancellationToken)
         {
-            var timetable = await unitOfWork.TimeTableRepository.GetByIdAsync(request.Id, x => x.Route, x => x.RouteVarId);
+            var timetable = await unitOfWork.TimeTableRepository.GetByIdAsync(request.Id, x => x.Route, x => x.RouteVar);
             if (timetable is not null && timetable?.Route is not null)
             {
                 var startEndTime = timetable.Route.OperationTime.ConvertToTimeSpanList();
