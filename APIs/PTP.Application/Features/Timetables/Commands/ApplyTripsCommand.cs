@@ -53,7 +53,7 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
                             Status = DefaultStatusEnum.Active.ToString(),
                         });
 
-                        startTime = startTime.Add(endTime).Add(TimeSpan.FromMinutes(timeSpacing));
+                        startTime = endTime.Add(TimeSpan.FromMinutes(timeSpacing));
                     }
                     catch (Exception ex)
                     {
