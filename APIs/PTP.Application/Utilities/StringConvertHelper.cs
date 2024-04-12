@@ -72,10 +72,13 @@ public static class StringConvertHelper
 	public static List<TimeSpan> ConvertToTimeSpanList(this string s)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(s);
-		return s.Trim().Split("-")
-			.ToList()
-			.Select(x => TimeSpan.Parse(s))
-			.ToList();
+		var list = s.Split("-");
+		List<TimeSpan> timeSpan = new();
+		foreach (var item in list)
+		{
+			timeSpan.Add(TimeSpan.Parse(item));
+		}
+		return timeSpan;
 	}
 	public static double ConvertAverageTime(this string s)
 	{
