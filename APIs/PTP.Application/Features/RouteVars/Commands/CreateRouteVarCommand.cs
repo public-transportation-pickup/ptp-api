@@ -31,7 +31,7 @@ public class CreateRouteVarCommand : IRequest<RouteVarViewModel?>
         public async Task<RouteVarViewModel?> Handle(CreateRouteVarCommand request, CancellationToken cancellationToken)
         {
 
-            if (_unitOfWork.RouteRepository.GetByIdAsync(request.Model.RouteId) is null)
+            if (await _unitOfWork.RouteRepository.GetByIdAsync(request.Model.RouteId) is null)
             {
                 throw new Exception($"{nameof(CreateRouteVarCommand)} : Route not exist! Can not create, RouteId: {request.Model.RouteId}");
             }
