@@ -37,10 +37,10 @@ namespace PTP.Application.Features.Stores.Queries
                 request.Filter!.Remove("pageSize");
                 request.Filter!.Remove("pageNumber");
 
-                var cacheResult = await GetCache(request);
-                if (cacheResult is not null) return cacheResult;
+                // var cacheResult = await GetCache(request);
+                // if (cacheResult is not null) return cacheResult;
 
-                var stores = await _unitOfWork.StoreRepository.GetAllAsync(x => x.User);
+                var stores = await _unitOfWork.StoreRepository.GetAllAsync(x => x.User, x => x.Stations);
                 if (stores.Count == 0) throw new NotFoundException("There are no store in DB!");
                 await _cacheService.SetByPrefixAsync<Store>(CacheKey.STORE, stores);
                 var viewModels = _mapper.Map<IEnumerable<StoreViewModel>>(stores);

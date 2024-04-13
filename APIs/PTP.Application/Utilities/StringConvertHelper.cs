@@ -1,4 +1,5 @@
 using System;
+using MongoDB.Driver;
 namespace PTP.Application.Utilities;
 public static class StringConvertHelper
 {
@@ -71,7 +72,14 @@ public static class StringConvertHelper
 	public static List<TimeSpan> ConvertToTimeSpanList(this string s)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(s);
-		return s.Trim().Split("-").ToList().ConvertAll(TimeSpan.Parse).ToList();
+		var list = s.Split("-");
+		List<TimeSpan> timeSpan = new();
+		foreach (var item in list)
+		{
+			System.Console.WriteLine(item);
+			timeSpan.Add(TimeSpan.Parse(item));
+		}
+		return timeSpan;
 	}
 	public static double ConvertAverageTime(this string s)
 	{

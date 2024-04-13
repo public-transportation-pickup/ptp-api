@@ -5,6 +5,7 @@ using PTP.Application.Features.Trips.Queries;
 using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Trips;
 using PTP.Domain.Entities;
+using PTP.Domain.Enums;
 
 namespace PTP.Application.Features.Timetables.Commands;
 public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
@@ -21,7 +22,7 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
         }
         public async Task<IEnumerable<TripViewModel>> Handle(ApplyTripCommand request, CancellationToken cancellationToken)
         {
-            var timetable = await unitOfWork.TimeTableRepository.GetByIdAsync(request.Id, x => x.Route, x => x.RouteVarId);
+            var timetable = await unitOfWork.TimeTableRepository.GetByIdAsync(request.Id, x => x.Route, x => x.RouteVar);
             if (timetable is not null && timetable?.Route is not null)
             {
                 var startEndTime = timetable.Route.OperationTime.ConvertToTimeSpanList();
@@ -29,21 +30,37 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
                 var timeOfTrip = timetable.Route.TimeOfTrip.Length > 2
                     ? timetable.Route.TimeOfTrip.ConvertAverageTime()
                     : int.Parse(timetable.Route.TimeOfTrip);
-                var startTime = startEndTime.First();
+                var startTime = startEndTime.Min();
                 List<Trip> trips = new();
                 var quantity = int.Parse(timetable.Route.TotalTrip);
                 for (int i = 0; i < quantity; i++)
                 {
-                    var endTime = startTime.Add(TimeSpan.FromMinutes(timeOfTrip));
-                    trips.Add(new Trip
+                    try
                     {
-                        Id = Guid.NewGuid(),
-                        StartTime = startTime.ToString(),
-                        EndTime = endTime.ToString(),
-                        Name = string.Empty,
-                        Status = string.Empty,
-                    });
-                    startTime = startTime.Add(endTime).Add(TimeSpan.FromMinutes(timeSpacing));
+                        var endTime = startTime.Add(TimeSpan.FromMinutes(timeOfTrip));
+                        if (endTime > startEndTime.Max())
+                        {
+                            break;
+                        }
+                        trips.Add(new Trip
+                        {
+                            Id = Guid.NewGuid(),
+                            Description = string.Empty,
+                            StartTime = startTime.ToString(),
+                            EndTime = endTime.ToString(),
+                            TimeTableId = timetable.Id,
+                            Name = string.Empty,
+                            Status = DefaultStatusEnum.Active.ToString(),
+                        });
+
+                        startTime = endTime.Add(TimeSpan.FromMinutes(timeSpacing));
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine(ex);
+
+                    }
+
                 }
                 await unitOfWork.TripRepository.AddRangeAsync(trips);
                 await unitOfWork.SaveChangesAsync();

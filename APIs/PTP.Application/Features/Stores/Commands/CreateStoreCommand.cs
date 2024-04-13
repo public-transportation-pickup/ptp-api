@@ -132,14 +132,14 @@ namespace PTP.Application.Features.Stores.Commands
             {
                 var stations = await _unitOfWork.StationRepository.WhereAsync(x => StationIds.Contains(x.Id));
                 if (stations.Count == 0) throw new BadRequestException("No Station found!");
-                string errors="";
+                // string errors="";
                 for (int i = 0; i < stations.Count; i++)
                 {
                     stations[i].StoreId = store.Id;
-                    var distance= await _locationService.GetDistance(store.Latitude,store.Longitude,stations[i].Latitude,stations[i].Longitude,"bike");
-                    if(distance >1000) errors+=$"Khoảng cách tới trạm {stations[i].Name} không quá 1000m";
+                    //var distance= await _locationService.GetDistance(store.Latitude,store.Longitude,stations[i].Latitude,stations[i].Longitude,"bike");
+                    // if(distance >1000) errors+=$"Khoảng cách tới trạm {stations[i].Name} không quá 1000m";
                 }
-                if(!errors.IsNullOrEmpty()) throw new BadRequestException(errors);
+                // if(!errors.IsNullOrEmpty()) throw new BadRequestException(errors);
                 _unitOfWork.StationRepository.UpdateRange(stations);
             }
 
