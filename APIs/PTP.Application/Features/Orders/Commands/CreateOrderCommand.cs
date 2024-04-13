@@ -199,7 +199,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
                 _backgroundJob.Schedule(() => BackgroundJobForConfirm(orderId), TimeSpan.FromMinutes(10));
                 _backgroundJob.Schedule(() => BackgroundJob(orderUpdate, nameof(OrderStatusEnum.Preparing)), TimeSpan.FromMinutes(10 + prepareTime));
             }
-            orderUpdate = new OrderUpdateModel { Id = orderId, Status = OrderStatusEnum.Canceled.ToString(), CanceledReason = "Pick up time out!" };
+            orderUpdate = new OrderUpdateModel { Id = orderId, Status = OrderStatusEnum.Canceled.ToString(), CanceledReason = "Quá thời gian phục vụ!" };
             _backgroundJob.Schedule(() => BackgroundJob(orderUpdate, nameof(OrderStatusEnum.Prepared)), TimeSpan.FromMinutes(timeGap.Minutes + 60));
         }
 
