@@ -228,6 +228,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
                 if (await _unitOfWork.SaveChangesAsync())
                 {
                     await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+                    await _hubContext.Clients.All.SendAsync("messageReceived", $"UpdateOrder-{order.Status}", $"{order.StoreId}");
                 }
             }
         }
@@ -244,6 +245,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
                 if (await _unitOfWork.SaveChangesAsync())
                 {
                     await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+                    await _hubContext.Clients.All.SendAsync("messageReceived", $"UpdateOrder-{order.Status}", $"{order.StoreId}");
                 }
             }
         }
