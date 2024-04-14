@@ -10,8 +10,10 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using PTP.Application;
 using PTP.Application.GlobalExceptionHandling;
+using PTP.Application.Services.Interfaces;
 using PTP.Application.Validations;
 using PTP.Infrastructure;
+using PTP.WebAPI.Services;
 using Scrutor;
 using StackExchange.Redis;
 using System.Diagnostics;
@@ -105,6 +107,7 @@ public static class DependencyInjection
 						.UseRecommendedSerializerSettings()
 						.UseInMemoryStorage()
 						);
+		builder.Services.AddScoped<IClaimsService, ClaimsService>();
 		builder.Services.AddHangfireServer();
 		builder.Services.AddSwaggerGen(opt =>
 					{

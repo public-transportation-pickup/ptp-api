@@ -22,11 +22,8 @@ public class RequestVNPayCommand : IRequest<string>
 
         public async Task<string> Handle(RequestVNPayCommand request, CancellationToken cancellationToken)
         {
-            if (claimsService.GetCurrentUser == Guid.Empty)
-            {
-                throw new Exception($"Error: {nameof(AddAccountBalanceCommand)}-no_current_user");
-            }
-            var currentUser = await unitOfWork.UserRepository.GetByIdAsync(claimsService.GetCurrentUser, x => x.Wallet);
+            Guid userId = claimsService.GetCurrentUser;
+            var currentUser = await unitOfWork.UserRepository.GetByIdAsync(userId, x => x.Wallet);
 
 
             if (currentUser?.Wallet is null)
@@ -49,13 +46,12 @@ public class RequestVNPayCommand : IRequest<string>
 
             vnpay.AddRequestData("vnp_OrderInfo", "Nạp tiền vào ví");
             vnpay.AddRequestData("vnp_OrderType", payRequest.OrderType); //default value: other
-            vnpay.AddRequestData("vnp_ReturnUrl", "adminweb?source=VnPay&Amount={amount}&userId=Guid");
+            vnpay.AddRequestData("vnp_ReturnUrl", $"http://ptp-srv.ddns:8001/?userId={currentUser.Id}");
 
             vnpay.AddRequestData("vnp_TxnRef", payRequest.TxnRef); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
 
             var paymentUrl = vnpay.CreateRequestUrl("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
                  appSettings.VnPay.Vnp_HashSecret);
-
             return paymentUrl;
         }
     }

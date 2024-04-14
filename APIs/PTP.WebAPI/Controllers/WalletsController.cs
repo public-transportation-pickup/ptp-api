@@ -1,5 +1,6 @@
 
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Wallets.Commands;
 using PTP.Application.Features.Wallets.Queries;
@@ -33,10 +34,11 @@ public class WalletsController : BaseController
 		}
 		else return BadRequest();
 	}
+	[Authorize]
 	[HttpPost, Route("vn-pay")]
-	public async Task<IActionResult> VNPayCallBack()
+	public async Task<IActionResult> VNPayCallBack([FromBody] decimal amount)
 	{
-		var result = await mediator.Send(new RequestVNPayCommand());
+		var result = await mediator.Send(new RequestVNPayCommand { Amount = amount});
 		return Ok(result);
 	}
 	#region Queries
