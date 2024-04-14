@@ -32,6 +32,7 @@ namespace PTP.Application.ViewModels.Stores
         public string Email { get; set; } = default!;
         public string Password { get; set; } = default!;
         public List<Guid> StationIds { get; set; } = new();
+        public List<string> StationName { get; set; } = new();
         // public Guid WalletId { get; set; }
         // public decimal WalletAmount { get; set; } = default!;
     }
