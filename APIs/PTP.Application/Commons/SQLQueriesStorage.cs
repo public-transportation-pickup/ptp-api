@@ -1,6 +1,20 @@
 namespace PTP.Application.Commons;
 public static class SqlQueriesStorage
 {
+    public const string GET_TOP_PRODUCT_BY_USER = @"SELECT TOP 5 pm.Id AS ProductMenuId , p.Name, od.ActualPrice, COUNT(od.Id) AS OrderCount
+            FROM [OrderDetails] od INNER JOIN 
+            ProductInMenu pm ON od.ProductMenuId = od.ProductMenuId
+            INNER JOIN Product p 
+            ON pm.ProductId = p.Id
+            WHERE od.OrderId IN 
+            (
+                SELECT Id 
+                FROM [Order] o 
+                WHERE [Status] = 'Completed'
+                AND UserID = @UserId
+            )
+            GROUP BY pm.Id, p.Name, od.ActualPrice
+            ORDER BY OrderCount DESC";
 
     public const string GET_CATEGORIES_REPORT = @"SELECT TOP 5 c.Name, c.ImageURL, COUNT(p.Id) AS Products
         FROM Category c LEFT JOIN 

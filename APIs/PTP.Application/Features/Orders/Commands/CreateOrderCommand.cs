@@ -83,7 +83,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             var productInMenus = await GetProductInMenus(request.CreateModel.OrderDetails);
             await IsTimeValid(productInMenus, request.CreateModel.PickUpTime);
             order.TotalPreparationTime = GetTotalPreparationTime(productInMenus, request.CreateModel.OrderDetails);
-            if (DateTime.Now.AddMinutes(order.TotalPreparationTime) > order.PickUpTime.AddHours(1))
+            if (DateTime.Now.AddMinutes(order.TotalPreparationTime) > order.PickUpTime)
                 throw new BadRequestException($"Prepration time is not valid - {order.TotalPreparationTime}");
 
             productInMenus = CheckProductInStock(productInMenus, request.CreateModel.OrderDetails);
