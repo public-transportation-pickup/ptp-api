@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using MediatR;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Wallets;
@@ -21,12 +20,13 @@ public class AddAccountBalanceCommand : AddAccountBalanceModel, IRequest<bool>
         public async Task<bool> Handle(AddAccountBalanceCommand request, CancellationToken cancellationToken)
         {
 
-
             if (claimsService.GetCurrentUser == Guid.Empty)
             {
                 throw new Exception($"Error: {nameof(AddAccountBalanceCommand)}-no_current_user");
             }
             var currentUser = await unitOfWork.UserRepository.GetByIdAsync(claimsService.GetCurrentUser, x => x.Wallet);
+
+
             if (currentUser?.Wallet is null)
             {
                 throw new Exception($"Error {nameof(AddAccountBalanceCommand)}-Wallet is null");

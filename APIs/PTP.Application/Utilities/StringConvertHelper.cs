@@ -1,4 +1,6 @@
 using System;
+using System.Security.Cryptography;
+using System.Text;
 using MongoDB.Driver;
 namespace PTP.Application.Utilities;
 public static class StringConvertHelper

@@ -1,6 +1,30 @@
+using System.Reflection.Metadata;
+
 namespace PTP.Application.Commons;
 public static class SqlQueriesStorage
 {
+    public const string GET_STATIONS_REVENUE = @"SELECT *
+        FROM Station s 
+        LEFT JOIN
+        (
+            SELECT  s.Id AS [StationId], 
+                COUNT(CASE WHEN o.[Status] = 'Completed' THEN o.Id END) AS OrderCompleted,
+                COUNT(CASE WHEN o.[Status] = 'Canceled' THEN o.Id END) AS OrderCanceled,
+                COUNT(CASE WHEN o.[Status] != 'Canceled' AND o.Status != 'Completed' THEN o.Id END) AS OrderOthers
+            FROM Station s INNER JOIN [Order] o ON s.Id = o.StationId
+            WHERE o.[Status] IS NOT NULL
+            GROUP BY s.Id 
+            ) oc
+        ON oc.StationId = s.Id
+        LEFT JOIN 
+        (
+            SELECT s.Id, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS Revenue
+                            FROM [Order] o INNER JOIN [Station] s
+                            ON o.StationId = s.Id
+                            GROUP BY s.Id
+        ) osr 
+        ON osr.Id = s.Id
+        ORDER BY oc.OrderCompleted DESC";
     public const string GET_TOP_PRODUCT_BY_USER = @"SELECT TOP 5 pm.Id AS ProductMenuId , p.Name, od.ActualPrice, COUNT(od.Id) AS OrderCount
             FROM [OrderDetails] od INNER JOIN 
             ProductInMenu pm ON od.ProductMenuId = od.ProductMenuId

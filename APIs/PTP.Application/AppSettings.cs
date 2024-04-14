@@ -5,6 +5,7 @@ public class AppSettings
 	public FirebaseSettings FirebaseSettings { get; set; } = default!;
 	public string GoongAPIKey { get; set; } = default!;
 	public JWTOptions JWTOptions { get; set; } = default!;
+	public VnPay VnPay { get; set; } = new();
 }
 public class JWTOptions
 {
@@ -27,4 +28,9 @@ public class ConnectionStrings
 	public string DefaultConnection { get; set; } = default!;
 	public string MongoDbConnection { get; set; } = string.Empty;
 	public string RedisConnection { get; set; } = default!;
+}
+public class VnPay
+{
+	public string Vnp_TmnCode { get; set; } = string.Empty;
+	public string Vnp_HashSecret { get; set; } = string.Empty;
 }

@@ -31,6 +31,16 @@ public class StationsController : BaseController
     {
         return Ok(await mediator.Send(new GetRouteByStationQuery { StationName = stationName, PageNumber = pageNumber, PageSize = pageSize }));
     }
+
+    /// <summary>
+    /// Lấy revenue, orders của trạm
+    /// </summary>
+    /// <returns></returns>
+    [Route("revenue"), HttpGet]
+    public async Task<IActionResult> GetRevenue(int? pageSize, int pageNumber = 0, Dictionary<string, string>? filters = null)
+    {
+        return Ok(await mediator.Send(new GetStationRevenueQuery() { Filter = filters, PageNumber = pageNumber, PageSize = pageSize ?? 100000 }));
+    }
     /// <summary>
     /// Lấy toàn bộ trạm
     /// </summary>

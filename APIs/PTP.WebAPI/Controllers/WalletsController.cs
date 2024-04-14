@@ -33,6 +33,12 @@ public class WalletsController : BaseController
 		}
 		else return BadRequest();
 	}
+	[HttpPost, Route("vn-pay")]
+	public async Task<IActionResult> VNPayCallBack()
+	{
+		var result = await mediator.Send(new RequestVNPayCommand());
+		return Ok(result);
+	}
 	#region Queries
 
 	[ProducesResponseType((int)HttpStatusCode.OK)]
