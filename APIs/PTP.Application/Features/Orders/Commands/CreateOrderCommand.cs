@@ -199,7 +199,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
                 _backgroundJob.Schedule(() => BackgroundJobForConfirm(orderId), TimeSpan.FromMinutes(10));
                 _backgroundJob.Schedule(() => BackgroundJob(orderUpdate, nameof(OrderStatusEnum.Preparing)), TimeSpan.FromMinutes(10 + prepareTime));
             }
-            orderUpdate = new OrderUpdateModel { Id = orderId, Status = OrderStatusEnum.Canceled.ToString(), CanceledReason = "Pick up time out!" };
+            orderUpdate = new OrderUpdateModel { Id = orderId, Status = OrderStatusEnum.Canceled.ToString(), CanceledReason = "Quá thời gian phục vụ!" };
             _backgroundJob.Schedule(() => BackgroundJob(orderUpdate, nameof(OrderStatusEnum.Prepared)), TimeSpan.FromMinutes(timeGap.Minutes + 60));
         }
 
@@ -228,6 +228,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
                 if (await _unitOfWork.SaveChangesAsync())
                 {
                     await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+                    await _hubContext.Clients.All.SendAsync("messageReceived", $"UpdateOrder-{order.Status}", $"{order.StoreId}");
                 }
             }
         }
@@ -244,6 +245,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
                 if (await _unitOfWork.SaveChangesAsync())
                 {
                     await FirebaseUtilities.SendNotification(order.User!.FCMToken!, title, body, _appSetting.FirebaseSettings.SenderId, _appSetting.FirebaseSettings.ServerKey);
+                    await _hubContext.Clients.All.SendAsync("messageReceived", $"UpdateOrder-{order.Status}", $"{order.StoreId}");
                 }
             }
         }
