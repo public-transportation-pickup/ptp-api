@@ -173,6 +173,7 @@ public class UsersController : BaseController
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [HttpGet("top-products")]
     public async Task<IActionResult> GetTopProducts()
      => Ok(await _mediator.Send(new GetTopProductQuery()));
 }
