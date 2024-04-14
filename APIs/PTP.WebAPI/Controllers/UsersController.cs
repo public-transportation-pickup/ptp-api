@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PTP.Application.Features.Orders.Queries;
+using PTP.Application.Features.Products.Queries;
 using PTP.Application.Features.Stores.Queries;
 using PTP.Application.Features.Trips.Queries;
 using PTP.Application.Features.Users.Commands;
@@ -164,4 +165,14 @@ public class UsersController : BaseController
     {
         return Ok(await _mediator.Send(query));
     }
+
+    /// <summary>
+    /// Lấy các order quen, top products theo user
+    /// </summary>
+    /// <returns></returns>
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    public async Task<IActionResult> GetTopProducts()
+     => Ok(await _mediator.Send(new GetTopProductQuery()));
 }
