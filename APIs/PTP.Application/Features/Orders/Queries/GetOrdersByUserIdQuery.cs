@@ -49,16 +49,20 @@ public class GetOrdersByUserIdQuery : IRequest<PaginatedList<OrderViewModel>>
             // {
             //     return _mapper.Map<CategoryViewModel>(cacheResult);
             // }
-            request.Filter!.Remove("pageSize");
-            request.Filter!.Remove("pageNumber");
+            if (request.Filter is not null && request.Filter?.Count > 0)
+            {
+                request.Filter?.Remove("pageSize");
+                request.Filter?.Remove("pageNumber");
+            }
+
             var orders = await _unitOfWork.OrderRepository.WhereAsync(x =>
                         x.UserId == claimsService.GetCurrentUser,
                         x => x.Store, x => x.Station, x => x.Payment, x => x.OrderDetails);
             var viewModels = _mapper.Map<IEnumerable<OrderViewModel>>(orders);
             viewModels = await GetOrderDetail(viewModels.ToList());
-            var filterResult = request.Filter.Count > 0 ? new List<OrderViewModel>() : viewModels;
+            var filterResult = request.Filter?.Count > 0 ? new List<OrderViewModel>() : viewModels;
 
-            if (request.Filter!.Count > 0)
+            if (request.Filter?.Count > 0)
             {
                 foreach (var filter in request.Filter)
                 {

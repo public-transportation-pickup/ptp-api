@@ -34,11 +34,9 @@ public class GetTopProductQuery : IRequest<TopProductViewModel?>
 
             Guid userId = claimsService.GetCurrentUser;
             logger.LogInformation($"Source: {toolService}_UserId : {userId}");
-            var topProductsTask = GetTopProductModelAsync(userId);
-            var orderTask = mediator.Send(new GetOrdersByUserIdQuery { UserId = userId }, cancellationToken);
-            await Task.WhenAll(topProductsTask, orderTask);
-            var topProducts = topProductsTask.Result;
-            var orders = orderTask.Result;
+            var topProducts = await GetTopProductModelAsync(userId);
+            var orders = await mediator.Send(new GetOrdersByUserIdQuery { UserId = userId , PageSize = 1000, PageNumber = -1, Filter = new()}, cancellationToken);
+         
             logger.LogInformation($"Source: {toolService}_Products : {topProducts?.Count}");
             logger.LogInformation($"Source: {toolService}_Orders : {orders?.Count}");
             var result = new TopProductViewModel
