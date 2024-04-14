@@ -37,8 +37,8 @@ public class GetTopProductQuery : IRequest<TopProductViewModel?>
             var topProductsTask = GetTopProductModelAsync(userId);
             var orderTask = mediator.Send(new GetOrdersByUserIdQuery { UserId = userId }, cancellationToken);
             await Task.WhenAll(topProductsTask, orderTask);
-            var topProducts = await topProductsTask;
-            var orders = await orderTask;
+            var topProducts = topProductsTask.Result;
+            var orders = orderTask.Result;
             logger.LogInformation($"Source: {toolService}_Products : {topProducts?.Count}");
             logger.LogInformation($"Source: {toolService}_Orders : {orders?.Count}");
             var result = new TopProductViewModel
