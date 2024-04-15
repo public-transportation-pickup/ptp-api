@@ -9,8 +9,6 @@ using PTP.Application.ViewModels.Stations;
 namespace PTP.Application.Features.Stations.Queries;
 public class GetStationRevenueQuery : IRequest<List<StationRevenueModel>?>
 {
-    public int PageNumber { get; set; } = 0;
-    public int PageSize { get; set; } = int.MaxValue;
     public Dictionary<string, string>? Filter { get; set; } = new();
     public class QueryHandler : IRequestHandler<GetStationRevenueQuery, List<StationRevenueModel>?>
     {

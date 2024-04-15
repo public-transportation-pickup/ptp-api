@@ -37,9 +37,9 @@ public class StationsController : BaseController
     /// </summary>
     /// <returns></returns>
     [Route("revenue"), HttpGet]
-    public async Task<IActionResult> GetRevenue(int? pageSize, int pageNumber = 0, Dictionary<string, string>? filters = null)
+    public async Task<IActionResult> GetRevenue([FromQuery] Dictionary<string, string>? filters = null)
     {
-        return Ok(await mediator.Send(new GetStationRevenueQuery() { Filter = filters, PageNumber = pageNumber, PageSize = pageSize ?? 100000 }));
+        return Ok(await mediator.Send(new GetStationRevenueQuery() { Filter = filters }));
     }
     /// <summary>
     /// Lấy toàn bộ trạm
