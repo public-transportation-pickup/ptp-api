@@ -154,12 +154,13 @@ namespace PTP.Application.Features.Stores.Commands
             {
                 var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == nameof(RoleEnum.StoreManager).ToLower())
                 ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
+                Random random = new Random();
                 User user = new User
                 {
                     FullName = store.Name,
                     PhoneNumber = store.PhoneNumber,
                     Password = "@Abcaz12345",
-                    Email = $"Store{DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second}@gmail.com",
+                    Email = $"Store{random.Next(1000)}@gmail.com",
                     StoreId = store.Id,
                     RoleId = role!.Id
                 };
