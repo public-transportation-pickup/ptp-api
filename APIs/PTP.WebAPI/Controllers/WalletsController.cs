@@ -53,7 +53,7 @@ public class WalletsController : BaseController
 		{
 			html = System.IO.File.ReadAllText(@"./wwwroot/payment-sucess.html")
 				.Replace("{{User}}", user.Email)
-				.Replace("{{Amount}}", (model.vnp_Amount / 100).ToString())
+				.Replace("{{Amount}}", (model.vnp_Amount / 100).ToString("#,##0"))
 				.Replace("{{CreateDate}}", DateTime.Now.ToString("dd/MM/yyyy"));
 			return base.Content(html, "text/html");
 
