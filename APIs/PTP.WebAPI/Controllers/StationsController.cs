@@ -37,7 +37,7 @@ public class StationsController : BaseController
     /// </summary>
     /// <returns></returns>
     [Route("revenue"), HttpGet]
-    public async Task<IActionResult> GetRevenue([FromQuery] Dictionary<string, string>? filters = null)
+    public async Task<IActionResult> GetRevenue([FromQuery] Dictionary<string, string> filters)
     {
         return Ok(await mediator.Send(new GetStationRevenueQuery() { Filter = filters }));
     }
