@@ -37,12 +37,7 @@ public class GetStationRevenueQuery : IRequest<List<StationRevenueModel>?>
             List<StationRevenueModel> returnResult = result ?? new();
             if (request.Filter?.Count > 0)
             {
-                if (request.Filter.ContainsKey("pageNumber"))
-                    request.Filter.Remove("pageNumber");
-
-                if (request.Filter.ContainsKey("pageSize"))
-                    request.Filter.Remove("pageSize");
-
+               
                 foreach (var item in request.Filter)
                 {
                     System.Console.WriteLine(item.Key);
@@ -53,8 +48,7 @@ public class GetStationRevenueQuery : IRequest<List<StationRevenueModel>?>
 
                 }
             }
-            else
-                returnResult = result!.ToList();
+           
             return returnResult;
         }
     }

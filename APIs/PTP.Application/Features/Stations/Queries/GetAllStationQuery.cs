@@ -36,7 +36,7 @@ public class GetAllStationQuery : IRequest<PaginatedList<StationViewModel>>
                 {
                     filterResult = filterResult.Union(FilterUtilities.SelectItems(result, filter.Key, filter.Value));
                 }
-            } else filterResult = result;
+            }
 
             return PaginatedList<StationViewModel>.Create(
                 source: filterResult.AsQueryable(),
