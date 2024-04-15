@@ -7,12 +7,12 @@ using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Stations;
 
 namespace PTP.Application.Features.Stations.Queries;
-public class GetStationRevenueQuery : IRequest<PaginatedList<StationRevenueModel>?>
+public class GetStationRevenueQuery : IRequest<List<StationRevenueModel>?>
 {
     public int PageNumber { get; set; } = 0;
     public int PageSize { get; set; } = int.MaxValue;
     public Dictionary<string, string>? Filter { get; set; } = new();
-    public class QueryHandler : IRequestHandler<GetStationRevenueQuery, PaginatedList<StationRevenueModel>?>
+    public class QueryHandler : IRequestHandler<GetStationRevenueQuery, List<StationRevenueModel>?>
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly ILogger<GetStationRevenueQuery> logger;
@@ -23,7 +23,7 @@ public class GetStationRevenueQuery : IRequest<PaginatedList<StationRevenueModel
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<PaginatedList<StationRevenueModel>?> Handle(GetStationRevenueQuery request, CancellationToken cancellationToken)
+        public async Task<List<StationRevenueModel>?> Handle(GetStationRevenueQuery request, CancellationToken cancellationToken)
         {
             using var connection = unitOfWork.DirectionConnection.GetDbConnection();
             var sql = SqlQueriesStorage.GET_STATIONS_REVENUE;
@@ -57,10 +57,7 @@ public class GetStationRevenueQuery : IRequest<PaginatedList<StationRevenueModel
             }
             else
                 returnResult = result!.ToList();
-            return PaginatedList<StationRevenueModel>.Create(
-                           source: returnResult.AsQueryable(),
-                           pageIndex: request.PageNumber,
-                           pageSize: request.PageSize);
+            return returnResult;
         }
     }
 }

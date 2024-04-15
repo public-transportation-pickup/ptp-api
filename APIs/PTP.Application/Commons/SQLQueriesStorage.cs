@@ -24,6 +24,12 @@ public static class SqlQueriesStorage
                             GROUP BY s.Id
         ) osr 
         ON osr.Id = s.Id
+        INNER JOIN
+        (
+            SELECT [Id], [Name] AS StoreName
+            FROM Store
+        ) store 
+        ON store.Id = s.StoreId
         ORDER BY oc.OrderCompleted DESC";
     public const string GET_TOP_PRODUCT_BY_USER = @"SELECT TOP 5 pm.Id AS ProductMenuId , p.Name, od.ActualPrice, COUNT(od.Id) AS OrderCount
             FROM [OrderDetails] od INNER JOIN 
