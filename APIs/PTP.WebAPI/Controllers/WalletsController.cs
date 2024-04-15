@@ -1,9 +1,13 @@
 
+using System.Threading;
+using System.Reflection;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PTP.Application.Features.Users.Queries;
 using PTP.Application.Features.Wallets.Commands;
 using PTP.Application.Features.Wallets.Queries;
+using PTP.Application.IntergrationServices.Models;
 using PTP.Application.ViewModels.Wallets;
 using System.Net;
 
@@ -15,7 +19,12 @@ public class WalletsController : BaseController
 	{
 		this.mediator = mediator;
 	}
-
+	[HttpGet("test")]
+	public IActionResult Test()
+	{
+		var html = System.IO.File.ReadAllText(@"./wwwroot/payment-sucess.html");
+		return base.Content(html, "text/html");
+	}
 	/// <summary>
 	///  Nạp tiền vào ví
 	/// </summary>
@@ -33,6 +42,29 @@ public class WalletsController : BaseController
 			return StatusCode(201);
 		}
 		else return BadRequest();
+	}
+	[HttpGet("vn-pay/response")]
+	public async Task<IActionResult> VNPayResponse([FromQuery] VnPayResponseModel model)
+	{
+		string html = string.Empty;
+		var result = await mediator.Send(new VnPayResponseCommand { Model = model });
+		var user = await mediator.Send(new GetUserByIdQuery { Id = model.userId });
+		if (result)
+		{
+			html = System.IO.File.ReadAllText(@"./wwwroot/payment-sucess.html")
+				.Replace("{{User}}", user.Email)
+				.Replace("{{Amount}}", (model.vnp_Amount / 100).ToString())
+				.Replace("{{CreateDate}}", DateTime.Now.ToString("dd/MM/yyyy"));
+			return base.Content(html, "text/html");
+
+		}
+		else
+		{
+			html = System.IO.File.ReadAllText(@"./wwwroot/payment-fail.html")
+							.Replace("{{User}}", user.Email);
+			return base.Content(html, "text/html");
+		}
+
 	}
 	[Authorize]
 	[HttpPost("vn-pay")]

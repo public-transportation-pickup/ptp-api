@@ -1,4 +1,6 @@
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using PTP.Application.IntergrationServices.Models;
 using PTP.Application.Services.Interfaces;
 
@@ -11,10 +13,13 @@ public class RequestVNPayCommand : IRequest<string>
         private readonly IClaimsService claimsService;
         private readonly AppSettings appSettings;
         private readonly IUnitOfWork unitOfWork;
+        private readonly IWebHostEnvironment env;
         public CommandHandler(IUnitOfWork unitOfWork,
             IClaimsService claimsService,
-            AppSettings appSettings)
+            AppSettings appSettings,
+            IWebHostEnvironment env)
         {
+            this.env = env;
             this.appSettings = appSettings;
             this.claimsService = claimsService;
             this.unitOfWork = unitOfWork;
@@ -45,7 +50,10 @@ public class RequestVNPayCommand : IRequest<string>
 
             vnpay.AddRequestData("vnp_OrderInfo", "Nạp tiền vào ví");
             vnpay.AddRequestData("vnp_OrderType", payRequest.OrderType); //default value: other
-            vnpay.AddRequestData("vnp_ReturnUrl", $"http://ptp-srv.ddns:8001/?userId={currentUser.Id}");
+            if (env.IsDevelopment())
+                vnpay.AddRequestData("vnp_ReturnUrl", $"https://localhost:7248/api/wallets/vn-pay/response?userId={userId}");
+            else
+                vnpay.AddRequestData("vnp_ReturnUrl", $"http://ptp-srv.ddns.net:5000/api/wallets/vn-pay/response?userId={userId}");
 
             vnpay.AddRequestData("vnp_TxnRef", payRequest.TxnRef); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
 

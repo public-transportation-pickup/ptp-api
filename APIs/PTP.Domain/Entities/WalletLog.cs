@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Amazon.SecurityToken.Model;
 using Microsoft.EntityFrameworkCore;
 using PTP.Domain.Enums;
 
@@ -9,8 +10,10 @@ public class WalletLog : BaseEntity
 
     [Precision(18, 2)]
     public decimal Amount { get; set; } = default!;
+    public string Status { get; set; } = nameof(WalletLogStatusEnum.Sucess);
     public string Type { get; set; } = nameof(WalletLogTypeEnum.Deposit);
     public string? TxnRef { get; set; } = string.Empty;
+    public string TransactionNo { get; set; } = string.Empty;
 
     #region  Relationship Config
     public Guid WalletId { get; set; }
