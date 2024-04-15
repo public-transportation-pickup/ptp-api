@@ -10,6 +10,7 @@ public class WalletLog : BaseEntity
     [Precision(18, 2)]
     public decimal Amount { get; set; } = default!;
     public string Type { get; set; } = nameof(WalletLogTypeEnum.Deposit);
+    public string? TxnRef { get; set; } = string.Empty;
 
     #region  Relationship Config
     public Guid WalletId { get; set; }

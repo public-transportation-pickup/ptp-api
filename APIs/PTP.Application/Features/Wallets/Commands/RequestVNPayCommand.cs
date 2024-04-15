@@ -38,7 +38,6 @@ public class RequestVNPayCommand : IRequest<string>
             vnpay.AddRequestData("vnp_Command", payRequest.Command);
             vnpay.AddRequestData("vnp_TmnCode", appSettings.VnPay.Vnp_TmnCode);
             vnpay.AddRequestData("vnp_Amount", ((int)request.Amount * 100).ToString());
-
             vnpay.AddRequestData("vnp_CreateDate", payRequest.CreateDate);
             vnpay.AddRequestData("vnp_CurrCode", payRequest.CurrCode);
             vnpay.AddRequestData("vnp_IpAddr", payRequest.IpAddress);

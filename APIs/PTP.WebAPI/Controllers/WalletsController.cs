@@ -35,10 +35,18 @@ public class WalletsController : BaseController
 		else return BadRequest();
 	}
 	[Authorize]
-	[HttpPost, Route("vn-pay")]
+	[HttpPost("vn-pay")]
 	public async Task<IActionResult> VNPayCallBack([FromBody] decimal amount)
 	{
-		var result = await mediator.Send(new RequestVNPayCommand { Amount = amount});
+		var result = await mediator.Send(new RequestVNPayCommand { Amount = amount });
+		return Ok(result);
+	}
+
+	[Authorize]
+	[HttpPost("vn-pay/refund")]
+	public async Task<IActionResult> VNPayCallBackRefund([FromBody] string TxnRef)
+	{
+		var result = await mediator.Send(new RequestRefundVNPayCommand { TxnRef = TxnRef });
 		return Ok(result);
 	}
 	#region Queries

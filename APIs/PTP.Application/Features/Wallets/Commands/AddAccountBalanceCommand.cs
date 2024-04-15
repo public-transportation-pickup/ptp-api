@@ -41,6 +41,7 @@ public class AddAccountBalanceCommand : AddAccountBalanceModel, IRequest<bool>
                 {
                     Amount = request.Amount,
                     Source = request.Source,
+                    TxnRef = request.TxnRef ?? string.Empty,
                     Type = nameof(WalletLogTypeEnum.Deposit),
                     WalletId = currentUser.Wallet.Id
                 };
