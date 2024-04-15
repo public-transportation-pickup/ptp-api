@@ -33,10 +33,14 @@ public class StationsController : BaseController
     }
 
     /// <summary>
-    /// Lấy revenue, orders của trạm
+    /// 
     /// </summary>
+    /// <param name="filters"></param>
     /// <returns></returns>
-    [Route("revenue"), HttpGet]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [HttpGet("revenue")]
     public async Task<IActionResult> GetRevenue([FromQuery] Dictionary<string, string> filters)
     {
         return Ok(await mediator.Send(new GetStationRevenueQuery() { Filter = filters }));
