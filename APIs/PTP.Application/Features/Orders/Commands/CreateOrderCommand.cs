@@ -211,15 +211,13 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             if (order == null) throw new BadRequestException($"Order- {model.Id} is not found!");
             if (statusCheck != nameof(OrderStatusEnum.Preparing))
             {
-                title = "Đơn hàng đã được chuẩn bị";
-                body = $"Đơn hàng tại {order.Store.Name} đã được chuẩn bị! Vui lòng đến lấy  trước khi hết hạn";
-
+                title = "Đơn hàng đã bị hủy";
+                body = $"Đơn hàng của bạn đã bị hủy do quá thời gian lấy hàng!";
             }
             else
             {
-                title = "Đơn hàng đã bị hủy";
-                body = $"Đơn hàng của bạn đã bị hủy do quá thời gian lấy hàng!";
-
+                title = "Đơn hàng đã được chuẩn bị";
+                body = $"Đơn hàng tại {order.Store.Name} đã được chuẩn bị! Vui lòng đến lấy  trước khi hết hạn";
             }
             if (order.Status == statusCheck)
             {
