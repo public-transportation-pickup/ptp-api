@@ -27,11 +27,11 @@ public class StationsController : BaseController
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     public async Task<IActionResult> GetRouteByStation([FromQuery] string stationName,
-        bool searchByAddress = false,
         int? pageNumber,
-        int? pageSize)
+        int? pageSize, 
+        bool searchByAddress = false)
     {
-        return Ok(await mediator.Send(new GetRouteByStationQuery { StationName = stationName, IsAdress = searchByAddress ,PageNumber = pageNumber, PageSize = pageSize }));
+        return Ok(await mediator.Send(new GetRouteByStationQuery { StationName = stationName, IsAddress = searchByAddress ,PageNumber = pageNumber, PageSize = pageSize }));
     }
 
     /// <summary>

@@ -57,7 +57,7 @@ public class RequestRefundVNPayCommand : IRequest<string>
             vnpay.AddRequestData("vnp_TxnRef", payRequest.TxnRef); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
             vnpay.AddRequestData("vnp_Amount", ((int)walletLog.Amount * 100).ToString());
             vnpay.AddRequestData("vnp_OrderInfo", "Hoàn tiền");
-            vnpay.AddRequestData("vnp_TransactionNo", "14379562");
+            vnpay.AddRequestData("vnp_TransactionNo", walletLog.TransactionNo);
             vnpay.AddRequestData("vnp_TransactionDate", walletLog.CreationDate.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CreateBy", walletLog.Wallet.UserId.ToString() ?? "Undefined");
             vnpay.AddRequestData("vnp_CreateDate", payRequest.CreateDate);
