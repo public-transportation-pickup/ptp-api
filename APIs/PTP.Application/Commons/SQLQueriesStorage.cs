@@ -43,7 +43,7 @@ public static class SqlQueriesStorage
                 WHERE [Status] = 'Completed'
                 AND UserID = @UserId
             )
-            GROUP BY pm.Id, p.Name, od.ActualPrice
+            GROUP BY pm.Id, p.Name, od.ActualPrice, p.ImageURL
             ORDER BY OrderCount DESC";
 
     public const string GET_CATEGORIES_REPORT = @"SELECT TOP 5 c.Name, c.ImageURL, COUNT(p.Id) AS Products
