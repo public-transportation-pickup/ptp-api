@@ -31,7 +31,7 @@ public static class SqlQueriesStorage
         ) store 
         ON store.Id = s.StoreId
         ORDER BY oc.OrderCompleted DESC";
-    public const string GET_TOP_PRODUCT_BY_USER = @"SELECT TOP 5 pm.Id AS ProductMenuId , p.Name, od.ActualPrice, COUNT(od.Id) AS OrderCount
+    public const string GET_TOP_PRODUCT_BY_USER = @"SELECT TOP 5 pm.Id AS ProductMenuId , p.ImageURL AS ImageURL, p.Name, od.ActualPrice, COUNT(od.Id) AS OrderCount
             FROM [OrderDetails] od INNER JOIN 
             ProductInMenu pm ON od.ProductMenuId = od.ProductMenuId
             INNER JOIN Product p 
