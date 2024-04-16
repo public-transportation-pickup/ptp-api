@@ -118,6 +118,17 @@ public static class SqlQueriesStorage
         INNER JOIN Station s ON s.Id = rs.StationId
         WHERE s.Name LIKE @stationName
         ORDER BY RouteNo";
+    
+    public const string GET_ROUTE_BY_ADDRESS = @"
+        SELECT DISTINCT (r.Id), r.RouteId, r.Name,r.[Status], 
+            r.RouteNo, r.Distance, r.TimeOfTrip, r.HeadWay, r.OperationTime,
+            r.NumOfSeats, r.InBoundName, r.OutBoundName, r.TotalTrip, r.Orgs, r.Tickets 
+        FROM [Route] r 
+        LEFT JOIN RouteStation rs ON r.Id = rs.RouteId
+        INNER JOIN Station s ON s.Id = rs.StationId
+        WHERE s.AddressNo + ' ' + s.Street + ' ' + s.Ward + ' ' + s.Zone
+         LIKE @stationName
+        ORDER BY RouteNo"; 
     public const string GET_STORES_BY_ROUTEVARID = @"
         SELECT *
         FROM [Store] str 
