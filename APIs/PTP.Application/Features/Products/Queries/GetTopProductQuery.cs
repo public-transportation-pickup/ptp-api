@@ -43,7 +43,7 @@ public class GetTopProductQuery : IRequest<TopProductViewModel?>
             {
                 Products = topProducts ?? new(),
                 Orders = orders?.Where(x => x.Status == nameof(OrderStatusEnum.Completed))
-                    .OrderByDescending(x => x.OrderDetails)
+                    .OrderByDescending(x => x.OrderDetails?.Count())
                     .Take(5)
                     .ToList() ?? new()
             };
