@@ -18,6 +18,7 @@ public class StationsController : BaseController
     /// Get Routes bằng stationName
     /// </summary>
     /// <param name="stationName"></param>
+    /// <param name="searchByAddress"></param>
     /// <param name="pageNumber"></param>
     /// <param name="pageSize"></param>
     /// <returns></returns>
@@ -27,9 +28,10 @@ public class StationsController : BaseController
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
     public async Task<IActionResult> GetRouteByStation([FromQuery] string stationName,
         int? pageNumber,
-        int? pageSize)
+        int? pageSize, 
+        bool searchByAddress = false)
     {
-        return Ok(await mediator.Send(new GetRouteByStationQuery { StationName = stationName, PageNumber = pageNumber, PageSize = pageSize }));
+        return Ok(await mediator.Send(new GetRouteByStationQuery { StationName = stationName, IsAddress = searchByAddress ,PageNumber = pageNumber, PageSize = pageSize }));
     }
 
     /// <summary>

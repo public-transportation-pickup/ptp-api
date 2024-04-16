@@ -15,6 +15,7 @@ public class GetRouteByStationQuery : IRequest<PaginatedList<RouteViewModel>>
     public string StationName { get; set; } = default!;
     public int? PageNumber { get; set; }
     public int? PageSize { get; set; }
+    public bool IsAddress { get; set; } = false;
     public class QueryHandler : IRequestHandler<GetRouteByStationQuery, PaginatedList<RouteViewModel>>
     {
         private readonly IUnitOfWork unitOfWork;
@@ -33,10 +34,13 @@ public class GetRouteByStationQuery : IRequest<PaginatedList<RouteViewModel>>
             using var dbConnection = connection.GetDbConnection();
             var input = new { request.StationName, request.PageNumber, request.PageSize };
             logger.LogInformation("input", input);
+            string sql = request.IsAddress 
+                ? SqlQueriesStorage.GET_ROUTE_BY_ADDRESS 
+                : SqlQueriesStorage.GET_ROUTE_BY_STATION_NAME;
             DynamicParameters parameters = new();
             parameters.Add("@stationName", $"%{input.StationName}%");
             var executeResults = await dbConnection.QueryAsync<Route>(
-                sql: SqlQueriesStorage.GET_ROUTE_BY_STATION_NAME,
+                sql: sql,
                 transaction: null,
                 commandTimeout: 30,
                 commandType: System.Data.CommandType.Text,

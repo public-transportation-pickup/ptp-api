@@ -49,23 +49,19 @@ public class RequestRefundVNPayCommand : IRequest<string>
             };
 
             var vnpay = new VnPayLibrary();
-            vnpay.AddRequestData("vnp_Version", payRequest.Version);
             vnpay.AddRequestData("vnp_RequestId", DateTime.Now.Ticks.ToString());
+            vnpay.AddRequestData("vnp_Version", payRequest.Version);
             vnpay.AddRequestData("vnp_Command", payRequest.Command);
             vnpay.AddRequestData("vnp_TmnCode", appSettings.VnPay.Vnp_TmnCode);
-            vnpay.AddRequestData("vnp_Amount", ((int)walletLog.Amount * 100).ToString());
             vnpay.AddRequestData("vnp_TranSactionType", "02");
-            vnpay.AddRequestData("vnp_CreateDate", payRequest.CreateDate);
-            vnpay.AddRequestData("vnp_CurrCode", payRequest.CurrCode);
-            vnpay.AddRequestData("vnp_IpAddr", payRequest.IpAddress);
-            vnpay.AddRequestData("vnp_Locale", payRequest.Locale);
-            vnpay.AddRequestData("vnp_TransactionDate", walletLog.CreationDate.ToString("yyyyMMddHHmmss"));
-            vnpay.AddRequestData("vnp_OrderInfo", "Hoàn tiền");
-            vnpay.AddRequestData("vnp_TransactionNo", "14379562");
-            vnpay.AddRequestData("vnp_OrderType", payRequest.OrderType); //default value: other
-            vnpay.AddRequestData("vnp_CreateBy", walletLog.Wallet.UserId.ToString() ?? "Undefined");
-
             vnpay.AddRequestData("vnp_TxnRef", payRequest.TxnRef); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
+            vnpay.AddRequestData("vnp_Amount", ((int)walletLog.Amount * 100).ToString());
+            vnpay.AddRequestData("vnp_OrderInfo", "Hoàn tiền");
+            vnpay.AddRequestData("vnp_TransactionNo", walletLog.TransactionNo);
+            vnpay.AddRequestData("vnp_TransactionDate", walletLog.CreationDate.ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_CreateBy", walletLog.Wallet.UserId.ToString() ?? "Undefined");
+            vnpay.AddRequestData("vnp_CreateDate", payRequest.CreateDate);
+            vnpay.AddRequestData("vnp_IpAddr", payRequest.IpAddress);
 
             var paymentUrl = vnpay.CreateRequestUrl("https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
                  appSettings.VnPay.Vnp_HashSecret);
