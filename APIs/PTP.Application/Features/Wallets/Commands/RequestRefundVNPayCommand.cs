@@ -1,6 +1,9 @@
+using Microsoft.Win32.SafeHandles;
 using MediatR;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using PTP.Application.IntergrationServices.Models;
+using PTP.Application.IntergrationServices.Models.VNPay;
 using PTP.Application.Services.Interfaces;
 
 namespace PTP.Application.Features.Wallets.Commands;
@@ -44,31 +47,50 @@ public class RequestRefundVNPayCommand : IRequest<string>
             }
             PaymentRequestModel payRequest = new()
             {
-                Command = "refund",
+                Command = "querydr",
 
             };
 
             var vnpay = new VnPayLibrary();
-            vnpay.AddRequestData("vnp_RequestId", DateTime.Now.Ticks.ToString());
-            vnpay.AddRequestData("vnp_Version", payRequest.Version);
-            vnpay.AddRequestData("vnp_Command", payRequest.Command);
-            vnpay.AddRequestData("vnp_TmnCode", appSettings.VnPay.Vnp_TmnCode);
-            vnpay.AddRequestData("vnp_TranSactionType", "02");
-            vnpay.AddRequestData("vnp_TxnRef", payRequest.TxnRef); // Mã tham chiếu của giao dịch tại hệ thống của merchant. Mã này là duy nhất dùng để phân biệt các đơn hàng gửi sang VNPAY. Không được trùng lặp trong ngày
-            vnpay.AddRequestData("vnp_Amount", ((int)walletLog.Amount * 100).ToString());
-            vnpay.AddRequestData("vnp_OrderInfo", "Hoàn tiền");
-            vnpay.AddRequestData("vnp_TransactionNo", walletLog.TransactionNo);
-            vnpay.AddRequestData("vnp_TransactionDate", walletLog.CreationDate.ToString("yyyyMMddHHmmss"));
-            vnpay.AddRequestData("vnp_CreateBy", walletLog.Wallet.UserId.ToString() ?? "Undefined");
-            vnpay.AddRequestData("vnp_CreateDate", payRequest.CreateDate);
-            vnpay.AddRequestData("vnp_IpAddr", payRequest.IpAddress);
 
-            var paymentUrl = vnpay.CreateRequestUrl("https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
-                 appSettings.VnPay.Vnp_HashSecret);
-            HttpClient httpClient = new HttpClient();
-            var result = await httpClient.PostAsync(paymentUrl, 
-                null);
-            return result.Content.ToString() ?? string.Empty;
+
+            var paymentUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
+            VNPayRefundRequestModel requestModel = new()
+            {
+                vnp_RequestId = DateTime.Now.Ticks.ToString(),
+                vnp_Version = payRequest.Version,
+                vnp_Command = payRequest.Command,
+                vnp_TmnCode = appSettings.VnPay.Vnp_TmnCode,
+                vnp_TransactionType = "02",
+                vnp_TxnRef = payRequest.TxnRef,
+                vnp_Amount = ((int)walletLog.Amount * 100).ToString(),
+                vnp_OrderInfo = "Hoàn tiền",
+                vnp_TransactionNo = walletLog.TransactionNo,
+                vnp_TransactionDate = walletLog.CreationDate.ToString("yyyyMMddHHmmss"),
+                vnp_CreateBy = walletLog.Wallet.UserId.ToString() ?? "Undefined",
+                vnp_CreateDate = payRequest.CreateDate,
+                vnp_IpAddr = payRequest.IpAddress,
+
+            };
+            
+            var signData = requestModel.vnp_RequestId + "|" 
+                + requestModel.vnp_Version + "|" 
+                + requestModel.vnp_Command + "|" 
+                + requestModel.vnp_TmnCode + "|" 
+                + requestModel.vnp_TransactionType 
+                + "|" + requestModel.vnp_TxnRef 
+                + "|" + requestModel.vnp_Amount 
+                + "|" + requestModel.vnp_TransactionNo 
+                + "|" + requestModel.vnp_TransactionDate 
+                + "|" + requestModel.vnp_CreateBy 
+                + "|" + requestModel.vnp_CreateDate 
+                + "|" + requestModel.vnp_IpAddr 
+                + "|" + requestModel.vnp_OrderInfo;
+            var secureHash = Utils.HmacSHA512(appSettings.VnPay.Vnp_HashSecret, signData);
+            requestModel.vnp_SecureHash = secureHash;
+            var result = await vnpay.Refund(paymentUrl, model: requestModel);
+            return result;
         }
 
     }

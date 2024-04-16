@@ -33,7 +33,7 @@ public static class SqlQueriesStorage
         ORDER BY oc.OrderCompleted DESC";
     public const string GET_TOP_PRODUCT_BY_USER = @"SELECT TOP 5 pm.Id AS ProductMenuId , p.StoreId AS StoreId,p.ImageURL AS ImageURL, p.Name, od.ActualPrice, COUNT(od.Id) AS OrderCount
             FROM [OrderDetails] od INNER JOIN 
-            ProductInMenu pm ON od.ProductMenuId = od.ProductMenuId
+            ProductInMenu pm ON od.ProductMenuId = pm.Id
             INNER JOIN Product p 
             ON pm.ProductId = p.Id
             WHERE od.OrderId IN 
@@ -173,7 +173,7 @@ public static class SqlQueriesStorage
     public const string GET_ROUTE_STATION_BY_PARENT_ID = @"
                                         SELECT rs.Id, rs.[Index], s.Latitude, s.Longitude, 
                                         rs.DistanceFromStart, rs.DistanceToNext, rs.DurationFromStart, 
-                                        rs.DurationToNext, s.[Id] AS StationId, s.[Name] AS StationName
+                                        rs.DurationToNext, s.[Id] AS StationId, s.[Name] AS StationName, s.StoreId
                                         FROM RouteStation rs
                                         JOIN Station s
                                         ON s.Id = rs.StationId 

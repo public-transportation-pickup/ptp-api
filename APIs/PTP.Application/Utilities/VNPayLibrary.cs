@@ -4,9 +4,16 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
+using PTP.Application.IntergrationServices.Models;
+using PTP.Application.IntergrationServices.Models.VNPay;
+
+using System.Web;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Components.Forms;
 
 public class VnPayLibrary
 {
+
     private readonly SortedList<string, string> _requestData = new SortedList<string, string>(new VnPayCompare());
     private readonly SortedList<string, string> _responseData = new SortedList<string, string>(new VnPayCompare());
 
@@ -32,6 +39,22 @@ public class VnPayLibrary
     }
 
     #region Request
+    public async Task<string> Refund(string baseUrl, VNPayRefundRequestModel model)
+    {
+        HttpClient httpClient = new HttpClient();
+
+        //baseUrl += "?" + signData.ToString() + "vnp_SecureHash=" + encureHash;
+        var input = JsonConvert.SerializeObject(model);
+        HttpContent content = new StringContent(content: input,
+            encoding: Encoding.UTF8,
+            mediaType: "application/json");
+        using var response = await httpClient.PostAsync(requestUri: baseUrl,
+            content: content,
+            cancellationToken: default);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+
+    }
     public string CreateRequestUrl(string baseUrl, string vnpHashSecret)
     {
         var data = new StringBuilder();
@@ -51,7 +74,7 @@ public class VnPayLibrary
         }
 
         var vnpSecureHash = Utils.HmacSHA512(vnpHashSecret, signData);
-        baseUrl += "vnp_SecureHash=" + vnpSecureHash;
+
 
         return baseUrl;
     }
@@ -97,14 +120,25 @@ public class VnPayLibrary
 
 public class Utils
 {
-    public static string HmacSHA512(string key, string inputData)
+    public static string ComputeHmacSha512(string data, string key)
+    {
+        byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+        byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+
+        using (HMACSHA512 hmac = new HMACSHA512(keyBytes))
+        {
+            byte[] hashBytes = hmac.ComputeHash(dataBytes);
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
+    }
+    public static String HmacSHA512(string key, String inputData)
     {
         var hash = new StringBuilder();
-        var keyBytes = Encoding.UTF8.GetBytes(key);
-        var inputBytes = Encoding.UTF8.GetBytes(inputData);
+        byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+        byte[] inputBytes = Encoding.UTF8.GetBytes(inputData);
         using (var hmac = new HMACSHA512(keyBytes))
         {
-            var hashValue = hmac.ComputeHash(inputBytes);
+            byte[] hashValue = hmac.ComputeHash(inputBytes);
             foreach (var theByte in hashValue)
             {
                 hash.Append(theByte.ToString("x2"));
