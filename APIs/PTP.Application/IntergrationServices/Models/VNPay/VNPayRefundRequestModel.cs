@@ -1,3 +1,4 @@
+
 namespace PTP.Application.IntergrationServices.Models.VNPay;
 public class VNPayRefundRequestModel
 {
@@ -16,4 +17,5 @@ public class VNPayRefundRequestModel
     public string vnp_IpAddr { get; set; } = string.Empty;
     public string vnp_SecureHash { get; set; } = string.Empty;
 
+   
 }

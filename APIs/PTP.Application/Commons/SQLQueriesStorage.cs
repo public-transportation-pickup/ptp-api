@@ -102,13 +102,27 @@ public static class SqlQueriesStorage
     /// <summary>
     /// Lấy thống kê top5 cửa hàng có doanh thu cao nhất
     /// </summary>
-    public const string GET_TOP_PROFIT_STORES = @"SELECT TOP 5 s.Name, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS Revenue
-        FROM [Order] o INNER JOIN [Store] s
-        ON o.StoreId = s.Id
-        WHERE o.CreationDate >= DATEADD(day, -(DATEPART(dw, GETDATE()) + 5) % 7, CAST(GETDATE() AS date))
+    public const string GET_TOP_PROFIT_STORES = @"
+            SELECT TOP 5 s.Name, 
+            SUM
+                (
+                    CASE WHEN o.[Status] = 'Completed' THEN o.Total 
+                    ELSE 
+                        CASE WHEN o.[Status] = 'Canceled' 
+                        THEN 
+                            CASE WHEN o.ReturnAmount IS NULL
+                                THEN o.Total
+                            ELSE (o.Total - o.ReturnAmount)
+                            END
+                        END
+                    END
+                ) AS Revenue
+            FROM [Order] o INNER JOIN [Store] s
+            ON o.StoreId = s.Id
+            WHERE o.CreationDate >= DATEADD(day, -(DATEPART(dw, GETDATE()) + 5) % 7, CAST(GETDATE() AS date))
                 AND o.CreationDate < DATEADD(day, 7 - (DATEPART(dw, GETDATE()) + 5) % 7, CAST(GETDATE() AS date))
-        GROUP BY s.Name
-        ORDER BY Revenue DESC";
+                    GROUP BY s.Name
+                    ORDER BY Revenue DESC";
     public const string GET_ROUTE_BY_STATION_NAME = @"
         SELECT DISTINCT (r.Id), r.RouteId, r.Name,r.[Status], 
             r.RouteNo, r.Distance, r.TimeOfTrip, r.HeadWay, r.OperationTime,

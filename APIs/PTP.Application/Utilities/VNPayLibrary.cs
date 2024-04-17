@@ -74,7 +74,7 @@ public class VnPayLibrary
         }
 
         var vnpSecureHash = Utils.HmacSHA512(vnpHashSecret, signData);
-
+        baseUrl += "vnp_SecureHash=" + vnpSecureHash;
 
         return baseUrl;
     }

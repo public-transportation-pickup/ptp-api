@@ -47,7 +47,7 @@ public class RequestRefundVNPayCommand : IRequest<string>
             }
             PaymentRequestModel payRequest = new()
             {
-                Command = "querydr",
+                Command = "refund",
 
             };
 
@@ -63,29 +63,29 @@ public class RequestRefundVNPayCommand : IRequest<string>
                 vnp_Command = payRequest.Command,
                 vnp_TmnCode = appSettings.VnPay.Vnp_TmnCode,
                 vnp_TransactionType = "02",
-                vnp_TxnRef = payRequest.TxnRef,
-                vnp_Amount = ((int)walletLog.Amount * 100).ToString(),
-                vnp_OrderInfo = "Hoàn tiền",
+                vnp_TxnRef = "638489161203566642",
+                vnp_Amount = "100000000",//((int)walletLog.Amount * 100).ToString(),
+                vnp_OrderInfo = "Hoan tien",
                 vnp_TransactionNo = walletLog.TransactionNo,
-                vnp_TransactionDate = walletLog.CreationDate.ToString("yyyyMMddHHmmss"),
-                vnp_CreateBy = walletLog.Wallet.UserId.ToString() ?? "Undefined",
+                vnp_TransactionDate = "20240417020154",//walletLog.CreationDate.ToString("yyyyMMddHHmmss"),
+                vnp_CreateBy = "Guest",//walletLog.Wallet.UserId.ToString() ?? "Undefined",
                 vnp_CreateDate = payRequest.CreateDate,
                 vnp_IpAddr = payRequest.IpAddress,
 
             };
-            
-            var signData = requestModel.vnp_RequestId + "|" 
-                + requestModel.vnp_Version + "|" 
-                + requestModel.vnp_Command + "|" 
-                + requestModel.vnp_TmnCode + "|" 
-                + requestModel.vnp_TransactionType 
-                + "|" + requestModel.vnp_TxnRef 
-                + "|" + requestModel.vnp_Amount 
-                + "|" + requestModel.vnp_TransactionNo 
-                + "|" + requestModel.vnp_TransactionDate 
-                + "|" + requestModel.vnp_CreateBy 
-                + "|" + requestModel.vnp_CreateDate 
-                + "|" + requestModel.vnp_IpAddr 
+
+            var signData = requestModel.vnp_RequestId + "|"
+                + requestModel.vnp_Version + "|"
+                + requestModel.vnp_Command + "|"
+                + requestModel.vnp_TmnCode + "|"
+                + requestModel.vnp_TransactionType
+                + "|" + requestModel.vnp_TxnRef
+                + "|" + requestModel.vnp_Amount
+                + "|" + requestModel.vnp_TransactionNo
+                + "|" + requestModel.vnp_TransactionDate
+                + "|" + requestModel.vnp_CreateBy
+                + "|" + requestModel.vnp_CreateDate
+                + "|" + requestModel.vnp_IpAddr
                 + "|" + requestModel.vnp_OrderInfo;
             var secureHash = Utils.HmacSHA512(appSettings.VnPay.Vnp_HashSecret, signData);
             requestModel.vnp_SecureHash = secureHash;

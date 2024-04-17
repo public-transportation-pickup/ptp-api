@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using PTP.Application.Commons;
 using PTP.Application.ViewModels.Reports;
 using PTP.Domain.Entities;
+using PTP.Domain.Enums;
 
 namespace PTP.Application.Features.Reports.Queries;
 public class GetAdminReportQuery : IRequest<AdminReportViewModel>
@@ -35,7 +36,7 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
             DateTime sundayOfWeek = mondayOfWeek.AddDays(6);
 
             var saleValue = orders
-                .Where(x => x.Status == "Completed" && x.CreationDate >= mondayOfWeek && x.CreationDate <= sundayOfWeek)
+                .Where(x => x.CreationDate >= mondayOfWeek && x.CreationDate <= sundayOfWeek)
                 .GroupBy(x => x.CreationDate.Day)
                 .OrderBy(g => g.Key); // Ensure days are in chronological order
 
@@ -51,9 +52,25 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
 
                 if (ordersForDay != null)
                 {
-                    // Sum the total values for orders on this day
-                    decimal totalForDay = ordersForDay.Sum(x => x.Total);
-                    saleValueCurrent.Add(totalForDay);
+                    decimal totalForDay = 0;
+                    foreach (var item in ordersForDay)
+                    {
+                        if (item.Status == nameof(OrderStatusEnum.Completed))
+                        {
+                            totalForDay += item.Total;
+                        }
+                        else if (item.Status == nameof(OrderStatusEnum.Canceled))
+                        {
+                            if (item.ReturnAmount is null)
+                            {
+                                totalForDay += item.Total;
+                            }
+                            else
+                            {
+                                totalForDay += item.Total - item.ReturnAmount.Value;
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -77,7 +94,7 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
             DateTime sundayOfWeek = mondayOfWeek.AddDays(6);
 
             var saleValue = orders
-                .Where(x => x.Status == "Completed" && x.CreationDate >= mondayOfWeek && x.CreationDate <= sundayOfWeek)
+                .Where(x => x.CreationDate >= mondayOfWeek && x.CreationDate <= sundayOfWeek)
                 .GroupBy(x => x.CreationDate.Day)
                 .OrderBy(g => g.Key); // Ensure days are in chronological order
 
@@ -94,7 +111,25 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
                 if (ordersForDay != null)
                 {
                     // Sum the total values for orders on this day
-                    decimal totalForDay = ordersForDay.Sum(x => x.Total);
+                    decimal totalForDay = 0;
+                    foreach (var item in ordersForDay)
+                    {
+                        if (item.Status == nameof(OrderStatusEnum.Completed))
+                        {
+                            totalForDay += item.Total;
+                        }
+                        else if (item.Status == nameof(OrderStatusEnum.Canceled))
+                        {
+                            if (item.ReturnAmount is null)
+                            {
+                                totalForDay += item.Total;
+                            }
+                            else
+                            {
+                                totalForDay += item.Total - item.ReturnAmount.Value;
+                            }
+                        }
+                    }
                     saleValueCurrent.Add(totalForDay);
                 }
                 else
@@ -106,10 +141,10 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
 
             return saleValueCurrent;
         }
-     
+
         public async Task<AdminReportViewModel> Handle(GetAdminReportQuery request, CancellationToken cancellationToken)
         {
-            var orders = await unitOfWork.OrderRepository.WhereAsync(x => x.Status == "Completed");
+            var orders = await unitOfWork.OrderRepository.WhereAsync(x => x.Status == "Completed" || x.Status == nameof(OrderStatusEnum.Canceled));
 
             var getTopOrderStoreTask = mediator.Send(new GetTopOrderStoreQuery());
             var getTopOrderStationTask = mediator.Send(new GetTopStationReportQuery());
@@ -138,7 +173,7 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
                 Revenue = routes.Revenue,
                 TopOrderStations = topOrderStation ?? new(),
                 TopOrderStores = topOrderStore ?? new(),
-                Categories = categories ?? new(),   
+                Categories = categories ?? new(),
                 SaleValueLast = GetSaleValueLast(orders),
                 SaleValueCurrent = GetSaleValueCurrent(orders)
 

@@ -50,7 +50,7 @@ namespace PTP.Application.Features.Wallets.Commands
 					Source = "VNPay",
 					Type = nameof(WalletLogTypeEnum.Deposit),
 					WalletId = wallet.Id,
-					CreationDate = DateTime.Now
+					CreationDate =  DateTime.ParseExact(request.Model.vnp_PayDate, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture)
 
 				};
 				wallet.Amount += walletLog.Amount;
