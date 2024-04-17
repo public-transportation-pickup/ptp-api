@@ -62,8 +62,20 @@ public static class SqlQueriesStorage
         (SELECT COUNT(*) Routes FROM [Route]) b,
         (SELECT COUNT(*) Stores FROM [Store]) c, 
         (
-            SELECT SUM(Total) Revenue
-            FROM [Order] WHERE [Status] = 'Completed'
+            SELECT SUM
+            (
+                CASE WHEN o.[Status] = 'Completed' THEN o.Total 
+                    ELSE 
+                        CASE WHEN o.[Status] = 'Canceled' 
+                        THEN 
+                            CASE WHEN o.ReturnAmount IS NULL
+                                THEN o.Total
+                            ELSE (o.Total - o.ReturnAmount)
+                            END
+                        END
+                    END
+            ) Revenue
+            FROM [Order] o WHERE [Status] = 'Completed'
         ) d";
     /// <summary>
     /// Thống kê top 20 station có nhiều order nhất
@@ -92,7 +104,18 @@ public static class SqlQueriesStorage
                 ON s.Id = o.StoreId
             WHERE o.[Status] IS NOT NULL
             GROUP BY s.Name, s.Address) a
-            INNER JOIN (SELECT TOP 5 s.Name, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS Revenue
+            INNER JOIN (SELECT TOP 5 s.Name, SUM(
+                 CASE WHEN o.[Status] = 'Completed' THEN o.Total 
+                    ELSE 
+                        CASE WHEN o.[Status] = 'Canceled' 
+                        THEN 
+                            CASE WHEN o.ReturnAmount IS NULL
+                                THEN o.Total
+                            ELSE (o.Total - o.ReturnAmount)
+                            END
+                        END
+                    END
+                ) AS Revenue
                     FROM [Order] o INNER JOIN [Store] s
                     ON o.StoreId = s.Id
                     GROUP BY s.Name) b 

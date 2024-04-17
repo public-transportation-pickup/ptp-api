@@ -125,7 +125,7 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
                             {
                                 totalForDay += item.Total;
                             }
-                            else
+                            else 
                             {
                                 totalForDay += item.Total - item.ReturnAmount.Value;
                             }
