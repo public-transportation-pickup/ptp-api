@@ -75,7 +75,7 @@ public static class SqlQueriesStorage
                         END
                     END
             ) Revenue
-            FROM [Order] o WHERE [Status] = 'Completed'
+            FROM [Order] o 
         ) d";
     /// <summary>
     /// Thống kê top 20 station có nhiều order nhất
