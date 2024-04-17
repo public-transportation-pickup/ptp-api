@@ -69,8 +69,9 @@ public class GetAdminReportQuery : IRequest<AdminReportViewModel>
                             {
                                 totalForDay += item.Total - item.ReturnAmount.Value;
                             }
-                        }
+                        } 
                     }
+                    saleValueCurrent.Add(totalForDay);
                 }
                 else
                 {
