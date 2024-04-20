@@ -2,6 +2,10 @@ namespace PTP.Application.ViewModels.Stores;
 
 public class StoreReportModel
 {
+    public Guid StoreId { get; set; }
+    public string StoreName { get; set; }=default!;
+    public string StoreAddress { get; set; }=default!;
+    public decimal WalletAmount { get; set; }
     public decimal TotalSalesNew { get; set; }
     public decimal TotalSalesLast { get; set; }
 

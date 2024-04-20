@@ -57,6 +57,7 @@ public class GetStoreReportById : IRequest<StoreReportModel>
 
             public async Task<StoreReportModel> Handle(GetStoreReportById request, CancellationToken cancellationToken)
             {
+                var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.Id, x => x.User.Wallet);
                 var orders = await _unitOfWork
                                 .OrderRepository
                                 .WhereAsync(x =>
@@ -65,6 +66,10 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                                     , x => x.User);
                 var result = new StoreReportModel
                 {
+                    StoreId = request.Id,
+                    StoreName = store!.Name,
+                    StoreAddress = store.AddressNo,
+                    WalletAmount = store.User.Wallet.Amount,
                     SaleValuesNew = GetSaleValuesNew(orders),
                     SaleValuesLast = GetSaleValuesLast(orders),
                     TotalOrderNew = GetTotalOrderNow(orders),
@@ -84,7 +89,7 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                 model.TotalOrdersNew = orders.Count > 0 ? orders.Count : 0;
                 model.TotalSalesNew = orders.Count > 0 ? orders.Sum(o => o.Total) : 0;
                 model.AverageSaleValueNew = model.TotalOrdersNew != 0 ? (model.TotalSalesNew / model.TotalOrdersNew) : 0;
-                model.VisitorsNew = 0;
+                model.VisitorsNew = orders.GroupBy(x => x.CreatedBy).Count();
                 return model;
             }
             private StoreReportModel GetOtherLastReport(List<Order> orders, StoreReportModel model)
@@ -93,7 +98,7 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                 model.TotalOrdersLast = orders.Count > 0 ? orders.Count : 0;
                 model.TotalSalesLast = orders.Count > 0 ? orders.Sum(o => o.Total) : 0;
                 model.AverageSaleValueLast = model.TotalOrdersLast != 0 ? (model.TotalSalesLast / model.TotalOrdersLast) : 0;
-                model.VisitorsLast = 0;
+                model.VisitorsLast = orders.GroupBy(x => x.CreatedBy).Count();
                 return model;
             }
 
