@@ -6,6 +6,7 @@ public class AppSettings
 	public string GoongAPIKey { get; set; } = default!;
 	public JWTOptions JWTOptions { get; set; } = default!;
 	public VnPay VnPay { get; set; } = new();
+public EmailConfig Email { get; set; } = new();
 }
 public class JWTOptions
 {
@@ -33,4 +34,11 @@ public class VnPay
 {
 	public string Vnp_TmnCode { get; set; } = string.Empty;
 	public string Vnp_HashSecret { get; set; } = string.Empty;
+}
+
+public class EmailConfig
+{
+	public string Email { get; set; } = string.Empty;
+	public string Password { get; set; } = string.Empty;
+	public string DisplayName { get; set; } = string.Empty;
 }

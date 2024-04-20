@@ -60,14 +60,17 @@ namespace PTP.Application.Features.Stores.Commands
             private ICacheService _cacheService;
             private AppSettings _appSettings;
             private readonly IMediator mediator;
+            private readonly IEmailService emailService;
 
             public CommandHandler(IUnitOfWork unitOfWork,
                  IMapper mapper, ILogger<CommandHandler> logger,
                  ILocationService locationService,
                  AppSettings appSettings,
                  ICacheService cacheService,
-                 IMediator mediator)
+                 IMediator mediator
+                 IEmailService emailService)
             {
+                this.emailService = emailService;
                 this.mediator = mediator;
                 _unitOfWork = unitOfWork;
                 _mapper = mapper;
@@ -125,6 +128,19 @@ namespace PTP.Application.Features.Stores.Commands
                 await _unitOfWork.StoreRepository.AddAsync(store);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
                 await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
+
+                // SendEmail
+                string exePath = Environment.CurrentDirectory.ToString();
+                if (exePath.Contains(@"\bin\Debug\net7.0"))
+                    exePath = exePath.Remove(exePath.Length - (@"\bin\Debug\net7.0").Length);
+                string FilePath = exePath + @"\wwwroot\create-store-email.html";
+                StreamReader streamreader = new StreamReader(FilePath);
+                string MailText = streamreader.ReadToEnd();
+                MailText = MailText.Replace("[proposalLink]", "http://ptp-srv.ddns.net:8002");
+                MailText = MailText.Replace("[sponsorName]", store.Name);
+                streamreader.Close();
+                await emailService.SendEmailAsync(store.User.Email, "[PTP]Create Store", MailText);
+
                 return _mapper.Map<StoreViewModel>(store);
             }
 
