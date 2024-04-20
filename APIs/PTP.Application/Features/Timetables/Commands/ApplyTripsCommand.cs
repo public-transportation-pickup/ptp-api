@@ -46,8 +46,8 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
                         {
                             Id = Guid.NewGuid(),
                             Description = string.Empty,
-                            StartTime = startTime.ToString(),
-                            EndTime = endTime.ToString(),
+                            StartTime = startTime.ToString("HH:MM"),
+                            EndTime = endTime.ToString("HH:MM"),
                             TimeTableId = timetable.Id,
                             Name = string.Empty,
                             Status = DefaultStatusEnum.Active.ToString(),
