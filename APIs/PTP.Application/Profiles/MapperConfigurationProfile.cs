@@ -210,6 +210,7 @@ public class MapperConfigurationProfile : Profile
 		CreateMap<Station, StationViewModel>().ReverseMap();
 		CreateMap<Station, StationUpdateModel>().ReverseMap();
 		CreateMap<Route, RouteCreateModel>().ReverseMap();
+		CreateMap<Route, RouteUpdateModel>().ReverseMap();
 		#endregion
 
 		#region Carts
