@@ -12,6 +12,8 @@ public record RouteViewModel
     string NumOfSeats,
     string InboundName,
     string OutBoundName,
+    string InBoundDescription,
+    string OutBoundDescription,
     string TotalTrip,
     string Orgs,
     string Tickets
