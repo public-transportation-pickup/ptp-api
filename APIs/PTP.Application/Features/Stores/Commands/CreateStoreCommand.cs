@@ -67,7 +67,7 @@ namespace PTP.Application.Features.Stores.Commands
                  ILocationService locationService,
                  AppSettings appSettings,
                  ICacheService cacheService,
-                 IMediator mediator
+                 IMediator mediator,
                  IEmailService emailService)
             {
                 this.emailService = emailService;
@@ -100,15 +100,7 @@ namespace PTP.Application.Features.Stores.Commands
                 if (isDup.Count() > 0)
                     throw new Exception($"Error: {nameof(CreateStoreCommand)}_ phone is duplicate!");
 
-                store.UserId = await CreateUser(store);
-
-                #region Get Lat, Long by Address - Now not use
-                //Get Lat, Lng from address
-                var addressStr = $"{request.CreateModel.AddressNo},{request.CreateModel.Street},{request.CreateModel.Ward},{request.CreateModel.Zone}";
-                var location = await _locationService.GetGeometry(addressStr);
-                store.Latitude = location.Lat;
-                store.Longitude = location.Lng;
-                #endregion
+                store.UserId = await CreateUser(store, request);
 
                 #region Add image
                 //Add Image to FireBase
@@ -116,9 +108,6 @@ namespace PTP.Application.Features.Stores.Commands
                 store.ImageName = image.FileName;
                 store.ImageURL = image.URL;
                 #endregion
-
-                //Config RelationShip
-                // store.WalletId=await CreateWallet(store.Id);
 
                 if (request.CreateModel.StationIds != null)
                 {
@@ -129,7 +118,7 @@ namespace PTP.Application.Features.Stores.Commands
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
                 await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
 
-                // SendEmail
+                #region Send Email
                 string exePath = Environment.CurrentDirectory.ToString();
                 if (exePath.Contains(@"\bin\Debug\net7.0"))
                     exePath = exePath.Remove(exePath.Length - (@"\bin\Debug\net7.0").Length);
@@ -137,9 +126,10 @@ namespace PTP.Application.Features.Stores.Commands
                 StreamReader streamreader = new StreamReader(FilePath);
                 string MailText = streamreader.ReadToEnd();
                 MailText = MailText.Replace("[proposalLink]", "http://ptp-srv.ddns.net:8002");
-                MailText = MailText.Replace("[sponsorName]", store.Name);
+                MailText = MailText.Replace("[sponsorName]", request.CreateModel.ManagerName);
                 streamreader.Close();
-                await emailService.SendEmailAsync(store.User.Email, "[PTP]Create Store", MailText);
+                await emailService.SendEmailAsync(request.CreateModel.Email!, "[PTP]Create Store", MailText);
+                #endregion
 
                 return _mapper.Map<StoreViewModel>(store);
             }
@@ -148,14 +138,14 @@ namespace PTP.Application.Features.Stores.Commands
             {
                 var stations = await _unitOfWork.StationRepository.WhereAsync(x => StationIds.Contains(x.Id));
                 if (stations.Count == 0) throw new BadRequestException("No Station found!");
-                // string errors="";
+                // string errors = "";
                 for (int i = 0; i < stations.Count; i++)
                 {
                     stations[i].StoreId = store.Id;
-                    //var distance= await _locationService.GetDistance(store.Latitude,store.Longitude,stations[i].Latitude,stations[i].Longitude,"bike");
-                    // if(distance >1000) errors+=$"Khoảng cách tới trạm {stations[i].Name} không quá 1000m";
+                    // var distance = await _locationService.GetDistance(store.Latitude, store.Longitude, stations[i].Latitude, stations[i].Longitude, "bike");
+                    // if (distance > 1000) errors += $"Khoảng cách tới trạm {stations[i].Name} không quá 1000m";
                 }
-                // if(!errors.IsNullOrEmpty()) throw new BadRequestException(errors);
+                // if (!errors.IsNullOrEmpty()) throw new BadRequestException(errors);
                 _unitOfWork.StationRepository.UpdateRange(stations);
             }
 
@@ -166,17 +156,17 @@ namespace PTP.Application.Features.Stores.Commands
                 return wallet.Id;
             }
 
-            private async Task<Guid> CreateUser(Store store)
+            private async Task<Guid> CreateUser(Store store, CreateStoreCommand request)
             {
                 var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == nameof(RoleEnum.StoreManager).ToLower())
                 ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
-                Random random = new Random();
                 User user = new User
                 {
-                    FullName = store.Name,
-                    PhoneNumber = store.PhoneNumber,
+                    FullName = request.CreateModel.ManagerName,
+                    PhoneNumber = request.CreateModel.ManagerPhone,
+                    DateOfBirth = request.CreateModel.DateOfBirth,
                     Password = "@Abcaz12345",
-                    Email = $"Store{random.Next(1000)}@gmail.com",
+                    Email = request.CreateModel.Email,
                     StoreId = store.Id,
                     RoleId = role!.Id
                 };
@@ -195,8 +185,6 @@ namespace PTP.Application.Features.Stores.Commands
                     Description = "Menu cho tất cả lịch bán từ T2 đến CN",
                     StartTime = store.OpenedTime,
                     EndTime = store.ClosedTime,
-                    // StartTime = TimeSpan.ParseExact("06:00", @"hh\:mm", CultureInfo.InvariantCulture),
-                    // EndTime = TimeSpan.ParseExact("22:00", @"hh\:mm", CultureInfo.InvariantCulture),
                     DateApply = "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday",
                     Status = nameof(DefaultStatusEnum.Active),
                     IsApplyForAll = true,
