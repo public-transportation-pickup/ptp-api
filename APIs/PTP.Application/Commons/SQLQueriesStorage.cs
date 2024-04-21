@@ -197,7 +197,7 @@ public static class SqlQueriesStorage
                                         WHERE u.IsDeleted = 0";
     public const string GET_USER_BY_ID = @"
                                         SELECT u.Id, FullName, 
-                                        [Email], PhoneNumber, 
+                                        [Email], u.PhoneNumber, 
                                         DateOfBirth, r.[Name] AS RoleName, 
                                         u.StoreId AS StoreId, s.[Name] AS StoreName
                                         FROM [User] u LEFT JOIN
