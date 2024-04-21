@@ -8,4 +8,6 @@ public class UserViewModel
     public DateTime DateOfBirth { get; set; } = default!;
     public Guid? StoreId { get; set; }
     public string RoleName { get; set; } = default!;
+    public string? StoreName { get; set; }
+   
 }
