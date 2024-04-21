@@ -33,6 +33,7 @@ public class GetAllTripByRouteIdQuery : IRequest<PaginatedList<TripViewModel>>
             using var connection = connectionConfiguration.GetDbConnection();
             var query = SqlQueriesStorage.GET_TRIPS_BY_PARENTS_ID;
             var parameters = new DynamicParameters();
+            parameters.Add("@today", $"%{today}%");
             parameters.Add("@id", request.RouteId);
             parameters.Add("@routeVarId", request.RouteVarId);
             var resultFromDb = await connection.QueryAsync<TripViewModel>(query, parameters);

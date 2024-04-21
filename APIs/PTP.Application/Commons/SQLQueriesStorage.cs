@@ -244,7 +244,8 @@ public static class SqlQueriesStorage
                                                     ON t.TimeTableId = tt.Id
                                                     WHERE RouteId = @id
                                                     AND t.IsDeleted = 0
-                                                    AND RouteVarId = @routeVarId";
+                                                    AND RouteVarId = @routeVarId
+                                                    AND tt.ApplyDates LIKE @today";
 
     /// <summary>
     /// Get Trip By 
