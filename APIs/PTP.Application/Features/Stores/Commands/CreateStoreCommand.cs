@@ -25,7 +25,7 @@ namespace PTP.Application.Features.Stores.Commands
     {
 
         public StoreCreateModel CreateModel { get; set; } = default!;
-
+        public string MailText { get; set; } = string.Empty;
         public class CommmandValidation : AbstractValidator<CreateStoreCommand>
         {
             public CommmandValidation()
@@ -119,15 +119,9 @@ namespace PTP.Application.Features.Stores.Commands
                 await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
 
                 #region Send Email
-                string exePath = Environment.CurrentDirectory.ToString();
-                if (exePath.Contains(@"\bin\Debug\net7.0"))
-                    exePath = exePath.Remove(exePath.Length - (@"\bin\Debug\net7.0").Length);
-                string FilePath = exePath + @"\wwwroot\create-store-email.html";
-                StreamReader streamreader = new StreamReader(FilePath);
-                string MailText = streamreader.ReadToEnd();
+                string MailText = request.MailText;
                 MailText = MailText.Replace("[proposalLink]", "http://ptp-srv.ddns.net:8002");
                 MailText = MailText.Replace("[sponsorName]", request.CreateModel.ManagerName);
-                streamreader.Close();
                 await emailService.SendEmailAsync(request.CreateModel.Email!, "[PTP]Create Store", MailText);
                 #endregion
 

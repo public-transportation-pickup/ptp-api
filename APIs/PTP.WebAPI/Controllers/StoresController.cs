@@ -110,6 +110,7 @@ namespace PTP.WebAPI.Controllers
 		[Authorize(Roles = (nameof(RoleEnum.Admin)))]
 		public async Task<IActionResult> Create([FromForm] StoreCreateModel model)
 		{
+			string mailText = System.IO.File.ReadAllText(@"./wwwroot/create-store-email.html");
 			var result = await _mediator.Send(new CreateStoreCommand { CreateModel = model });
 			if (result is null)
 			{
