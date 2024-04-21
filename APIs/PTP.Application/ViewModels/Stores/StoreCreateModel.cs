@@ -25,8 +25,12 @@ namespace PTP.Application.ViewModels.Stores
         public string Street { get; set; } = default!;
         public IFormFile? File { get; set; } = default!;
         public DateTime? ActivationDate { get; set; } = null;
+        public string Email { get; set; } = default!;
+        public string ManagerName { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; } = DateTime.Now!;
+        public string ManagerPhone { get; set; } = default!;
 
-        public List<Guid>? StationIds{get;set;}
+        public List<Guid>? StationIds { get; set; }
 
     }
 }

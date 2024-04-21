@@ -45,6 +45,9 @@ public class MapperConfigurationProfile : Profile
 			.ReverseMap();
 		CreateMap<Store, StoreCreateModel>()
 			.ForMember(x => x.File, opt => opt.Ignore())
+			.ForMember(x => x.ManagerName, opt => opt.Ignore())
+			.ForMember(x => x.DateOfBirth, opt => opt.Ignore())
+			.ForMember(x => x.ManagerPhone, opt => opt.Ignore())
 			.ReverseMap();
 		CreateMap<Store, StoreUpdateModel>()
 			.ForMember(x => x.File, opt => opt.Ignore())
