@@ -111,7 +111,7 @@ namespace PTP.WebAPI.Controllers
 		public async Task<IActionResult> Create([FromForm] StoreCreateModel model)
 		{
 			string mailText = System.IO.File.ReadAllText(@"./wwwroot/create-store-email.html");
-			var result = await _mediator.Send(new CreateStoreCommand { CreateModel = model });
+			var result = await _mediator.Send(new CreateStoreCommand { CreateModel = model , MailText = mailText});
 			if (result is null)
 			{
 				return BadRequest("Create Fail!");
