@@ -41,6 +41,9 @@ public class MapperConfigurationProfile : Profile
 			.ForMember(x => x.Password, opt => opt.MapFrom(x => x.User.Password))
 			.ForMember(x => x.StationIds, opt => opt.MapFrom(x => x.Stations.Select(x => x.Id)))
 			.ForMember(x => x.StationName, opt => opt.MapFrom(x => x.Stations.Select(x => x.Name)))
+			.ForMember(x => x.ManagerName, opt => opt.MapFrom(x => x.User.FullName))
+			.ForMember(x => x.ManagerPhone, opt => opt.MapFrom(x => x.User.PhoneNumber))
+			.ForMember(x => x.DateOfBirth, opt => opt.MapFrom(x => x.User.DateOfBirth))
 			// .ForMember(x => x.WalletAmount, opt => opt.MapFrom(x => x.Wallet!.Amount))
 			.ReverseMap();
 		CreateMap<Store, StoreCreateModel>()

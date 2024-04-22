@@ -1,9 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection.Metadata;
+using Microsoft.EntityFrameworkCore;
 
 namespace PTP.Application.ViewModels.Stores
 {
@@ -33,6 +29,9 @@ namespace PTP.Application.ViewModels.Stores
         public string Password { get; set; } = default!;
         public List<Guid> StationIds { get; set; } = new();
         public List<string> StationName { get; set; } = new();
+        public string ManagerName { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; }
+        public string ManagerPhone { get; set; } = string.Empty;
         // public Guid WalletId { get; set; }
         // public decimal WalletAmount { get; set; } = default!;
     }
