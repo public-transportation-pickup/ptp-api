@@ -38,12 +38,12 @@ public class GetProductByQuery : IRequest<ProductViewModel>
         }
         public async Task<ProductViewModel> Handle(GetProductByQuery request, CancellationToken cancellationToken)
         {
-            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            var cacheResult = await _cacheService.GetAsync<Product>(CacheKey.PRODUCT + request.Id);
-            if (cacheResult is not null)
-            {
-                return _mapper.Map<ProductViewModel>(cacheResult);
-            }
+            // if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            // var cacheResult = await _cacheService.GetAsync<Product>(CacheKey.PRODUCT + request.Id);
+            // if (cacheResult is not null)
+            // {
+            //     return _mapper.Map<ProductViewModel>(cacheResult);
+            // }
             var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.Id, x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (product is null) throw new BadRequestException($"Product with ID-{request.Id} is not exist!");
             await _cacheService.SetAsync<Product>(CacheKey.PRODUCT + request.Id, product);
@@ -51,7 +51,7 @@ public class GetProductByQuery : IRequest<ProductViewModel>
             result.ProductMenuId = product.ProductInMenus.First().Id;
             result.QuantityInDay = product.ProductInMenus.First().QuantityInDay;
             result.MenuId = product.ProductInMenus.First().MenuId;
-
+            result.SalePrice = product.ProductInMenus.First().SalePrice;
             return result;
         }
     }

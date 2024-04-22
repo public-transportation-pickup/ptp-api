@@ -59,6 +59,7 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
+                viewModels[i].SalePrice = products[i].ProductInMenus.First().SalePrice;
             }
             var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels.AsEnumerable();
 

@@ -80,7 +80,7 @@ public class UpdateProductCommand : IRequest<bool>
             if (productMenu == null) throw new BadRequestException("Not Found Product in Menu!");
             productMenu.Status = model.Status;
             productMenu.MenuId = model.MenuId;
-            productMenu.SalePrice = model.Price;
+            productMenu.SalePrice = model.SalePrice;
             productMenu.QuantityInDay = model.QuantityInDay;
             productMenu.NumProcessParallel = model.NumProcessParallel;
             productMenu.PreparationTime = model.PreparationTime;

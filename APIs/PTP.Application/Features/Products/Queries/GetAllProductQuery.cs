@@ -40,7 +40,7 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
             var cacheResult = await GetCache(request);
             if (cacheResult is not null) return cacheResult;
 
-            var products = await _unitOfWork.ProductRepository.GetAllAsync(x => x.Store, x => x.Category);
+            var products = await _unitOfWork.ProductRepository.GetAllAsync(x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (products.Count == 0) throw new NotFoundException("There are no product in DB!");
             await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, products);
             var viewModels = _mapper.Map<List<ProductViewModel>>(products);
@@ -50,6 +50,8 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
+                viewModels[i].SalePrice = products[i].ProductInMenus.First().SalePrice;
+
             }
 
             var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels.AsEnumerable();
@@ -83,6 +85,7 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
                     cacheViewModels[i].ProductMenuId = cacheResult[i].ProductInMenus.First().Id;
                     cacheViewModels[i].QuantityInDay = cacheResult[i].ProductInMenus.First().QuantityInDay;
                     cacheViewModels[i].MenuId = cacheResult[i].ProductInMenus.First().MenuId;
+                    cacheViewModels[i].SalePrice = cacheResult[i].ProductInMenus.First().SalePrice;
                 }
                 var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels.AsEnumerable();
                 if (request.Filter!.Count > 0)

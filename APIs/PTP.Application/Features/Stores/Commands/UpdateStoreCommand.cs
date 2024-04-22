@@ -97,14 +97,14 @@ public class UpdateStoreCommand : IRequest<bool>
             }
             #region Get Lat, Long by Address - Now not use
 
-            if (!request.StoreUpdate.AddressNo.Equals(store.AddressNo) || !request.StoreUpdate.Street.Equals(store.Street) ||
-                    !request.StoreUpdate.Zone.Equals(store.Zone) || !request.StoreUpdate.Ward.Equals(store.Ward))
-            {
-                var addressStr = $"{request.StoreUpdate.AddressNo},{request.StoreUpdate.Street},{request.StoreUpdate.Ward},{request.StoreUpdate.Zone}";
-                var location = await _locationService.GetGeometry(addressStr);
-                store.Latitude = location.Lat;
-                store.Longitude = location.Lng;
-            }
+            // if (!request.StoreUpdate.AddressNo.Equals(store.AddressNo) || !request.StoreUpdate.Street.Equals(store.Street) ||
+            //         !request.StoreUpdate.Zone.Equals(store.Zone) || !request.StoreUpdate.Ward.Equals(store.Ward))
+            // {
+            //     var addressStr = $"{request.StoreUpdate.AddressNo},{request.StoreUpdate.Street},{request.StoreUpdate.Ward},{request.StoreUpdate.Zone}";
+            //     var location = await _locationService.GetGeometry(addressStr);
+            //     store.Latitude = location.Lat;
+            //     store.Longitude = location.Lng;
+            // }
             #endregion
 
             _unitOfWork.StoreRepository.Update(store);
