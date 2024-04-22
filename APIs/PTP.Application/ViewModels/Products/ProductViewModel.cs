@@ -20,6 +20,7 @@ public class ProductViewModel
     public string Status { get; set; } = default!;
     public Guid ProductMenuId { get; set; }
     public Guid MenuId { get; set; }
+    public decimal SalePrice { get; set; } = default!;
     public int QuantityInDay { get; set; }
     public int QuantityUsed { get; set; } = 0;
 }
