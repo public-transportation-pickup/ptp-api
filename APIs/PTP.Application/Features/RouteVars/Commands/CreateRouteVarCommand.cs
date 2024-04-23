@@ -51,8 +51,19 @@ public class CreateRouteVarCommand : IRequest<RouteVarViewModel?>
                         RouteId = routeVar.RouteId
                     };
                 }).ToList();
-            if(routeStation? .Count > 0)
+            if (routeStation?.Count > 0)
+            {
+                foreach(var station in routeStation)
+                {
+                    if(await _unitOfWork.StationRepository.GetByIdAsync(station.StationId) is null)
+                    {
+                        throw new ArgumentException("One or more station is not valid!: StationId: " + station.Id);
+                    }
+                }
                 await _unitOfWork.RouteStationRepository.AddRangeAsync(routeStation);
+
+            }
+
             return await _unitOfWork.SaveChangesAsync() ?
             _unitOfWork.Mapper.Map<RouteVarViewModel>(await _unitOfWork.RouteVarRepository.GetByIdAsync(routeVar.Id)) :
             throw new Exception($"{nameof(CreateRouteVarCommand)}Save Change Failed!");
