@@ -78,7 +78,7 @@ namespace PTP.Application.Features.Orders.Commands
                         body = $"{order.Store.Name}! Cảm ơn đã mua hàng!";
                         break;
                     case nameof(OrderStatusEnum.Canceled):
-                        if (order.Status == "Waiting" || order.Status == "Preparing")
+                        if (order.Status == "Waiting" || order.Status == "Preparing" || order.Status == "Prepared")
                         {
                             await CancelOrder(order, request.UpdateModel.CanceledReason!);
                             await UpdateQuantity(order);
@@ -130,10 +130,10 @@ namespace PTP.Application.Features.Orders.Commands
             private async Task<Order> CancelOrder(Order order, string reason)
             {
                 decimal percent = (decimal)0.7;
-                if (!order.Status.Equals("Waiting") && !order.Status.Equals("Preparing"))
-                    throw new BadRequestException("Order can cancel when status is Waiting or Preparing!");
+                if (!order.Status.Equals("Waiting") && !order.Status.Equals("Preparing") && !order.Status.Equals("Prepared"))
+                    throw new BadRequestException("Order can cancel when status is Waiting, Preparing or Prepared!");
                 order.CanceledReason = reason;
-                order.ReturnAmount = order.Status.Equals(nameof(OrderStatusEnum.Waiting)) ? order.Total : order.Total * percent;
+                order.ReturnAmount = order.Status.Equals(nameof(OrderStatusEnum.Waiting)) || order.Status.Equals(nameof(OrderStatusEnum.Prepared)) ? order.Total : order.Total * percent;
                 order.Status = nameof(OrderStatusEnum.Canceled);
                 await CreateTransaction(order);
                 return order;
