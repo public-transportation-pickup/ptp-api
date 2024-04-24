@@ -37,7 +37,7 @@ public class GetTripByUserLocation : IRequest<TripCoordinateResponseModel?>
             var routeVar = await unitOfWork.RouteVarRepository.GetByIdAsync(request.RouteVarId, x => x.Route);
             var trips = await unitOfWork.TripRepository.WhereAsync(x => x.TimeTableId == timeTable.Id);
             var now = DateTime.UtcNow;
-            System.Console.WriteLine(now);
+
             if (routeVar?.Route?.AverageVelocity <= 0)
             {
                 throw new Exception($"RouteVaration: {routeVar.RouteVarName} chưa support tính duration! add endpoint 'distance-modification'");
@@ -58,16 +58,16 @@ public class GetTripByUserLocation : IRequest<TripCoordinateResponseModel?>
                     destLng: routeStations.MinBy(x => x.Index)!.Longitude);
                 var duration = distance / routeVar.Route.AverageVelocity;
 
-                var nextStation = routeStations
-                    .Where(x => distanceToStart - x.DistanceFromStart > 0)
-                    .OrderBy(x => distanceToStart - x.DistanceFromStart)
-                    .Take(2)
-                    .MaxBy(x => x.Index);
                 // var nextStation = routeStations
-                //     .OrderBy(x => Math.Abs(x.Latitude - currentCoordinate.Latitude))
-                //     .ThenBy(x => Math.Abs(x.Latitude - currentCoordinate.Latitude))
+                //     .Where(x => distanceToStart - x.DistanceFromStart > 0)
+                //     .OrderBy(x => distanceToStart - x.DistanceFromStart)
                 //     .Take(2)
                 //     .MaxBy(x => x.Index);
+                var nextStation = routeStations
+                    .OrderBy(x => Math.Abs(x.Latitude - currentCoordinate.Latitude))
+                    .ThenBy(x => Math.Abs(x.Latitude - currentCoordinate.Longitude))
+                    .Take(2)
+                    .MaxBy(x => x.Index);
 
                 var eta = DateTime.Now.AddMinutes(duration);
 
