@@ -40,7 +40,11 @@ public class GetTripByUserLocation : IRequest<TripCoordinateResponseModel?>
 
             if (routeVar?.Route?.AverageVelocity <= 0)
             {
-                throw new Exception($"RouteVaration: {routeVar.RouteVarName} chưa support tính duration! add endpoint 'distance-modification'");
+                if (routeStations.First().DistanceToNext <= 0)
+                {
+                    throw new Exception($"RouteVaration: {routeVar.RouteVarName} chưa support tính duration! add endpoint 'distance-modification'");
+                }
+
             }
             if (routeStations.Count > 0 && trips.Count > 0 && routeVar?.Route?.AverageVelocity > 0)
             {
@@ -58,16 +62,16 @@ public class GetTripByUserLocation : IRequest<TripCoordinateResponseModel?>
                     destLng: routeStations.MinBy(x => x.Index)!.Longitude);
                 var duration = distance / routeVar.Route.AverageVelocity;
 
-                // var nextStation = routeStations
-                //     .Where(x => distanceToStart - x.DistanceFromStart > 0)
-                //     .OrderBy(x => distanceToStart - x.DistanceFromStart)
-                //     .Take(2)
-                //     .MaxBy(x => x.Index);
                 var nextStation = routeStations
-                    .OrderBy(x => Math.Abs(x.Latitude - currentCoordinate.Latitude))
-                    .ThenBy(x => Math.Abs(x.Latitude - currentCoordinate.Longitude))
+                    .Where(x => x.DistanceFromStart - distanceToStart> 0)
+                    .OrderBy(x => x.DistanceFromStart - distanceToStart)
                     .Take(2)
                     .MaxBy(x => x.Index);
+                // var nextStation = routeStations
+                //     .OrderBy(x => Math.Abs(x.Latitude - currentCoordinate.Latitude))
+                //     .ThenBy(x => Math.Abs(x.Latitude - currentCoordinate.Longitude))
+                //     .Take(2)
+                //     .MaxBy(x => x.Index);
 
                 var eta = DateTime.Now.AddMinutes(duration);
 
