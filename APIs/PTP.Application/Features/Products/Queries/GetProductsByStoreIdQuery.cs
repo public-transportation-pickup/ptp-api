@@ -64,12 +64,12 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
 
             for (int i = 0; i < viewModels.Count; i++)
             {
-                var menu = await _cacheService.GetAsync<Menu>(CacheKey.MENU + viewModels[i].MenuId);
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
                 viewModels[i].QuantityUsed = products[i].ProductInMenus.First().QuantityUsed;
                 viewModels[i].SalePrice = products[i].ProductInMenus.First().SalePrice;
+                var menu = await _cacheService.GetAsync<Menu>(CacheKey.MENU + viewModels[i].MenuId);
                 viewModels[i].MenuName = menu != null ? menu.Name : "";
             }
             if (request.MenuId != Guid.Empty) viewModels = viewModels.Where(x => x.MenuId == request.MenuId).ToList();

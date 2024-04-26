@@ -46,12 +46,13 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
 
             for (int i = 0; i < viewModels.Count; i++)
             {
-                var menu = await _cacheService.GetAsync<Menu>(CacheKey.MENU + viewModels[i].MenuId);
+
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
                 viewModels[i].SalePrice = products[i].ProductInMenus.First().SalePrice;
                 viewModels[i].QuantityUsed = products[i].ProductInMenus.First().QuantityUsed;
+                var menu = await _cacheService.GetAsync<Menu>(CacheKey.MENU + viewModels[i].MenuId);
                 viewModels[i].MenuName = menu != null ? menu.Name : "";
             }
 
