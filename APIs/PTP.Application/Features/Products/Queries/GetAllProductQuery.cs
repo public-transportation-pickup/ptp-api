@@ -47,11 +47,13 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
 
             for (int i = 0; i < viewModels.Count; i++)
             {
+                var menus = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
                 viewModels[i].SalePrice = products[i].ProductInMenus.First().SalePrice;
-
+                viewModels[i].QuantityUsed = products[i].ProductInMenus.First().QuantityUsed;
+                viewModels[i].MenuName = menus!.FirstOrDefault(x => x.Id == viewModels[i].MenuId)!.Name;
             }
 
             var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels.AsEnumerable();
@@ -82,10 +84,13 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
                 var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(cacheResult).ToList();
                 for (int i = 0; i < cacheViewModels.Count; i++)
                 {
+                    var menus = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
                     cacheViewModels[i].ProductMenuId = cacheResult[i].ProductInMenus.First().Id;
                     cacheViewModels[i].QuantityInDay = cacheResult[i].ProductInMenus.First().QuantityInDay;
                     cacheViewModels[i].MenuId = cacheResult[i].ProductInMenus.First().MenuId;
                     cacheViewModels[i].SalePrice = cacheResult[i].ProductInMenus.First().SalePrice;
+                    cacheViewModels[i].QuantityUsed = cacheResult[i].ProductInMenus.First().QuantityUsed;
+                    cacheViewModels[i].MenuName = menus!.FirstOrDefault(x => x.Id == cacheViewModels[i].MenuId)!.Name;
                 }
                 var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels.AsEnumerable();
                 if (request.Filter!.Count > 0)
