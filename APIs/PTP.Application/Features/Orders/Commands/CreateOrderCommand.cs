@@ -107,8 +107,8 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
 
             //Update Cache
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
-            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
+            await _cacheService.RemoveByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU);
+            await _cacheService.RemoveByPrefixAsync<Product>(CacheKey.PRODUCT);
             return _mapper.Map<OrderViewModel>(order);
         }
 

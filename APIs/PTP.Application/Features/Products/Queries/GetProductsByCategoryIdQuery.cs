@@ -46,9 +46,8 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
             request.Filter!.Remove("pageNumber");
 
             var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
 
-            var products = await _unitOfWork.ProductRepository.WhereAsync(x => x.CategoryId == request.CategoryId, x => x.Store, x => x.Category, x => x.ProductInMenus);
+            var products = cacheResult != null ? cacheResult : await _unitOfWork.ProductRepository.WhereAsync(x => x.CategoryId == request.CategoryId, x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (products is null) throw new BadRequestException($"Category with ID-{request.CategoryId} is not exist any products!");
 
             await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, products);
@@ -56,13 +55,13 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
             var viewModels = _mapper.Map<List<ProductViewModel>>(products);
             for (int i = 0; i < viewModels.Count; i++)
             {
-                var menus = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
+                var menu = await _cacheService.GetAsync<Menu>(CacheKey.MENU + viewModels[i].MenuId);
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
                 viewModels[i].SalePrice = products[i].ProductInMenus.First().SalePrice;
                 viewModels[i].QuantityUsed = products[i].ProductInMenus.First().QuantityUsed;
-                viewModels[i].MenuName = menus!.FirstOrDefault(x => x.Id == viewModels[i].MenuId)!.Name;
+                viewModels[i].MenuName = menu != null ? menu.Name : "";
             }
             var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels.AsEnumerable();
 
@@ -81,7 +80,7 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
                 );
         }
 
-        public async Task<PaginatedList<ProductViewModel>?> GetCache(GetProductsByCategoryIdQuery request)
+        public async Task<List<Product>?> GetCache(GetProductsByCategoryIdQuery request)
         {
 
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
@@ -90,32 +89,7 @@ public class GetProductsByCategoryIdQuery : IRequest<PaginatedList<ProductViewMo
             if (cacheResult!.Count > 0)
             {
                 var result = cacheResult.Where(x => x.CategoryId == request.CategoryId).ToList();
-                if (result.Count == 0) return null;
-
-                var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(result).ToList();
-                for (int i = 0; i < cacheViewModels.Count; i++)
-                {
-                    var menus = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
-                    cacheViewModels[i].ProductMenuId = result[i].ProductInMenus.First().Id;
-                    cacheViewModels[i].QuantityInDay = result[i].ProductInMenus.First().QuantityInDay;
-                    cacheViewModels[i].MenuId = result[i].ProductInMenus.First().MenuId;
-                    cacheViewModels[i].SalePrice = result[i].ProductInMenus.First().SalePrice;
-                    cacheViewModels[i].QuantityUsed = result[i].ProductInMenus.First().QuantityUsed;
-                    cacheViewModels[i].MenuName = menus!.FirstOrDefault(x => x.Id == cacheViewModels[i].MenuId)!.Name;
-                }
-                var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels.AsEnumerable();
-                if (request.Filter!.Count > 0)
-                {
-                    foreach (var filter in request.Filter)
-                    {
-                        filterRe = filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
-                    }
-                }
-                return PaginatedList<ProductViewModel>.Create(
-                        source: filterRe.AsQueryable(),
-                        pageIndex: request.PageNumber,
-                        pageSize: request.PageSize
-                );
+                return result.Count > 0 ? result : null;
             }
             return null;
         }

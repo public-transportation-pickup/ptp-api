@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.ProductMenus;
+using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.ProductMenus.Commands;
@@ -55,7 +56,7 @@ public class UpdateProductMenuCommand : IRequest<bool>
             if (result)
             {
                 if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
+                await _cacheService.RemoveByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU);
             }
             return result;
         }

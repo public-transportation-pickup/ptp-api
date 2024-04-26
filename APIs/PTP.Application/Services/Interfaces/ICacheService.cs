@@ -27,6 +27,7 @@ namespace PTP.Application.Services.Interfaces
 
         Task RemoveAsync(string key, CancellationToken cancellationToken = default);
 
-        Task RemoveByPrefixAsync(string prefixKey, CancellationToken cancellationToken = default);
+        Task RemoveByPrefixAsync<T>(string prefixKey, CancellationToken cancellationToken = default) where T : BaseEntity;
+
     }
 }

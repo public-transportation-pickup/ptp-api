@@ -50,7 +50,7 @@ public class CreateProductMenuCommand : IRequest<ProductMenuViewModel>
 
             await _unitOfWork.ProductInMenuRepository.AddAsync(productMenu);
             if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
-            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
+            await _cacheService.RemoveByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU);
             return _mapper.Map<ProductMenuViewModel>(productMenu);
         }
     }

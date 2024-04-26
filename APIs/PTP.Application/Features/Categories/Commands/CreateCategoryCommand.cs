@@ -57,7 +57,7 @@ public class CreateCategoryCommand : IRequest<CategoryViewModel>
             cate.ImageURL = image.URL;
             await _unitOfWork.CategoryRepository.AddAsync(cate);
             if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
-            await _cacheService.RemoveByPrefixAsync(CacheKey.CATE);
+            await _cacheService.RemoveByPrefixAsync<Category>(CacheKey.CATE);
             return _mapper.Map<CategoryViewModel>(cate);
         }
     }

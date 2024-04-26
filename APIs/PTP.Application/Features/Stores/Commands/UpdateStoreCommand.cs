@@ -73,7 +73,7 @@ public class UpdateStoreCommand : IRequest<bool>
             //Remove From Cache
 
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
+            await _cacheService.RemoveByPrefixAsync<Store>(CacheKey.STORE);
 
             var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.StoreUpdate.Id);
             var user = await _unitOfWork.UserRepository.GetByIdAsync(store!.UserId);

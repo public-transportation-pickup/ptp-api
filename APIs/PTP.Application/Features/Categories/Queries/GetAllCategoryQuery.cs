@@ -39,9 +39,8 @@ public class GetAllCategoryQuery : IRequest<PaginatedList<CategoryViewModel>>
             request.Filter!.Remove("pageNumber");
 
             var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
 
-            var cates = await _unitOfWork.CategoryRepository.GetAllAsync();
+            var cates = cacheResult != null ? cacheResult : await _unitOfWork.CategoryRepository.GetAllAsync();
             if (cates.Count == 0) throw new NotFoundException("There are no category in DB!");
             await _cacheService.SetByPrefixAsync<Category>(CacheKey.CATE, cates);
             var viewModels = _mapper.Map<IEnumerable<CategoryViewModel>>(cates);
@@ -61,29 +60,13 @@ public class GetAllCategoryQuery : IRequest<PaginatedList<CategoryViewModel>>
                     pageSize: request.PageSize
             );
         }
-        public async Task<PaginatedList<CategoryViewModel>?> GetCache(GetAllCategoryQuery request)
+        public async Task<List<Category>?> GetCache(GetAllCategoryQuery request)
         {
 
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             var cacheResult = await _cacheService.GetByPrefixAsync<Category>(CacheKey.CATE);
-            if (cacheResult!.Count > 0)
-            {
-                var cacheViewModels = _mapper.Map<IEnumerable<CategoryViewModel>>(cacheResult);
-                var filterRe = request.Filter!.Count > 0 ? new List<CategoryViewModel>() : cacheViewModels;
-                if (request.Filter!.Count > 0)
-                {
-                    foreach (var filter in request.Filter)
-                    {
-                        filterRe = filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
-                    }
-                }
-                return PaginatedList<CategoryViewModel>.Create(
-                        source: filterRe.AsQueryable(),
-                        pageIndex: request.PageNumber,
-                        pageSize: request.PageSize
-                );
-            }
-            return null;
+
+            return cacheResult!.Count > 0 ? cacheResult : null;
         }
     }
 }

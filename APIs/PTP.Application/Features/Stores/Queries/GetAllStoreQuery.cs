@@ -38,9 +38,8 @@ namespace PTP.Application.Features.Stores.Queries
                 request.Filter!.Remove("pageNumber");
 
                 var cacheResult = await GetCache(request);
-                if (cacheResult is not null) return cacheResult;
 
-                var stores = await _unitOfWork.StoreRepository.GetAllAsync(x => x.User, x => x.Stations);
+                var stores = cacheResult != null ? cacheResult : await _unitOfWork.StoreRepository.GetAllAsync(x => x.User, x => x.Stations);
                 if (stores.Count == 0) throw new NotFoundException("There are no store in DB!");
                 await _cacheService.SetByPrefixAsync<Store>(CacheKey.STORE, stores);
                 var viewModels = _mapper.Map<IEnumerable<StoreViewModel>>(stores);
@@ -61,32 +60,14 @@ namespace PTP.Application.Features.Stores.Queries
                     );
             }
 
-            public async Task<PaginatedList<StoreViewModel>?> GetCache(GetAllStoreQuery request)
+            public async Task<List<Store>?> GetCache(GetAllStoreQuery request)
             {
 
                 if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
 
                 var cacheResult = await _cacheService.GetByPrefixAsync<Store>(CacheKey.STORE);
-                if (cacheResult!.Count > 0)
-                {
-                    var cacheViewModels = _mapper.Map<IEnumerable<StoreViewModel>>(cacheResult);
-                    var filterRe = request.Filter!.Count > 0 ? new List<StoreViewModel>() : cacheViewModels;
-                    if (request.Filter!.Count > 0)
-                    {
-                        foreach (var filter in request.Filter)
-                        {
-                            filterRe = filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
-                        }
-                    }
-                    return PaginatedList<StoreViewModel>.Create(
-                            source: filterRe.AsQueryable(),
-                            pageIndex: request.PageNumber,
-                            pageSize: request.PageSize
-                    );
-                }
-                return null;
+                return cacheResult!.Count > 0 ? cacheResult : null;
             }
-
 
         }
     }

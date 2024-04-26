@@ -40,17 +40,13 @@ public class GetProductMenuByIdQuery : IRequest<ProductMenuViewModel>
         {
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             var cacheResult = await _cacheService.GetAsync<ProductInMenu>(CacheKey.PRODUCTMENU + request.Id);
-            if (cacheResult is not null)
-            {
-                return _mapper.Map<ProductMenuViewModel>(cacheResult);
-            }
-            var productMenu = await _unitOfWork.ProductInMenuRepository
+            var productMenu = cacheResult is not null ? cacheResult : await _unitOfWork.ProductInMenuRepository
                                 .FirstOrDefaultAsync(x => x.Id == request.Id,
                                             x => x.Menu,
                                             x => x.Product,
                                             x => x.Product.Category);
             if (productMenu is null) throw new BadRequestException($"productMenu with ID-{request.Id} is not exist!");
-            await _cacheService.SetAsync<ProductInMenu>(CacheKey.PRODUCTMENU + request.Id, productMenu);
+            // await _cacheService.SetAsync<ProductInMenu>(CacheKey.PRODUCTMENU + request.Id, productMenu);
             return _mapper.Map<ProductMenuViewModel>(productMenu);
         }
     }

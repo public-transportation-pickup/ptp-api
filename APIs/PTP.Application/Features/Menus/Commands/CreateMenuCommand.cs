@@ -57,23 +57,9 @@ public class CreateMenuCommand : IRequest<MenuViewModel>
 
             await _unitOfWork.MenuRepository.AddAsync(menu);
             if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
-            await _cacheService.RemoveByPrefixAsync(CacheKey.MENU);
+            await _cacheService.RemoveByPrefixAsync<Menu>(CacheKey.MENU);
             return _mapper.Map<MenuViewModel>(menu);
         }
 
-        // private async Task<bool> CheckTime(Menu menu)
-        // {
-        //     var menus = await _unitOfWork.MenuRepository.WhereAsync(x =>
-        //                          x.StoreId == menu.StoreId && x.DateApply == menu.DateApply);
-
-        //     if (menus.Count == 0) return true;
-
-        //     foreach (var item in menus)
-        //     {
-        //         if (item.StartTime <= menu.StartTime && item.EndTime > menu.StartTime) throw new BadRequestException($"Start time is duplicate with menu-{item.Id} in {item.DateApply} ");
-        //         if (item.StartTime < menu.EndTime && item.EndTime >= menu.EndTime) throw new BadRequestException($"End time is duplicate with menu-{item.Id}  in {item.DateApply}");
-        //     }
-        //     return true;
-        // }
     }
 }

@@ -74,14 +74,15 @@ namespace PTP.Infrastructure.Caching
             CachKeys.Remove(key, out bool _);
         }
 
-        public async Task RemoveByPrefixAsync(string prefixKey, CancellationToken cancellationToken = default)
+        public async Task RemoveByPrefixAsync<T>(string prefixKey, CancellationToken cancellationToken = default) where T : BaseEntity
         {
-            IEnumerable<Task> tasks = CachKeys
-                .Keys
-                .Where(k => k.StartsWith(prefixKey))
-                .Select(k => RemoveAsync(k, cancellationToken));
-
-            await Task.WhenAll(tasks);
+            var list = await GetByPrefixAsync<T>(prefixKey);
+            if (list!.Count == 0) return;
+            foreach (var item in list)
+            {
+                var key = prefixKey + item.Id;
+                await _distributedCache.RemoveAsync(key, cancellationToken);
+            }
         }
 
         public async Task SetAsync<T>(string key,
@@ -91,7 +92,12 @@ namespace PTP.Infrastructure.Caching
             double absoluteExpiration = 30) where T : class
         {
             string cacheValue = JsonConvert.SerializeObject(value, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-            await _distributedCache.SetStringAsync(key, cacheValue, cancellationToken);
+            await _distributedCache.SetStringAsync(key, cacheValue, options: new DistributedCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(absoluteExpiration),
+                SlidingExpiration = TimeSpan.FromMinutes(slidingExpiration),
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(absoluteExpiration)
+            }, cancellationToken);
 
             CachKeys.TryAdd(key, false);
 

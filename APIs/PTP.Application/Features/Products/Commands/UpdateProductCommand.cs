@@ -6,6 +6,7 @@ using PTP.Application.Commons;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Products;
+using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Products.Commands;
@@ -55,7 +56,7 @@ public class UpdateProductCommand : IRequest<bool>
         {
             //Remove From Cache
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
+            await _cacheService.RemoveByPrefixAsync<Product>(CacheKey.PRODUCT);
 
             var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.UpdateModel.Id);
             if (product is null) throw new NotFoundException($"product with Id-{request.UpdateModel.Id} is not exist!");

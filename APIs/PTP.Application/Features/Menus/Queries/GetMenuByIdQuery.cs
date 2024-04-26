@@ -39,11 +39,7 @@ public class GetMenuByIdQuery : IRequest<MenuViewModel>
         {
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
             var cacheResult = await _cacheService.GetAsync<Menu>(CacheKey.MENU + request.Id);
-            if (cacheResult is not null)
-            {
-                return _mapper.Map<MenuViewModel>(cacheResult);
-            }
-            var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.Id, x => x.Store);
+            var menu = cacheResult is not null ? cacheResult : await _unitOfWork.MenuRepository.GetByIdAsync(request.Id, x => x.Store);
             if (menu is null) throw new BadRequestException($"Menu with ID-{request.Id} is not exist!");
             await _cacheService.SetAsync<Menu>(CacheKey.MENU + request.Id, menu);
             return _mapper.Map<MenuViewModel>(menu);

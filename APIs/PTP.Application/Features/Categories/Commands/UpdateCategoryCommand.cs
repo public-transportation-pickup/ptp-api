@@ -8,6 +8,7 @@ using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Categories;
 using PTP.Application.ViewModels.Menus;
+using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 
 namespace PTP.Application.Features.Categories.Commands;
@@ -68,7 +69,7 @@ public class UpdateCategoryCommand : IRequest<bool>
             if (result)
             {
                 if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                await _cacheService.RemoveByPrefixAsync(CacheKey.CATE);
+                await _cacheService.RemoveByPrefixAsync<Category>(CacheKey.CATE);
             }
             return result;
         }
