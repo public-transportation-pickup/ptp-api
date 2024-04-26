@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using AutoMapper;
 using FluentValidation;
 using MediatR;
@@ -75,6 +76,14 @@ public class UpdateStoreCommand : IRequest<bool>
             await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
 
             var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.StoreUpdate.Id);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(store!.UserId);
+            if (user is not null)
+            {
+                user.Email = request.StoreUpdate.Email;
+                user.FullName = request.StoreUpdate.ManagerName;
+                user.PhoneNumber = request.StoreUpdate.ManagerPhone;
+                user.DateOfBirth = request.StoreUpdate.DateOfBirth;
+            }
             if (store is null) throw new NotFoundException($"Store with Id-{request.StoreUpdate.Id} is not exist!");
             store = _mapper.Map(request.StoreUpdate, store);
 
@@ -106,7 +115,8 @@ public class UpdateStoreCommand : IRequest<bool>
             //     store.Longitude = location.Lng;
             // }
             #endregion
-
+            if (user is not null)
+                _unitOfWork.UserRepository.Update(user);
             _unitOfWork.StoreRepository.Update(store);
             return await _unitOfWork.SaveChangesAsync();
         }

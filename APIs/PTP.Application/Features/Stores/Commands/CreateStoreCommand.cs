@@ -118,12 +118,7 @@ namespace PTP.Application.Features.Stores.Commands
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
                 await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
 
-                #region Send Email
-                string MailText = request.MailText;
-                MailText = MailText.Replace("[proposalLink]", "http://ptp-srv.ddns.net:8002");
-                MailText = MailText.Replace("[sponsorName]", request.CreateModel.ManagerName);
-                await emailService.SendEmailAsync(request.CreateModel.Email!, "[PTP]Create Store", MailText);
-                #endregion
+                
 
                 return _mapper.Map<StoreViewModel>(store);
             }

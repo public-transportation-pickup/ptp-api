@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using System.Net;
 using System.Text.Json;
@@ -10,7 +12,11 @@ namespace PTP.Application.GlobalExceptionHandling
 	public class GlobalErrorHandlingMiddleware : IMiddleware
 	{
 
-
+		private readonly ILogger<GlobalErrorHandlingMiddleware> logger;
+		public GlobalErrorHandlingMiddleware(ILogger<GlobalErrorHandlingMiddleware> logger)
+		{
+			this.logger = logger;
+		}
 
 		private static Task HandleExceptionAsync(HttpContext context, Exception exception)
 		{
@@ -59,6 +65,7 @@ namespace PTP.Application.GlobalExceptionHandling
 				error = message,
 				stackTrace
 			});
+		
 			context.Response.ContentType = "application/json";
 			context.Response.StatusCode = (int)status;
 			return context.Response.WriteAsync(exceptionResult);
@@ -74,6 +81,8 @@ namespace PTP.Application.GlobalExceptionHandling
 			}
 			catch (Exception ex)
 			{
+				logger.LogError(ex.Message);
+				logger.LogError(ex.StackTrace);
 				await HandleExceptionAsync(context, ex);
 			}
 		}

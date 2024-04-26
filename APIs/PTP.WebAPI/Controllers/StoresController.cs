@@ -16,9 +16,12 @@ namespace PTP.WebAPI.Controllers
 	public class StoresController : BaseController
 	{
 		private readonly IMediator _mediator;
+		private readonly IEmailService emailService;
 
-		public StoresController(IMediator mediator)
+		public StoresController(IMediator mediator,
+			IEmailService emailService)
 		{
+			this.emailService = emailService;
 			_mediator = mediator;
 		}
 		#region QUERIES
@@ -127,6 +130,12 @@ namespace PTP.WebAPI.Controllers
 			{
 				return BadRequest("Create Fail!");
 			}
+			#region Send Email
+
+			mailText = mailText.Replace("[proposalLink]", "http://ptp-srv.ddns.net:8002");
+			mailText = mailText.Replace("[sponsorName]", model.ManagerName);
+			await emailService.SendEmailAsync(model.Email, "[PTP]Create Store", "Tạo cửa hàng thành công");
+			#endregion
 			return CreatedAtAction(nameof(GetById), new { Id = result.Id }, result);
 		}
 
