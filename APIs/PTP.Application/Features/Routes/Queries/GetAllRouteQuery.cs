@@ -39,29 +39,7 @@ public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<Ro
 
 			using var connection = _connection.GetDbConnection();
 			IEnumerable<RouteViewModel> result;
-			if (!_cacheService.IsConnected())
-			{
-				logger.LogInformation("Have Cache");
-				var cacheResult = await _cacheService.GetAsync<IEnumerable<Route>>(CACHE_KEY);
-				if (cacheResult is null)
-				{
-					string query = @"SELECT * FROM [Route] WHERE IsDeleted = 0  ORDER BY RouteNo ";
-					var resultInDb = await connection.QueryAsync<Route>(query);
-					if (resultInDb is not null && resultInDb.Count() > 0)
-					{
-						result = _mapper.Map<IEnumerable<RouteViewModel>>(resultInDb);
-						if (!_cacheService.IsConnected())
-						{
-							await _cacheService.SetAsync(CACHE_KEY, resultInDb);
-						}
-
-					}
-					else throw new Exception("Result is null");
-				}
-				else result = _mapper.Map<IEnumerable<RouteViewModel>>(cacheResult);
-			}
-			else
-			{
+			
 
 				string query = @"SELECT * FROM [Route] WHERE IsDeleted = 0 ORDER BY CreationDate DESC";
 				var resultInDb = await connection.QueryAsync<Route>(query);
@@ -70,7 +48,7 @@ public class GetAllRouteQuery : GetAllRouteQueryModel, IRequest<PaginatedList<Ro
 					result = _mapper.Map<IEnumerable<RouteViewModel>>(resultInDb);
 				}
 				else throw new Exception("Result is null");
-			}
+			
 			List<RouteViewModel> returnResult = new();
 			if(request.Filter.TryGetValue("pageNumber", out var value))
 			request.Filter.Remove("pageNumber");
