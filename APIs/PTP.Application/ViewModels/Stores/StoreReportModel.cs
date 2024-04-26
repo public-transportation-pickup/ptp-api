@@ -3,8 +3,8 @@ namespace PTP.Application.ViewModels.Stores;
 public class StoreReportModel
 {
     public Guid StoreId { get; set; }
-    public string StoreName { get; set; }=default!;
-    public string StoreAddress { get; set; }=default!;
+    public string StoreName { get; set; } = default!;
+    public string StoreAddress { get; set; } = default!;
     public decimal WalletAmount { get; set; }
     public decimal TotalSalesNew { get; set; }
     public decimal TotalSalesLast { get; set; }
@@ -49,4 +49,13 @@ public class CustomerMost
     public int TotalOrder { get; set; }
     public decimal TotalMoney { get; set; }
 
+}
+
+public class StoreReportByDate
+{
+    public Guid Id { get; set; }
+    public DateTime Date { get; set; }
+    public int OrderCanceled { get; set; }
+    public int OrderCompleted { get; set; }
+    public decimal Revenue { get; set; }
 }

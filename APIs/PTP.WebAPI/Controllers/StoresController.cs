@@ -46,6 +46,17 @@ namespace PTP.WebAPI.Controllers
 			return Ok(await _mediator.Send(new GetStoreReportById { Id = id }));
 		}
 
+		[ProducesResponseType((int)HttpStatusCode.OK)]
+		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+		[ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+		[HttpGet("{id}/reports")]
+		public async Task<IActionResult> GetStoreReportByDate([FromRoute] Guid id,
+												 [FromQuery] DateTime ValidFrom,
+												 [FromQuery] DateTime ValidTo)
+		{
+			return Ok(await _mediator.Send(new GetStoreReportByDateQuery { Id = id, ValidFrom = ValidFrom, ValidTo = ValidTo }));
+		}
+
 
 		[ProducesResponseType((int)HttpStatusCode.OK)]
 		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -111,7 +122,7 @@ namespace PTP.WebAPI.Controllers
 		public async Task<IActionResult> Create([FromForm] StoreCreateModel model)
 		{
 			string mailText = System.IO.File.ReadAllText(@"./wwwroot/create-store-email.html");
-			var result = await _mediator.Send(new CreateStoreCommand { CreateModel = model , MailText = mailText});
+			var result = await _mediator.Send(new CreateStoreCommand { CreateModel = model, MailText = mailText });
 			if (result is null)
 			{
 				return BadRequest("Create Fail!");
