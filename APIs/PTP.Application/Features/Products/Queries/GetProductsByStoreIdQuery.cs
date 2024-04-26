@@ -100,7 +100,7 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
         public async Task<Pagination<ProductViewModel>?> GetCache(GetProductsByStoreIdQuery request)
         {
 
-            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            if (_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
 
             var cacheResult = await _cacheService.GetByPrefixAsync<Product>(CacheKey.PRODUCT);
             if (cacheResult!.Count > 0)
