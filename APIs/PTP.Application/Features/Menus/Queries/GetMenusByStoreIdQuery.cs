@@ -41,9 +41,8 @@ public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
         public async Task<IEnumerable<MenuViewModel>> Handle(GetMenusByStoreId request, CancellationToken cancellationToken)
         {
             var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
 
-            var menus = await _unitOfWork.MenuRepository
+            var menus = cacheResult != null ? cacheResult : await _unitOfWork.MenuRepository
                     .WhereAsync(x => x.StoreId == request.StoreId);
             if (menus is null) throw new BadRequestException($"Store with ID-{request.StoreId} is not exist any menus!");
             await _cacheService.SetByPrefixAsync<Menu>(CacheKey.MENU, menus);
@@ -52,7 +51,7 @@ public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
 
         }
 
-        public async Task<IEnumerable<MenuViewModel>?> GetCache(GetMenusByStoreId request)
+        public async Task<List<Menu>?> GetCache(GetMenusByStoreId request)
         {
 
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
@@ -60,10 +59,8 @@ public class GetMenusByStoreId : IRequest<IEnumerable<MenuViewModel>>
             var cacheResult = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
             if (cacheResult!.Count > 0)
             {
-                var result = cacheResult.Where(x => x.StoreId == request.StoreId);
-                if (!result.Any()) return null;
-                var cacheViewModels = _mapper.Map<IEnumerable<MenuViewModel>>(result);
-                return cacheViewModels.OrderByDescending(x => x.CreationDate);
+                var result = cacheResult.Where(x => x.StoreId == request.StoreId).ToList();
+                return !result.Any() ? null : result;
             }
             return null;
         }

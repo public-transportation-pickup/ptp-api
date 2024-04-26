@@ -1,4 +1,5 @@
 using PTP.Application.Services.Interfaces;
+using PTP.Domain.Entities;
 using PTP.Domain.Enums;
 using PTP.Domain.Globals;
 
@@ -38,8 +39,8 @@ public class ProductService : IProductService
         if (await _unitOfWork.SaveChangesAsync())
         {
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
-            await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
+            await _cacheService.RemoveByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU);
+            await _cacheService.RemoveByPrefixAsync<Product>(CacheKey.PRODUCT);
         }
     }
 }

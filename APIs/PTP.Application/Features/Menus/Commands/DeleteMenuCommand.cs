@@ -31,13 +31,16 @@ public class DeleteMenuCommand : IRequest<bool>
         public async Task<bool> Handle(DeleteMenuCommand request, CancellationToken cancellationToken)
         {
             //Remove From Cache
-            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-            await _cacheService.RemoveAsync(CacheKey.MENU + request.Id);
+
 
             var menu = await _unitOfWork.MenuRepository.GetByIdAsync(request.Id, x => x.ProductInMenus!);
             if (menu is null) throw new NotFoundException($"Menu with Id-{request.Id} is not exist!");
             _unitOfWork.MenuRepository.SoftRemove(menu);
-            //await DeleteProduct(menu.ProductInMenus!);
+            await DeleteProduct(menu.ProductInMenus!);
+            if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
+            await _cacheService.RemoveAsync(CacheKey.MENU + request.Id);
+            await _cacheService.RemoveByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU);
+            await _cacheService.RemoveByPrefixAsync<Product>(CacheKey.PRODUCT);
             return await _unitOfWork.SaveChangesAsync();
         }
 

@@ -160,8 +160,8 @@ namespace PTP.Application.Features.Orders.Commands
                 _unitOfWork.ProductInMenuRepository.UpdateRange(productMenus);
                 _unitOfWork.ProductRepository.UpdateRange(products);
                 if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
-                await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCTMENU);
-                await _cacheService.RemoveByPrefixAsync(CacheKey.PRODUCT);
+                await _cacheService.RemoveByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU);
+                await _cacheService.RemoveByPrefixAsync<Product>(CacheKey.PRODUCT);
             }
             private async Task CreateTransaction(Order order)
             {

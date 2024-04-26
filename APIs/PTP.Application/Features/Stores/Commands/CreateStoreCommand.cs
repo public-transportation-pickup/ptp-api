@@ -116,9 +116,9 @@ namespace PTP.Application.Features.Stores.Commands
                 await CreateMenuDefault(store);
                 await _unitOfWork.StoreRepository.AddAsync(store);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
-                await _cacheService.RemoveByPrefixAsync(CacheKey.STORE);
+                await _cacheService.RemoveByPrefixAsync<Store>(CacheKey.STORE);
 
-                
+
 
                 return _mapper.Map<StoreViewModel>(store);
             }

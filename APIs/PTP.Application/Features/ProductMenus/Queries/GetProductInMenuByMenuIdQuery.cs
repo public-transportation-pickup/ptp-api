@@ -45,9 +45,8 @@ public class GetProductInMenuByMenuIdQuery : IRequest<Pagination<ProductMenuView
             request.Filter!.Remove("pageNumber");
 
             var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
 
-            var productMenus = await _unitOfWork.ProductInMenuRepository
+            var productMenus = cacheResult != null ? cacheResult : await _unitOfWork.ProductInMenuRepository
                                 .WhereAsync(x => x.MenuId == request.MenuId,
                                             x => x.Menu,
                                             x => x.Product,
@@ -79,7 +78,7 @@ public class GetProductInMenuByMenuIdQuery : IRequest<Pagination<ProductMenuView
 
         }
 
-        public async Task<Pagination<ProductMenuViewModel>?> GetCache(GetProductInMenuByMenuIdQuery request)
+        public async Task<List<ProductInMenu>?> GetCache(GetProductInMenuByMenuIdQuery request)
         {
 
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
@@ -87,29 +86,9 @@ public class GetProductInMenuByMenuIdQuery : IRequest<Pagination<ProductMenuView
             var cacheResult = await _cacheService.GetByPrefixAsync<ProductInMenu>(CacheKey.PRODUCTMENU);
             if (cacheResult!.Count > 0)
             {
-                var result = cacheResult.Where(x => x.MenuId == request.MenuId);
-                if (!result.Any()) return null;
-                var cacheViewModels = _mapper.Map<IEnumerable<ProductMenuViewModel>>(result);
-                var filterRe = request.Filter!.Count > 0 ? new List<ProductMenuViewModel>() : cacheViewModels;
-                if (request.Filter!.Count > 0)
-                {
-                    foreach (var filter in request.Filter)
-                    {
-                        filterRe = filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
-                    }
-                }
+                var result = cacheResult.Where(x => x.MenuId == request.MenuId).ToList();
+                return !result.Any() ? null : result;
 
-                return new Pagination<ProductMenuViewModel>
-                {
-                    PageIndex = request.PageNumber,
-                    PageSize = request.PageSize,
-                    TotalItemsCount = filterRe.Count(),
-                    Items = PaginatedList<ProductMenuViewModel>.Create(
-                        source: filterRe.AsQueryable(),
-                        pageIndex: request.PageNumber,
-                        pageSize: request.PageSize
-                )
-                };
             }
             return null;
         }

@@ -38,22 +38,21 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
             request.Filter!.Remove("pageNumber");
 
             var cacheResult = await GetCache(request);
-            if (cacheResult is not null) return cacheResult;
 
-            var products = await _unitOfWork.ProductRepository.GetAllAsync(x => x.Store, x => x.Category, x => x.ProductInMenus);
+            var products = cacheResult != null ? cacheResult : await _unitOfWork.ProductRepository.GetAllAsync(x => x.Store, x => x.Category, x => x.ProductInMenus);
             if (products.Count == 0) throw new NotFoundException("There are no product in DB!");
             await _cacheService.SetByPrefixAsync<Product>(CacheKey.PRODUCT, products);
             var viewModels = _mapper.Map<List<ProductViewModel>>(products);
 
             for (int i = 0; i < viewModels.Count; i++)
             {
-                var menus = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
+                var menu = await _cacheService.GetAsync<Menu>(CacheKey.MENU + viewModels[i].MenuId);
                 viewModels[i].ProductMenuId = products[i].ProductInMenus.First().Id;
                 viewModels[i].QuantityInDay = products[i].ProductInMenus.First().QuantityInDay;
                 viewModels[i].MenuId = products[i].ProductInMenus.First().MenuId;
                 viewModels[i].SalePrice = products[i].ProductInMenus.First().SalePrice;
                 viewModels[i].QuantityUsed = products[i].ProductInMenus.First().QuantityUsed;
-                viewModels[i].MenuName = menus!.FirstOrDefault(x => x.Id == viewModels[i].MenuId)!.Name;
+                viewModels[i].MenuName = menu != null ? menu.Name : "";
             }
 
             var filterResult = request.Filter.Count > 0 ? new List<ProductViewModel>() : viewModels.AsEnumerable();
@@ -73,40 +72,14 @@ public class GetAllProductQuery : IRequest<PaginatedList<ProductViewModel>>
                 );
         }
 
-        public async Task<PaginatedList<ProductViewModel>?> GetCache(GetAllProductQuery request)
+        public async Task<List<Product>?> GetCache(GetAllProductQuery request)
         {
 
             if (!_cacheService.IsConnected()) throw new Exception("Redis Server is not connected!");
 
             var cacheResult = await _cacheService.GetByPrefixAsync<Product>(CacheKey.PRODUCT);
-            if (cacheResult!.Count > 0)
-            {
-                var cacheViewModels = _mapper.Map<IEnumerable<ProductViewModel>>(cacheResult).ToList();
-                for (int i = 0; i < cacheViewModels.Count; i++)
-                {
-                    var menus = await _cacheService.GetByPrefixAsync<Menu>(CacheKey.MENU);
-                    cacheViewModels[i].ProductMenuId = cacheResult[i].ProductInMenus.First().Id;
-                    cacheViewModels[i].QuantityInDay = cacheResult[i].ProductInMenus.First().QuantityInDay;
-                    cacheViewModels[i].MenuId = cacheResult[i].ProductInMenus.First().MenuId;
-                    cacheViewModels[i].SalePrice = cacheResult[i].ProductInMenus.First().SalePrice;
-                    cacheViewModels[i].QuantityUsed = cacheResult[i].ProductInMenus.First().QuantityUsed;
-                    cacheViewModels[i].MenuName = menus!.FirstOrDefault(x => x.Id == cacheViewModels[i].MenuId)!.Name;
-                }
-                var filterRe = request.Filter!.Count > 0 ? new List<ProductViewModel>() : cacheViewModels.AsEnumerable();
-                if (request.Filter!.Count > 0)
-                {
-                    foreach (var filter in request.Filter)
-                    {
-                        filterRe = filterRe.Union(FilterUtilities.SelectItems(cacheViewModels, filter.Key, filter.Value));
-                    }
-                }
-                return PaginatedList<ProductViewModel>.Create(
-                        source: filterRe.AsQueryable(),
-                        pageIndex: request.PageNumber,
-                        pageSize: request.PageSize
-                );
-            }
-            return null;
+
+            return cacheResult!.Count > 0 ? cacheResult : null;
         }
     }
 }
