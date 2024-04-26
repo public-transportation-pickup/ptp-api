@@ -18,7 +18,17 @@ public static class SqlQueriesStorage
         ON oc.StationId = s.Id
         LEFT JOIN 
         (
-            SELECT s.Id, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total END) AS Revenue
+            SELECT s.Id, SUM(CASE WHEN o.[Status] = 'Completed' THEN o.Total 
+                    ELSE 
+                        CASE WHEN o.[Status] = 'Canceled' 
+                        THEN 
+                            CASE WHEN o.ReturnAmount IS NULL
+                                THEN o.Total
+                            ELSE (o.Total - o.ReturnAmount)
+                            END
+                        END
+                    END
+                ) AS Revenue
                             FROM [Order] o INNER JOIN [Station] s
                             ON o.StationId = s.Id
                             GROUP BY s.Id
