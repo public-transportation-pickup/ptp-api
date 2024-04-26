@@ -91,12 +91,7 @@ namespace PTP.Infrastructure.Caching
             double absoluteExpiration = 30) where T : class
         {
             string cacheValue = JsonConvert.SerializeObject(value, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-            await _distributedCache.SetStringAsync(key, cacheValue, options: new DistributedCacheEntryOptions
-            {
-                AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(absoluteExpiration),
-                SlidingExpiration = TimeSpan.FromMinutes(slidingExpiration),
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(absoluteExpiration)
-            }, cancellationToken);
+            await _distributedCache.SetStringAsync(key, cacheValue, cancellationToken);
 
             CachKeys.TryAdd(key, false);
 
