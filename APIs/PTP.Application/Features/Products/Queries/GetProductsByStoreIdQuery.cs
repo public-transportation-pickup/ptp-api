@@ -49,7 +49,11 @@ public class GetProductsByStoreIdQuery : IRequest<Pagination<ProductViewModel>>
         {
             request.Filter!.Remove("pageSize");
             request.Filter!.Remove("pageNumber");
-            request.Filter!.Remove("menuId");
+            if (request.Filter.ContainsKey("menuId"))
+            {
+                request.Filter!.Remove("menuId");
+            }
+
 
             var cacheResult = await GetCache(request);
             if (cacheResult is not null) return cacheResult;
