@@ -96,7 +96,8 @@ public class UpdateStoreCommand : IRequest<bool>
 
             if (store.OpenedTime >= store.ClosedTime) throw new BadRequestException("Close Time must higher than Open Time");
             #endregion
-
+            var stations = await _unitOfWork.StationRepository.WhereAsync(x => x.StoreId == store.Id);
+            await CheckDistance(request.StoreUpdate, stations);
 
             if (request.StoreUpdate.File is not null)
             {
@@ -105,44 +106,42 @@ public class UpdateStoreCommand : IRequest<bool>
                 store.ImageName = image.FileName;
                 store.ImageURL = image.URL;
             }
-            #region Get Lat, Long by Address - Now not use
-
-            // if (!request.StoreUpdate.AddressNo.Equals(store.AddressNo) || !request.StoreUpdate.Street.Equals(store.Street) ||
-            //         !request.StoreUpdate.Zone.Equals(store.Zone) || !request.StoreUpdate.Ward.Equals(store.Ward))
-            // {
-            //     var addressStr = $"{request.StoreUpdate.AddressNo},{request.StoreUpdate.Street},{request.StoreUpdate.Ward},{request.StoreUpdate.Zone}";
-            //     var location = await _locationService.GetGeometry(addressStr);
-            //     store.Latitude = location.Lat;
-            //     store.Longitude = location.Lng;
-            // }
-            #endregion
             if (user is not null)
                 _unitOfWork.UserRepository.Update(user);
             _unitOfWork.StoreRepository.Update(store);
-            await UpdateStation(request.StoreUpdate);
+            await UpdateStation(request.StoreUpdate, stations);
             return await _unitOfWork.SaveChangesAsync();
         }
-        private async Task UpdateStation(StoreUpdateModel model)
+        private async Task UpdateStation(StoreUpdateModel model, List<Station> rootStations)
         {
             if (model!.StationIds == null) return;
-            var listUpdate = new List<Station>();
-            var stationIds = (await _unitOfWork.StationRepository.WhereAsync(x => x.StoreId == model.Id)).Select(x => x.Id).ToList();
-            for (int i = 0; i < model.StationIds.Count; i++)
+            var modelStations = await _unitOfWork.StationRepository.WhereAsync(x => model.StationIds.Contains(x.Id));
+            //Delete station
+            var deleteStations = rootStations.Except(modelStations).ToList();
+            if (deleteStations.Count > 0)
             {
-                if (!stationIds.Contains(model.StationIds[i]))
+                for (int i = 0; i < deleteStations.Count; i++)
                 {
-                    var station = await _unitOfWork.StationRepository.GetByIdAsync(model.StationIds[i]);
-                    if (station == null) throw new BadRequestException($"Station with Id - {model.StationIds[i]} is not found!");
-                    station.StoreId = model.Id;
-                    listUpdate.Add(station);
+                    deleteStations[i].StoreId = null;
                 }
             }
-             await CheckDistance(listUpdate, model);
-            _unitOfWork.StationRepository.UpdateRange(listUpdate);
+
+            //Add staions
+            var newStations = modelStations.Except(rootStations).ToList();
+            if (newStations.Count > 0)
+            {
+                for (int i = 0; i < newStations.Count; i++)
+                {
+                    newStations[i].StoreId = model.Id;
+                }
+            }
+
+            //Update
+            _unitOfWork.StationRepository.UpdateRange(newStations.Concat(deleteStations).ToList());
 
         }
 
-        private async Task CheckDistance(List<Station> stations, StoreUpdateModel store)
+        private async Task CheckDistance(StoreUpdateModel store, List<Station> stations)
         {
             string errors = "";
             for (int i = 0; i < stations.Count; i++)
