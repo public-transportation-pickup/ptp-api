@@ -137,7 +137,7 @@ public class UpdateStoreCommand : IRequest<bool>
                     listUpdate.Add(station);
                 }
             }
-            // await CheckDistance(listUpdate, model);
+             await CheckDistance(listUpdate, model);
             _unitOfWork.StationRepository.UpdateRange(listUpdate);
 
         }
