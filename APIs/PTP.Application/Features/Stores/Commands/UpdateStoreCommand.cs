@@ -11,6 +11,7 @@ using PTP.Application.ViewModels.Stores;
 using PTP.Domain.Entities;
 using PTP.Domain.Globals;
 using System.Globalization;
+using Microsoft.IdentityModel.Tokens;
 
 namespace PTP.Application.Features.Stores.Commands;
 public class UpdateStoreCommand : IRequest<bool>
@@ -118,7 +119,38 @@ public class UpdateStoreCommand : IRequest<bool>
             if (user is not null)
                 _unitOfWork.UserRepository.Update(user);
             _unitOfWork.StoreRepository.Update(store);
+            await UpdateStation(request.StoreUpdate);
             return await _unitOfWork.SaveChangesAsync();
+        }
+        private async Task UpdateStation(StoreUpdateModel model)
+        {
+            if (model!.StationIds == null) return;
+            var listUpdate = new List<Station>();
+            var stationIds = (await _unitOfWork.StationRepository.WhereAsync(x => x.StoreId == model.Id)).Select(x => x.Id).ToList();
+            for (int i = 0; i < model.StationIds.Count; i++)
+            {
+                if (!stationIds.Contains(model.StationIds[i]))
+                {
+                    var station = await _unitOfWork.StationRepository.GetByIdAsync(model.StationIds[i]);
+                    if (station == null) throw new BadRequestException($"Station with Id - {model.StationIds[i]} is not found!");
+                    station.StoreId = model.Id;
+                    listUpdate.Add(station);
+                }
+            }
+            // await CheckDistance(listUpdate, model);
+            _unitOfWork.StationRepository.UpdateRange(listUpdate);
+
+        }
+
+        private async Task CheckDistance(List<Station> stations, StoreUpdateModel store)
+        {
+            string errors = "";
+            for (int i = 0; i < stations.Count; i++)
+            {
+                var distance = await _locationService.GetDistance(store.Latitude, store.Longitude, stations[i].Latitude, stations[i].Longitude, "bike");
+                if (distance > 1000) errors += $"Khoảng cách tới trạm {stations[i].Name} không quá 1000m";
+            }
+            if (!errors.IsNullOrEmpty()) throw new BadRequestException(errors);
         }
     }
 

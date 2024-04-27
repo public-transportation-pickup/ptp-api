@@ -11,8 +11,8 @@ namespace PTP.Application.Features.Stores.Queries;
 public class GetStoreReportByDateQuery : IRequest<List<StoreReportByDate>>
 {
     public Guid Id { get; set; }
-    public DateTime ValidFrom { get; set; }
-    public DateTime ValidTo { get; set; }
+    public DateTime? ValidFrom { get; set; }
+    public DateTime? ValidTo { get; set; }
 
     public class QueryValidation : AbstractValidator<GetStoreReportByDateQuery>
     {
@@ -37,22 +37,23 @@ public class GetStoreReportByDateQuery : IRequest<List<StoreReportByDate>>
             }
             public async Task<List<StoreReportByDate>> Handle(GetStoreReportByDateQuery request, CancellationToken cancellationToken)
             {
-                var orders = await _unitOfWork
-                               .OrderRepository
+                var orders = request.ValidFrom != null && request.ValidTo != null ?
+                            await _unitOfWork.OrderRepository
                                .WhereAsync(x =>
                                    x.StoreId == request.Id &&
                                    x.CreationDate.Date >= request.ValidFrom &&
-                                   x.CreationDate.Date <= request.ValidTo
-                                   );
+                                   x.CreationDate.Date <= request.ValidTo)
+                            :
+                            await _unitOfWork.OrderRepository.WhereAsync(x => x.StoreId == request.Id);
                 var result = orders
                         .GroupBy(x => x.CreationDate.Date)
                         .Select(o => new StoreReportByDate
                         {
                             Date = o.Key!,
-                            Id = o.FirstOrDefault()!.Id,
+                            StoreId = o.FirstOrDefault()!.StoreId,
                             OrderCompleted = o.Count(x => x.Status == nameof(OrderStatusEnum.Completed)),
                             OrderCanceled = o.Count(x => x.Status == nameof(OrderStatusEnum.Canceled)),
-                            Revenue = o.Sum(x => x.Total)
+                            Revenue = o.Sum(x => x.Total) - o.Where(x => x.ReturnAmount != null).Sum(x => x.ReturnAmount!.Value)
                         })
                         .OrderBy(s => s.Date)
                         .ToList();
