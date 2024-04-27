@@ -61,8 +61,8 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                 var orders = await _unitOfWork
                                 .OrderRepository
                                 .WhereAsync(x =>
-                                    x.StoreId == request.Id &&
-                                    x.Status == nameof(OrderStatusEnum.Completed)
+                                    x.StoreId == request.Id
+                                    // && x.Status == nameof(OrderStatusEnum.Completed)
                                     , x => x.User);
                 var result = new StoreReportModel
                 {
@@ -86,8 +86,8 @@ public class GetStoreReportById : IRequest<StoreReportModel>
             private StoreReportModel GetOtherNewReport(List<Order> orders, StoreReportModel model)
             {
                 orders = orders.Where(x => x.CreationDate >= _startOfCurrent).ToList();
-                model.TotalOrdersNew = orders.Count > 0 ? orders.Count : 0;
-                model.TotalSalesNew = orders.Count > 0 ? orders.Sum(o => o.Total) : 0;
+                model.TotalOrdersNew = orders.Count > 0 ? orders.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).ToList().Count : 0;
+                model.TotalSalesNew = orders.Count > 0 ? orders.Sum(o => o.Total) - orders.Where(x => x.ReturnAmount != null).Sum(x => x.ReturnAmount!.Value) : 0;
                 model.AverageSaleValueNew = model.TotalOrdersNew != 0 ? (model.TotalSalesNew / model.TotalOrdersNew) : 0;
                 model.VisitorsNew = orders.GroupBy(x => x.CreatedBy).Count();
                 return model;
@@ -95,8 +95,8 @@ public class GetStoreReportById : IRequest<StoreReportModel>
             private StoreReportModel GetOtherLastReport(List<Order> orders, StoreReportModel model)
             {
                 orders = orders.Where(x => x.CreationDate >= _startOfLastWeek && x.CreationDate <= _endOfLastWeek).ToList();
-                model.TotalOrdersLast = orders.Count > 0 ? orders.Count : 0;
-                model.TotalSalesLast = orders.Count > 0 ? orders.Sum(o => o.Total) : 0;
+                model.TotalOrdersLast = orders.Count > 0 ? orders.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).ToList().Count : 0;
+                model.TotalSalesLast = orders.Count > 0 ? orders.Sum(o => o.Total) - orders.Where(x => x.ReturnAmount != null).Sum(x => x.ReturnAmount!.Value) : 0;
                 model.AverageSaleValueLast = model.TotalOrdersLast != 0 ? (model.TotalSalesLast / model.TotalOrdersLast) : 0;
                 model.VisitorsLast = orders.GroupBy(x => x.CreatedBy).Count();
                 return model;
@@ -105,17 +105,18 @@ public class GetStoreReportById : IRequest<StoreReportModel>
 
             private List<decimal> GetSaleValuesNew(List<Order> orders)
             {
+
                 orders = orders.Where(o => o.CreationDate >= _startOfCurrent && o.CreationDate <= _endOfCurrent).ToList();
                 var ordersFromLastWeek = Enumerable.Range(0, 7)
-                                  .Select(i => orders
-                                                .Where(o => o.CreationDate.DayOfWeek == ((DateTime)_startOfCurrent.AddDays(i)).DayOfWeek)
-                                                .Sum(x => x.Total))
-
-                                  // .Select(i => new DateValue
-                                  // {
-                                  //     DayOfWeek = ((DateTime)startOfLastWeek.AddDays(i)).DayOfWeek.ToString(),
-                                  //     Value = orders.Count(o => o.CreationDate.DayOfWeek == ((DateTime)startOfLastWeek.AddDays(i)).DayOfWeek)
-                                  // })
+                                  .Select(i =>
+                                                orders
+                                                    .Where(o => o.CreationDate.DayOfWeek == ((DateTime)_startOfCurrent.AddDays(i)).DayOfWeek)
+                                                    .Sum(x => x.Total)
+                                                -
+                                                orders
+                                                    .Where(x => x.CreationDate.DayOfWeek == ((DateTime)_startOfCurrent.AddDays(i)).DayOfWeek && x.ReturnAmount != null)
+                                                    .Sum(x => x.ReturnAmount!.Value)
+                                         )
                                   .ToList();
                 return ordersFromLastWeek;
             }
@@ -123,29 +124,24 @@ public class GetStoreReportById : IRequest<StoreReportModel>
             {
                 orders = orders.Where(o => o.CreationDate >= _startOfLastWeek && o.CreationDate <= _endOfLastWeek).ToList();
                 var ordersFromLastWeek = Enumerable.Range(0, 7)
-                                  .Select(i => orders
-                                                .Where(o => o.CreationDate.DayOfWeek == ((DateTime)_startOfLastWeek.AddDays(i)).DayOfWeek)
-                                                .Sum(x => x.Total))
-
-                                  // .Select(i => new DateValue
-                                  // {
-                                  //     DayOfWeek = ((DateTime)startOfLastWeek.AddDays(i)).DayOfWeek.ToString(),
-                                  //     Value = orders.Count(o => o.CreationDate.DayOfWeek == ((DateTime)startOfLastWeek.AddDays(i)).DayOfWeek)
-                                  // })
+                                  .Select(i =>
+                                                orders
+                                                    .Where(o => o.CreationDate.DayOfWeek == ((DateTime)_startOfCurrent.AddDays(i)).DayOfWeek)
+                                                    .Sum(x => x.Total)
+                                                -
+                                                orders
+                                                    .Where(x => x.CreationDate.DayOfWeek == ((DateTime)_startOfCurrent.AddDays(i)).DayOfWeek && x.ReturnAmount != null)
+                                                    .Sum(x => x.ReturnAmount!.Value)
+                                         )
                                   .ToList();
                 return ordersFromLastWeek;
             }
 
             private List<int> GetTotalOrderNow(List<Order> orders)
             {
-                orders = orders.Where(o => o.CreationDate >= _startOfCurrent && o.CreationDate <= _endOfCurrent).ToList();
+                orders = orders.Where(o => o.CreationDate >= _startOfCurrent && o.CreationDate <= _endOfCurrent && o.Status == nameof(OrderStatusEnum.Completed)).ToList();
                 var ordersFromCurrentWeek = Enumerable.Range(0, 7)
                     .Select(i => orders.Count(o => o.CreationDate.DayOfWeek == ((DateTime)_startOfCurrent.AddDays(i)).DayOfWeek))
-                    // .Select(i => new DateValue
-                    // {
-                    //     DayOfWeek = ((DateTime)_startOfCurrent.AddDays(i)).ToShortDateString(),
-                    //     Value = orders.Count(o => o.CreationDate.DayOfWeek == ((DateTime)_startOfCurrent.AddDays(i)).DayOfWeek)
-                    // })
                     .ToList();
 
 
@@ -153,14 +149,9 @@ public class GetStoreReportById : IRequest<StoreReportModel>
             }
             private List<int> GetTotalOrderLast(List<Order> orders)
             {
-                orders = orders.Where(o => o.CreationDate >= _startOfLastWeek && o.CreationDate <= _endOfLastWeek).ToList();
+                orders = orders.Where(o => o.CreationDate >= _startOfLastWeek && o.CreationDate <= _endOfLastWeek && o.Status == nameof(OrderStatusEnum.Completed)).ToList();
                 var ordersFromLastWeek = Enumerable.Range(0, 7)
                     .Select(i => orders.Count(o => o.CreationDate.DayOfWeek == ((DateTime)_startOfLastWeek.AddDays(i)).DayOfWeek))
-                    // .Select(i => new DateValue
-                    // {
-                    //     DayOfWeek = ((DateTime)_startOfLastWeek.AddDays(i)).ToShortDateString(),
-                    //     Value = orders.Count(o => o.CreationDate.DayOfWeek == ((DateTime)_startOfLastWeek.AddDays(i)).DayOfWeek)
-                    // })
                     .ToList();
 
 
@@ -168,7 +159,7 @@ public class GetStoreReportById : IRequest<StoreReportModel>
             }
             private async Task<List<ProductMost>> GetProductMosts(List<Order> orders)
             {
-                var orderIds = orders.Select(x => x.Id);
+                var orderIds = orders.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).Select(x => x.Id);
                 var orderDetails = await _unitOfWork.OrderDetailRepository
                                                     .WhereAsync(x =>
                                                         orderIds.Contains(x.OrderId),
@@ -196,10 +187,10 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                             .Select(o => new CustomerMost
                             {
                                 Id = o.Key!.Value,
-                                TotalMoney = o.Sum(x => x.Total),
-                                TotalOrder = o.Count(x => x.CreatedBy == o.Key),
-                                PhoneNumber = o.FirstOrDefault()!.User.PhoneNumber,
-                                FullName = o.FirstOrDefault()!.Name
+                                TotalMoney = o.Sum(x => x.Total) - o.Where(x => x.ReturnAmount != null).Sum(x => x.ReturnAmount!.Value),
+                                TotalOrder = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).Count(x => x.CreatedBy == o.Key),
+                                PhoneNumber = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).FirstOrDefault()!.User.PhoneNumber,
+                                FullName = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).FirstOrDefault()!.Name
                             })
                             .OrderByDescending(s => s.TotalMoney)
                             .Take(5)
