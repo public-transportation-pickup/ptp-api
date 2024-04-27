@@ -53,7 +53,7 @@ public class CustomerMost
 
 public class StoreReportByDate
 {
-    public Guid Id { get; set; }
+    public Guid StoreId { get; set; }
     public DateTime Date { get; set; }
     public int OrderCanceled { get; set; }
     public int OrderCompleted { get; set; }
