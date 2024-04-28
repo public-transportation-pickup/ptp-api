@@ -1,3 +1,4 @@
+using System.Xml.Schema;
 using Firebase.Auth;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.ViewModels.Users;
@@ -53,7 +54,7 @@ public class AuthService : IAuthService
 			// TODO: Insert Db
 			PTP.Domain.Entities.User newUser = new()
 			{
-				FullName = $"{user.LastName.ToUpper()} {user.FirstName.ToUpper()}",
+				FullName = string.Empty,
 				PhoneNumber = string.Empty,
 				FCMToken = FCMToken,
 				Id = Guid.NewGuid(),
