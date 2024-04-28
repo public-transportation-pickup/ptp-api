@@ -188,9 +188,9 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                             {
                                 Id = o.Key!.Value,
                                 TotalMoney = o.Sum(x => x.Total) - o.Where(x => x.ReturnAmount != null).Sum(x => x.ReturnAmount!.Value),
-                                TotalOrder = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).Count(x => x.CreatedBy == o.Key),
-                                PhoneNumber = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).FirstOrDefault()!.User.PhoneNumber,
-                                FullName = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).FirstOrDefault()!.Name
+                                TotalOrder = o.Count(x => x.CreatedBy == o.Key),
+                                PhoneNumber = o.FirstOrDefault()!.User.PhoneNumber,
+                                FullName = o.FirstOrDefault()!.Name
                             })
                             .OrderByDescending(s => s.TotalMoney)
                             .Take(5)
