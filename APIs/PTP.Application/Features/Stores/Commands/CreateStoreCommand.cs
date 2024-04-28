@@ -170,7 +170,7 @@ namespace PTP.Application.Features.Stores.Commands
             {
                 var menu = new Menu
                 {
-                    Name = "Tất cả lịch bán",
+                    Name = "Tất cả các buổi",
                     Description = "Lịch bán cho tất cả buổi từ T2 đến CN",
                     StartTime = store.OpenedTime,
                     EndTime = store.ClosedTime,
