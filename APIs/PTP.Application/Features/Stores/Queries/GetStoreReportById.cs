@@ -41,14 +41,7 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                 _cacheService = cacheService;
                 _logger = logger;
                 DateTime today = DateTime.Today;
-                if (today.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    _startOfCurrent = today.AddDays(-6).Date;
-                }
-                else
-                {
-                    _startOfCurrent = today.AddDays(-(int)today.DayOfWeek + 1).Date;
-                }
+                _startOfCurrent = today.AddDays(-(int)today.DayOfWeek + 1).Date;
                 _startOfLastWeek = _startOfCurrent.AddDays(-7).Date;
                 _endOfCurrent = _startOfCurrent.AddDays(6).Date;
                 _endOfLastWeek = _startOfLastWeek.AddDays(6).Date;
