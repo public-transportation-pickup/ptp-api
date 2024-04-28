@@ -117,7 +117,7 @@ public class UpdateStoreCommand : IRequest<bool>
             var rootStations = await _unitOfWork.StationRepository.WhereAsync(x => x.StoreId == model.Id);
             var modelStations = await _unitOfWork.StationRepository.WhereAsync(x => model.StationIds.Contains(x.Id));
             //Delete station
-            var deleteStations = rootStations.Except(modelStations).ToList();
+            var deleteStations = rootStations.Where(x => !modelStations.Any(y => y.Id == x.Id)).ToList();
             if (deleteStations.Count > 0)
             {
                 for (int i = 0; i < deleteStations.Count; i++)
@@ -127,7 +127,7 @@ public class UpdateStoreCommand : IRequest<bool>
             }
 
             //Add staions
-            var newStations = modelStations.Except(rootStations).ToList();
+            var newStations = modelStations.Where(x => !rootStations.Any(y => y.Id == x.Id)).ToList();
             if (newStations.Count > 0)
             {
                 for (int i = 0; i < newStations.Count; i++)
