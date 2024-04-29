@@ -46,7 +46,7 @@ namespace PTP.Application.Features.Wallets.Queries
                 }
                 var wallet = await _unitOfWork.WalletRepository.FirstOrDefaultAsync(x => x.Id == request.Id, x => x.Transactions, x => x.WalletLogs);
                 if (wallet is null) throw new BadRequestException($"WalletId-{request.Id} is not exist!");
-                await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
+                // await _cacheService.SetAsync<Wallet>(CacheKey.WALLET + wallet.Id, wallet);
                 return _mapper.Map<WalletViewModel>(wallet);
             }
         }
