@@ -3,6 +3,10 @@ using System.Reflection.Metadata;
 namespace PTP.Application.Commons;
 public static class SqlQueriesStorage
 {
+
+    public const string GET_PRODUCTMENU_BY_ID = @"SELECT p.[Name] as [Name], pm.IsDeleted 
+        FROM [ProductInMenu] pm INNER JOIN [Product] p ON pm.ProductId=p.Id 
+        WHERE pm.Id=@Id";
     public const string GET_STATIONS_REVENUE = @"SELECT *
         FROM Station s 
         LEFT JOIN
@@ -165,7 +169,7 @@ public static class SqlQueriesStorage
         INNER JOIN Station s ON s.Id = rs.StationId
         WHERE s.Name LIKE @stationName
         ORDER BY RouteNo";
-    
+
     public const string GET_ROUTE_BY_ADDRESS = @"
         SELECT DISTINCT (r.Id), r.RouteId, r.Name,r.[Status], 
             r.RouteNo, r.Distance, r.TimeOfTrip, r.HeadWay, r.OperationTime,
@@ -175,7 +179,7 @@ public static class SqlQueriesStorage
         INNER JOIN Station s ON s.Id = rs.StationId
         WHERE s.AddressNo + ' ' + s.Street + ' ' + s.Ward + ' ' + s.Zone
          LIKE @stationName
-        ORDER BY RouteNo"; 
+        ORDER BY RouteNo";
     public const string GET_STORES_BY_ROUTEVARID = @"
         SELECT *
         FROM [Store] str 

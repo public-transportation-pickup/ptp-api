@@ -23,3 +23,10 @@ public class ProductMenuViewModel
     public string CategoryName { get; set; } = default!;
     public Guid StoreId { get; set; }
 }
+
+public class ProductMenuDelete
+{
+    public string Name { get; set; } = default!;
+    public bool IsDeleted { get; set; }
+
+}
