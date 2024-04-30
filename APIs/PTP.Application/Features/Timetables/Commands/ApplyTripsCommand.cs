@@ -2,6 +2,7 @@ using System.Security;
 using MediatR;
 using Microsoft.Identity.Client.Extensibility;
 using PTP.Application.Features.Trips.Queries;
+using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Utilities;
 using PTP.Application.ViewModels.Trips;
 using PTP.Domain.Entities;
@@ -22,7 +23,11 @@ public class ApplyTripCommand : IRequest<IEnumerable<TripViewModel>>
         }
         public async Task<IEnumerable<TripViewModel>> Handle(ApplyTripCommand request, CancellationToken cancellationToken)
         {
-            var timetable = await unitOfWork.TimeTableRepository.GetByIdAsync(request.Id, x => x.Route, x => x.RouteVar);
+            var timetable = await unitOfWork.TimeTableRepository.GetByIdAsync(request.Id, x => x.Route, x => x.RouteVar, x=> x.Trips);
+            if(timetable?.Trips?.Count > 0)
+            {
+                throw new BadRequestException("Đã apply trip cho timetable này"); 
+            }
             if (timetable is not null && timetable?.Route is not null)
             {
                 var startEndTime = timetable.Route.OperationTime.ConvertToTimeSpanList();
