@@ -98,7 +98,7 @@ namespace PTP.Application.Features.Stores.Commands
 
                 var isDup = await _unitOfWork.UserRepository.WhereAsync(x => x.PhoneNumber!.ToLower() == request.CreateModel.PhoneNumber!.ToLower());
                 if (isDup.Count() > 0)
-                    throw new Exception($"Error: {nameof(CreateStoreCommand)}_ phone is duplicate!");
+                    throw new BadRequestException($"Số điện thoại đã tồn tại! Liên hệ thyvnse162031@fpt.edu.vn!");
 
                 store.UserId = await CreateUser(store, request);
 
@@ -126,7 +126,7 @@ namespace PTP.Application.Features.Stores.Commands
             private async Task AddStationsToStore(List<Guid> StationIds, Store store)
             {
                 var stations = await _unitOfWork.StationRepository.WhereAsync(x => StationIds.Contains(x.Id));
-                if (stations.Count == 0) throw new BadRequestException("No Station found!");
+                if (stations.Count == 0) throw new BadRequestException("Trạm không tồn tại!");
                 string errors = "";
                 for (int i = 0; i < stations.Count; i++)
                 {
@@ -150,7 +150,7 @@ namespace PTP.Application.Features.Stores.Commands
                 var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == nameof(RoleEnum.StoreManager).ToLower())
                 ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
                 var userExisted = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email!.ToLower() == request.CreateModel.Email.ToLower())
-                ?? throw new BadRequestException($"Email đã tồn tại!");
+                ?? throw new BadRequestException($"Email đã tồn tại! Liên hệ thyvnse162031@fpt.edu.vn!");
                 User user = new User
                 {
                     FullName = request.CreateModel.ManagerName,

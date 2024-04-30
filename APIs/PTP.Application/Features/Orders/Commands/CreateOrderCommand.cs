@@ -1,10 +1,13 @@
 using AutoMapper;
+using Dapper;
 using FluentValidation;
 using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using PTP.Application.Commons;
+using PTP.Application.Data.Configuration;
 using PTP.Application.GlobalExceptionHandling.Exceptions;
 using PTP.Application.Services.Interfaces;
 using PTP.Application.SignalR;
@@ -12,6 +15,7 @@ using PTP.Application.Utilities;
 using PTP.Application.ViewModels.OrderDetails;
 using PTP.Application.ViewModels.Orders;
 using PTP.Application.ViewModels.Payments;
+using PTP.Application.ViewModels.ProductMenus;
 using PTP.Domain.Entities;
 using PTP.Domain.Enums;
 using PTP.Domain.Globals;
@@ -47,6 +51,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
     public class CommandHandler : IRequestHandler<CreateOrderCommand, OrderViewModel>
     {
         private readonly IBackgroundJobClient _backgroundJob;
+        private readonly IConnectionConfiguration _conn;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private ILogger<CommandHandler> _logger;
@@ -71,6 +76,7 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             _cacheService = cacheService;
             _appSetting = appSettings;
             _hubContext = hubContext;
+            _conn = _unitOfWork.DirectionConnection;
         }
 
 
@@ -118,8 +124,14 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             var error = "";
             foreach (var id in ids)
             {
-                var productMenu = await _unitOfWork.ProductInMenuRepository.GetByIdAsync(id, x => x.Product);
-                if (productMenu == null) error += $"{productMenu!.Product.Name} đã ngưng phục vụ \n";
+                string sql = SqlQueriesStorage.GET_PRODUCTMENU_BY_ID;
+                using var connection = _conn.GetDbConnection();
+                var executeResult = await connection.QueryFirstAsync<ProductMenuDelete>(sql: sql,
+                param: null,
+                transaction: null,
+                commandTimeout: 30,
+                commandType: System.Data.CommandType.Text);
+                if (executeResult.IsDeleted) error += $"Món ăn {executeResult.Name} đã ngưng phục vụ \n";
             }
             if (!error.IsNullOrEmpty()) throw new BadRequestException(error);
             return await _unitOfWork.ProductInMenuRepository.WhereAsync(x => ids.Contains(x.Id), x => x.Product);
