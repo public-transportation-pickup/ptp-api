@@ -41,14 +41,7 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                 _cacheService = cacheService;
                 _logger = logger;
                 DateTime today = DateTime.Today;
-                if (today.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    _startOfCurrent = today.AddDays(-6).Date;
-                }
-                else
-                {
-                    _startOfCurrent = today.AddDays(-(int)today.DayOfWeek + 1).Date;
-                }
+                _startOfCurrent = today.AddDays(-(int)today.DayOfWeek + 1).Date;
                 _startOfLastWeek = _startOfCurrent.AddDays(-7).Date;
                 _endOfCurrent = _startOfCurrent.AddDays(6).Date;
                 _endOfLastWeek = _startOfLastWeek.AddDays(6).Date;
@@ -188,9 +181,9 @@ public class GetStoreReportById : IRequest<StoreReportModel>
                             {
                                 Id = o.Key!.Value,
                                 TotalMoney = o.Sum(x => x.Total) - o.Where(x => x.ReturnAmount != null).Sum(x => x.ReturnAmount!.Value),
-                                TotalOrder = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).Count(x => x.CreatedBy == o.Key),
-                                PhoneNumber = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).FirstOrDefault()!.User.PhoneNumber,
-                                FullName = o.Where(x => x.Status == nameof(OrderStatusEnum.Completed)).FirstOrDefault()!.Name
+                                TotalOrder = o.Count(x => x.CreatedBy == o.Key),
+                                PhoneNumber = o.FirstOrDefault()!.User.PhoneNumber,
+                                FullName = o.FirstOrDefault()!.Name
                             })
                             .OrderByDescending(s => s.TotalMoney)
                             .Take(5)

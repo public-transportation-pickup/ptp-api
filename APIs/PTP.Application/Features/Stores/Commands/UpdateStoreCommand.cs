@@ -96,8 +96,7 @@ public class UpdateStoreCommand : IRequest<bool>
 
             if (store.OpenedTime >= store.ClosedTime) throw new BadRequestException("Close Time must higher than Open Time");
             #endregion
-            var stations = await _unitOfWork.StationRepository.WhereAsync(x => x.StoreId == store.Id);
-            await CheckDistance(request.StoreUpdate, stations);
+            await CheckDistance(request.StoreUpdate);
 
             if (request.StoreUpdate.File is not null)
             {
@@ -109,15 +108,16 @@ public class UpdateStoreCommand : IRequest<bool>
             if (user is not null)
                 _unitOfWork.UserRepository.Update(user);
             _unitOfWork.StoreRepository.Update(store);
-            await UpdateStation(request.StoreUpdate, stations);
+            await UpdateStation(request.StoreUpdate);
             return await _unitOfWork.SaveChangesAsync();
         }
-        private async Task UpdateStation(StoreUpdateModel model, List<Station> rootStations)
+        private async Task UpdateStation(StoreUpdateModel model)
         {
             if (model!.StationIds == null) return;
+            var rootStations = await _unitOfWork.StationRepository.WhereAsync(x => x.StoreId == model.Id);
             var modelStations = await _unitOfWork.StationRepository.WhereAsync(x => model.StationIds.Contains(x.Id));
             //Delete station
-            var deleteStations = rootStations.Except(modelStations).ToList();
+            var deleteStations = rootStations.Where(x => !modelStations.Any(y => y.Id == x.Id)).ToList();
             if (deleteStations.Count > 0)
             {
                 for (int i = 0; i < deleteStations.Count; i++)
@@ -127,7 +127,7 @@ public class UpdateStoreCommand : IRequest<bool>
             }
 
             //Add staions
-            var newStations = modelStations.Except(rootStations).ToList();
+            var newStations = modelStations.Where(x => !rootStations.Any(y => y.Id == x.Id)).ToList();
             if (newStations.Count > 0)
             {
                 for (int i = 0; i < newStations.Count; i++)
@@ -141,8 +141,10 @@ public class UpdateStoreCommand : IRequest<bool>
 
         }
 
-        private async Task CheckDistance(StoreUpdateModel store, List<Station> stations)
+        private async Task CheckDistance(StoreUpdateModel store)
         {
+            if (store!.StationIds == null) return;
+            var stations = await _unitOfWork.StationRepository.WhereAsync(x => store.StationIds.Contains(x.Id));
             string errors = "";
             for (int i = 0; i < stations.Count; i++)
             {

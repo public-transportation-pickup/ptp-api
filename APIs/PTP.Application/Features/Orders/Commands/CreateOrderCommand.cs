@@ -85,7 +85,6 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             order.TotalPreparationTime = GetTotalPreparationTime(productInMenus, request.CreateModel.OrderDetails);
             if (DateTime.Now.AddMinutes(order.TotalPreparationTime) > order.PickUpTime)
                 throw new BadRequestException($"Thời gian chuẩn bị giỏ hàng của bạn đã quá thời gian lấy hàng {DateTime.Now.AddMinutes(order.TotalPreparationTime) - order.PickUpTime} phút!");
-            // throw new BadRequestException($"Prepration time is not valid - {order.TotalPreparationTime}");
 
             productInMenus = CheckProductInStock(productInMenus, request.CreateModel.OrderDetails);
 
@@ -116,6 +115,13 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
         private async Task<List<ProductInMenu>> GetProductInMenus(List<OrderDetailCreateModel> models)
         {
             var ids = models.Select(x => x.ProductMenuId);
+            var error = "";
+            foreach (var id in ids)
+            {
+                var productMenu = await _unitOfWork.ProductInMenuRepository.GetByIdAsync(id, x => x.Product);
+                if (productMenu == null) error += $"{productMenu!.Product.Name} đã ngưng phục vụ \n";
+            }
+            if (!error.IsNullOrEmpty()) throw new BadRequestException(error);
             return await _unitOfWork.ProductInMenuRepository.WhereAsync(x => ids.Contains(x.Id), x => x.Product);
         }
 
