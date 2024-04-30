@@ -126,8 +126,10 @@ public class CreateOrderCommand : IRequest<OrderViewModel>
             {
                 string sql = SqlQueriesStorage.GET_PRODUCTMENU_BY_ID;
                 using var connection = _conn.GetDbConnection();
+                var parameters = new DynamicParameters();
+                parameters.Add("@Id", id);
                 var executeResult = await connection.QueryFirstAsync<ProductMenuDelete>(sql: sql,
-                param: null,
+                param: parameters,
                 transaction: null,
                 commandTimeout: 30,
                 commandType: System.Data.CommandType.Text);
