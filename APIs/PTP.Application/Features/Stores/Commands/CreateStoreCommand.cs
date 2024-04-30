@@ -100,7 +100,7 @@ namespace PTP.Application.Features.Stores.Commands
                 if (isDup.Count() > 0)
                     throw new BadRequestException($"Số điện thoại đã tồn tại! Liên hệ thyvnse162031@fpt.edu.vn!");
 
-                store.UserId = await CreateUser(store, request);
+
 
                 #region Add image
                 //Add Image to FireBase
@@ -115,11 +115,14 @@ namespace PTP.Application.Features.Stores.Commands
                 }
                 await CreateMenuDefault(store);
                 await _unitOfWork.StoreRepository.AddAsync(store);
+                store.UserId = await CreateUser(store, request);
                 if (!await _unitOfWork.SaveChangesAsync()) throw new BadRequestException("Save changes Fail!");
+                var createUser = await CreateUserToFirebaseAsync(request.CreateModel.Email, "@Abcaz12345");
+                if (createUser is false)
+                {
+                    throw new BadRequestException($"Tạo account thất bại Ở firebase!");
+                }
                 await _cacheService.RemoveByPrefixAsync<Store>(CacheKey.STORE);
-
-
-
                 return _mapper.Map<StoreViewModel>(store);
             }
 
@@ -165,7 +168,6 @@ namespace PTP.Application.Features.Stores.Commands
 
                 await _unitOfWork.UserRepository.AddAsync(user);
 
-                if (!await CreateUserToFirebaseAsync(user.Email, user.Password)) throw new Exception($"Create Account to FireBase Fail!");
                 return user.Id;
             }
             private async Task CreateMenuDefault(Store store)
