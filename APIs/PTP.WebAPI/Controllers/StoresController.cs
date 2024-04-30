@@ -134,7 +134,7 @@ namespace PTP.WebAPI.Controllers
 
 			mailText = mailText.Replace("[proposalLink]", "http://ptp-srv.ddns.net:8002");
 			mailText = mailText.Replace("[sponsorName]", model.ManagerName);
-			await emailService.SendEmailAsync(model.Email, "[PTP]Create Store", "Tạo cửa hàng thành công");
+			await emailService.SendEmailAsync(model.Email, "[PTP]Create Store", mailText);
 			#endregion
 			return CreatedAtAction(nameof(GetById), new { Id = result.Id }, result);
 		}
