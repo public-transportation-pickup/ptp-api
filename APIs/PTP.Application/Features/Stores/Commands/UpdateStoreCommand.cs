@@ -78,6 +78,10 @@ public class UpdateStoreCommand : IRequest<bool>
 
             var store = await _unitOfWork.StoreRepository.GetByIdAsync(request.StoreUpdate.Id);
             var user = await _unitOfWork.UserRepository.GetByIdAsync(store!.UserId);
+            if(await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email == request.StoreUpdate.Email) is not null)
+            {
+                throw new BadRequestException("Email đã tồn tại trong hệ thống! Vui lòng nhập email khác!");
+            }
             if (user is not null)
             {
                 user.Email = request.StoreUpdate.Email;

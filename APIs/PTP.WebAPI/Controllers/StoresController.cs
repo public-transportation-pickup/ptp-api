@@ -148,12 +148,16 @@ namespace PTP.WebAPI.Controllers
 		[Authorize(Roles = (nameof(RoleEnum.Admin)))]
 		public async Task<IActionResult> Update(Guid id, [FromForm] StoreUpdateModel model)
 		{
+			string mailText = System.IO.File.ReadAllText(@"./wwwroot/update-store-email.html");
 			if (id != model.Id) return BadRequest("Id is not match!");
 			var result = await _mediator.Send(new UpdateStoreCommand { StoreUpdate = model });
 			if (!result)
 			{
 				return BadRequest("Update Fail!");
 			}
+			mailText = mailText.Replace("[proposalLink]", "http://ptp-srv.ddns.net:8002");
+			mailText = mailText.Replace("[sponsorName]", model.ManagerName);
+			await emailService.SendEmailAsync(model.Email, "[PTP]Update Store", mailText);
 			return NoContent();
 		}
 
