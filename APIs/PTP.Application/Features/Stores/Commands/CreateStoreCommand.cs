@@ -149,6 +149,8 @@ namespace PTP.Application.Features.Stores.Commands
             {
                 var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == nameof(RoleEnum.StoreManager).ToLower())
                 ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
+                var userExisted = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email!.ToLower() == request.CreateModel.Email.ToLower())
+                ?? throw new BadRequestException($"Email đã tồn tại!");
                 User user = new User
                 {
                     FullName = request.CreateModel.ManagerName,
