@@ -33,7 +33,7 @@ public class CreateTimetableCommand : IRequest<List<TimeTable>?>
         }
         public async Task<List<TimeTable>?> Handle(CreateTimetableCommand request, CancellationToken cancellationToken)
         {
-            List<TimetableCreateModel> requestModel = request.Models;
+            List<TimetableCreateModel> requestModel = new();
             foreach(var item in request.Models) 
             {
                 if(await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteId == item.RouteId && x.RouteVarId == item.RouteVarId) is  null)
