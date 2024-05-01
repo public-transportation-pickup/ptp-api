@@ -36,7 +36,7 @@ public class CreateTimetableCommand : IRequest<List<TimeTable>?>
             List<TimetableCreateModel> requestModel = new();
             foreach(var item in request.Models) 
             {
-                if(await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteId == item.RouteId && x.RouteVarId == item.RouteVarId) is  null)
+                if(await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteId == item.RouteId && x.RouteVarId == item.RouteVarId) is null)
                 {
                     requestModel.Add(item);
                 }
@@ -44,7 +44,12 @@ public class CreateTimetableCommand : IRequest<List<TimeTable>?>
             var timetables = unitOfWork.Mapper.Map<IEnumerable<TimeTable>>(requestModel);
             await unitOfWork.TimeTableRepository.AddRangeAsync(timetables.ToList());
             await unitOfWork.SaveChangesAsync();
-            return timetables.ToList();
+            var timetablesResult = new List<TimeTable>();
+            foreach(var item in request.Models)
+            {
+                timetablesResult.Add(await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteVarId == item.RouteVarId && x.RouteId == item.RouteId) ?? new());
+            }
+            return timetablesResult;
 
         }
     }
