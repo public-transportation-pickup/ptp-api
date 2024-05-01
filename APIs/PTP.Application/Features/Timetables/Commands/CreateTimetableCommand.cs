@@ -33,14 +33,15 @@ public class CreateTimetableCommand : IRequest<List<TimeTable>?>
         }
         public async Task<List<TimeTable>?> Handle(CreateTimetableCommand request, CancellationToken cancellationToken)
         {
+            List<TimetableCreateModel> requestModel = request.Models;
             foreach(var item in request.Models) 
             {
-                if(await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteId == item.RouteId && x.RouteVarId == item.RouteVarId) is not null)
+                if(await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteId == item.RouteId && x.RouteVarId == item.RouteVarId) is  null)
                 {
-                    throw new BadRequestException($"Đã có thời khoá biểu tồn tại RouteVarId :{item.RouteVarId}");
+                    requestModel.Add(item);
                 }
             }
-            var timetables = unitOfWork.Mapper.Map<IEnumerable<TimeTable>>(request.Models);
+            var timetables = unitOfWork.Mapper.Map<IEnumerable<TimeTable>>(requestModel);
             await unitOfWork.TimeTableRepository.AddRangeAsync(timetables.ToList());
             await unitOfWork.SaveChangesAsync();
             return timetables.ToList();
