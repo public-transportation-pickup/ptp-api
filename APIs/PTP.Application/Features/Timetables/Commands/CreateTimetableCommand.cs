@@ -34,9 +34,9 @@ public class CreateTimetableCommand : IRequest<List<TimeTable>?>
         public async Task<List<TimeTable>?> Handle(CreateTimetableCommand request, CancellationToken cancellationToken)
         {
             List<TimetableCreateModel> requestModel = new();
-            foreach(var item in request.Models) 
+            foreach (var item in request.Models)
             {
-                if(await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteId == item.RouteId && x.RouteVarId == item.RouteVarId) is null)
+                if (await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteId == item.RouteId && x.RouteVarId == item.RouteVarId) is null)
                 {
                     requestModel.Add(item);
                 }
@@ -45,9 +45,11 @@ public class CreateTimetableCommand : IRequest<List<TimeTable>?>
             await unitOfWork.TimeTableRepository.AddRangeAsync(timetables.ToList());
             await unitOfWork.SaveChangesAsync();
             var timetablesResult = new List<TimeTable>();
-            foreach(var item in request.Models)
+            foreach (var item in request.Models)
             {
-                timetablesResult.Add(await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteVarId == item.RouteVarId && x.RouteId == item.RouteId) ?? new());
+                var timetable = await unitOfWork.TimeTableRepository.FirstOrDefaultAsync(x => x.RouteVarId == item.RouteVarId && x.RouteId == item.RouteId);
+                if (timetable is not null)
+                    timetablesResult.Add(timetable);
             }
             return timetablesResult;
 
