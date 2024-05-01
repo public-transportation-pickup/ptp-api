@@ -151,9 +151,12 @@ namespace PTP.Application.Features.Stores.Commands
             private async Task<Guid> CreateUser(Store store, CreateStoreCommand request)
             {
                 var role = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.Name.ToLower() == nameof(RoleEnum.StoreManager).ToLower())
-                ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
-                var userExisted = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email!.ToLower() == request.CreateModel.Email.ToLower())
-                ?? throw new BadRequestException($"Email đã tồn tại! Liên hệ thyvnse162031@fpt.edu.vn!");
+                    ?? throw new Exception($"Error: {nameof(CreateUserCommand)}_no_role_found: role: {RoleEnum.StoreManager}");
+                var userExisted = await _unitOfWork.UserRepository.FirstOrDefaultAsync(x => x.Email!.ToLower() == request.CreateModel.Email.ToLower());
+                if (userExisted is not null)
+                {
+                    throw new BadRequestException($"Email đã tồn tại! Liên hệ thyvnse162031@fpt.edu.vn!");
+                }
                 User user = new User
                 {
                     FullName = request.CreateModel.ManagerName,
